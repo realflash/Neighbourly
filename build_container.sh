@@ -55,11 +55,27 @@ fi
 
 # 3. Testing
 if [ $BUILD_CONT_RESULT -eq 0 ]; then
-    # Run tests inside the container. Assuming DB is either not needed for some specs or is provided.
-    # We will just run a basic rspec. If it fails due to DB, we can handle that later.
-    # Note: `rspec` might fail without DB, but let's try.
-    run_stage "Testing" "docker run --rm -e DB_URL='postgres://test/db' neighbourly-app:local bundle exec rspec"
+    # Spin up a temporary database container for testing
+    echo -e "${BLUE}Spinning up temporary PostgreSQL container for testing...${NC}"
+    docker run -d --name neighbourly-test-db -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -p 5433:5432 postgres:9.4 > /dev/null
+    
+    # Wait for DB to be ready
+    echo -e "${YELLOW}Waiting for DB to be ready...${NC}"
+    until docker exec neighbourly-test-db pg_isready -U postgres > /dev/null 2>&1; do
+        sleep 1
+    done
+    sleep 2 # Extra safety margin
+    
+    # Enable hstore extension
+    docker exec neighbourly-test-db psql -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS hstore;" > /dev/null
+    
+    run_stage "Testing" "docker run --rm --network=\"host\" -e DB_URL='postgres://postgres:password@localhost:5433/postgres' -e TEST_DB_URL='postgres://postgres:password@localhost:5433/postgres' neighbourly-app:local bundle exec rspec"
     TEST_RESULT=$?
+    
+    # Tear down the test database
+    echo -e "${BLUE}Tearing down temporary PostgreSQL container...${NC}"
+    docker stop neighbourly-test-db > /dev/null
+    docker rm neighbourly-test-db > /dev/null
 else
     STAGES+=("Testing")
     RESULTS+=("SKIPPED")

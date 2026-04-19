@@ -1,4 +1,1 @@
-#Ignores all swap files.
-*.csv
-*.xslx
-*.odt
+.env

@@ -1,6 +1,5 @@
 .git
 .gitignore
-spec
 tmp
 log
 README.md
