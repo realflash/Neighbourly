@@ -1,6 +1,6 @@
 # EPIC 1: Functional Container
 
-## US-001: Build a functional container to run the app locally
+## US-001: Build a functional container to run the app locally [IMPLEMENTED]
 
 As a developer, I want to be able to run the app locally in a container, so that I can test the app and make changes to it. I want to minimise the changes necessary to the existing code to achieve this, so I want to run a container with software versions likely to be compatible with the existing application. 
 
