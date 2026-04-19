@@ -4,7 +4,7 @@
 
 As a developer, I want to be able to run the app locally in a container, so that I can test the app and make changes to it. I want to minimise the changes necessary to the existing code to achieve this, so I want to run a container with software versions likely to be compatible with the existing application. 
 
-## Acceptance Criteria
+### Acceptance Criteria
 
 - [x] The app can be run locally in a container
 - [x] The app can be accessed at http://localhost:4567
@@ -19,11 +19,11 @@ As a developer, I want to be able to run the app locally in a container, so that
 
 As a developer, I want the app to check that it has a valid DB connection, and fail fast if it does not.
 
-## Acceptance Criteria
+### Acceptance Criteria
 
-- The app will check for a valid DB connection on startup in the environment variable DB_URL
-- The app will fail fast if it does not have a valid DB_URL env var
-- The app will not have a default value for DB_URL
-- The run_docker.sh script will source the file .env at the start of the script and pass the DB_URL to the container
-- .env will be added to .gitignore
-- .env.example will included a dummy DB_URL value to indicate the required environment variable and format
+- [x] The app will check for a valid DB connection on startup in the environment variable DB_URL
+- [x] The app will fail fast if it does not have a valid DB_URL env var
+- [x] The app will not have a default value for DB_URL
+- [x] The run_docker.sh script will source the file .env at the start of the script and pass the DB_URL to the container
+- [x] .env will be added to .gitignore
+- [x] .env.example will included a dummy DB_URL value to indicate the required environment variable and format
