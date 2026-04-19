@@ -1,0 +1,50 @@
+[0;34m🚀 Starting Container Pipeline...[0m
+
+[1;33m⏭️  Skipping Linting (Not configured for codebase)[0m
+
+[1;33m🛠️  Stage: Building (Container)...[0m
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            BuildKit is currently disabled; enable it by removing the DOCKER_BUILDKIT=0
+            environment-variable.
+
+Sending build context to Docker daemon  7.465MB
+Step 1/8 : FROM ruby:2.3.3-slim
+ ---> b46b0d98db04
+Step 2/8 : RUN echo "deb http://archive.debian.org/debian/ jessie main" > /etc/apt/sources.list &&     echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/10no-check-valid-until &&     apt-get update -o Acquire::AllowInsecureRepositories=true -o Acquire::AllowDowngradeToInsecureRepositories=true || true &&     apt-get install -y --force-yes     build-essential     libpq-dev     nodejs     && rm -rf /var/lib/apt/lists/*
+ ---> Using cache
+ ---> 7e748ae2c9af
+Step 3/8 : WORKDIR /app
+ ---> Using cache
+ ---> 05120cd36d13
+Step 4/8 : COPY Gemfile Gemfile.lock ./
+ ---> Using cache
+ ---> 5c9aa9ce2521
+Step 5/8 : RUN gem install bundler -v 1.15.3 && bundle install --jobs 4 --retry 3
+ ---> Using cache
+ ---> 8bf7e89fd7ac
+Step 6/8 : COPY . ./
+ ---> Using cache
+ ---> 7eabb723c741
+Step 7/8 : EXPOSE 4567
+ ---> Using cache
+ ---> 90db05b9c872
+Step 8/8 : CMD ["bundle", "exec", "puma", "-p", "4567", "-e", "development"]
+ ---> Using cache
+ ---> b4dd85341734
+Successfully built b4dd85341734
+Successfully tagged neighbourly-app:local
+[0;32m✅ Building (Container) passed![0m
+[0;34mSpinning up temporary PostgreSQL container for testing...[0m
+[0;31m✗ Failed to start temporary PostgreSQL container! Port 5433 may be in use.[0m
+
+[1;33m🛠️  Stage: Testing...[0m
+[0;31m❌ Testing failed with exit code 1[0m
+
+[0;34m📊 Container Pipeline Summary:[0m
+----------------------
+Linting: [1;33mSKIPPED[0m
+Building (Container): [0;32mPASS[0m
+Testing: [0;31mFAIL[0m
+Testing: \033[0;31mFAIL\033[0m
+----------------------
+[0;31m❌ Container Pipeline Failed.[0m
