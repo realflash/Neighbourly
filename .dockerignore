@@ -1,0 +1,11 @@
+.git
+.gitignore
+spec
+tmp
+log
+README.md
+.env
+.env.*
+planning
+.agent
+build_container.sh*
