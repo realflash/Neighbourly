@@ -26,5 +26,11 @@
 5. Make the script executable.
 
 ## Phase 4: Create Run Instructions
-1. Document the command required to run the container and connect it to `localhost:5432`.
-2. E.g., `docker run --rm -it -p 4567:4567 --network="host" -e DATABASE_URL="postgres://postgres:password@localhost:5432/neighbourly" neighbourly-app:local`. (Or appropriate `host.docker.internal` syntax depending on Docker desktop).
+1. Update `run_docker.sh` to source `.env` if it exists.
+2. Ensure it runs the container with `--network="host"` and passes `-e DB_URL="$DB_URL"`.
+3. Add `.env` to `.gitignore`.
+4. Update `.env.example` to include a dummy `DB_URL`.
+
+## Phase 5: App DB Logic Updates
+1. Modify `app.rb` to fail fast (`abort`) if `ENV['DB_URL']` is missing or empty.
+2. Remove any fallback connection strings (`postgres://localhost/...`) from `app.rb` so it strictly relies on `DB_URL`.

@@ -9,3 +9,4 @@ README.md
 planning
 .agent
 build_container.sh*
+.env

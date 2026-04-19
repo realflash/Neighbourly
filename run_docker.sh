@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
+# Source environment variables if .env exists
+if [ -f .env ]; then
+    source .env
+fi
+
 CONTAINER_NAME="neighbourly-uat"
 IMAGE_NAME="neighbourly-app:local"
-DB_URL="postgres://postgres:password@localhost:5432/neighbourly"
 
 echo "Checking for existing container named '$CONTAINER_NAME'..."
 if [ "$(docker ps -aq -f name=^/${CONTAINER_NAME}$)" ]; then
@@ -20,7 +24,7 @@ echo "Starting new container from image '$IMAGE_NAME'..."
 docker run -d \
     --name $CONTAINER_NAME \
     --network="host" \
-    -e DATABASE_URL="$DB_URL" \
+    -e DB_URL="$DB_URL" \
     $IMAGE_NAME
 
 echo "Container is now running! You can access the app at http://localhost:4567"

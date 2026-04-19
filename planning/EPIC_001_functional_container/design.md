@@ -11,7 +11,9 @@
 ## 2. Docker Compose / Local Run Strategy
 **Adheres to:** Container Constraints (Database Connection)
 
-Since the user wants to test it connecting to `localhost:5432`, we will provide a `docker run` command utilizing host networking (`--network="host"`) or using Docker's special DNS `host.docker.internal` (depending on the OS), to ensure the containerised app can reach the natively running PostgreSQL container on the host.
+Since the user wants to test it connecting to `localhost:5432`, we will provide a `docker run` command utilizing host networking (`--network="host"`).
+To satisfy US-002, the application (`app.rb`) will be modified to strictly require the `DB_URL` environment variable and remove any default connections. It will fail fast (using `abort`) if the variable is missing. 
+The `run_docker.sh` script will be updated to source a `.env` file before executing `docker run` and explicitly pass `-e DB_URL`. A `.env.example` will be provided, and `.env` will be git-ignored.
 
 ## 3. Build Script (`build_container.sh`)
 **Adheres to:** Build Script Constraints

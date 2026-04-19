@@ -22,17 +22,19 @@ enable :sessions
 set :session_secret, ENV["SECRET_KEY_BASE"]
 set :unclaim_token, ENV['DATA_ENTRY_UNCLAIM_TOKEN']
 
+abort("ERROR: DB_URL environment variable is missing or empty.") if ENV['DB_URL'].nil? || ENV['DB_URL'].empty?
+
 def test_db_connection
-  Sequel.connect(ENV['TEST_DATABASE_URL'] || "postgres://localhost/neighbourly_test")
+  Sequel.connect(ENV['TEST_DB_URL'] || "postgres://localhost/neighbourly_test")
 end
 
 configure do
-  db = Sequel.connect(ENV['DATABASE_URL'] || 'postgres://localhost/neighbourly')
+  db = Sequel.connect(ENV['DB_URL'])
   set :db, db
 end
 
 configure :production do
-  db = Sequel.connect(ENV['DATABASE_URL'])
+  db = Sequel.connect(ENV['DB_URL'])
   set :db, db
 end
 

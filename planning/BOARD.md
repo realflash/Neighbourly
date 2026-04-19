@@ -2,4 +2,4 @@
 
 | Epic Number | Title | Status |
 | :--- | :--- | :--- |
-| EPIC-001 | Functional Container | IMPLEMENTED |
+| EPIC-001 | Functional Container | under revision |

@@ -1,10 +1,4 @@
 #Ignores all swap files.
-**/*.swp
-**/*.swo
-elm-stuff
-.idea/
-logfile
-run.sh
-.env
-**/.DS_Store
-walklist-credentials/
+*.csv
+*.xslx
+*.odt

@@ -58,7 +58,7 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Run tests inside the container. Assuming DB is either not needed for some specs or is provided.
     # We will just run a basic rspec. If it fails due to DB, we can handle that later.
     # Note: `rspec` might fail without DB, but let's try.
-    run_stage "Testing" "docker run --rm neighbourly-app:local bundle exec rspec"
+    run_stage "Testing" "docker run --rm -e DB_URL='postgres://test/db' neighbourly-app:local bundle exec rspec"
     TEST_RESULT=$?
 else
     STAGES+=("Testing")
