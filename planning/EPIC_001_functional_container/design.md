@@ -17,7 +17,7 @@ Since the user wants to test it connecting to `localhost:5432`, we will provide 
 **Adheres to:** Build Script Constraints
 
 We will create a bash script mimicking the provided `build_container.sh.example` template:
-- **Linting:** We will run `npm run lint` (using eslint defined in `package.json`).
+- **Linting:** We will skip this stage (mark as SKIPPED). `npm run lint` will not work because there is no `lint` script in `package.json`, and adding Node.js to the container just for a JS dev-dependency bloats the image. Furthermore, there is no Ruby linter (`rubocop`) configured, and adding one would require extensive code formatting changes, violating the minimal changes criteria.
 - **Testing:** We will run `bundle exec rspec` to run the test suite.
 - **Building:** We will execute `docker build -t neighbourly-app:local .`.
 - **Scanning:** We will use `trivy image` (if available, or mock it) to scan the built container image.

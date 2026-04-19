@@ -19,8 +19,8 @@
 1. Create `build_container.sh` in the root.
 2. Adapt `build_container.sh.example`'s staged approach.
 3. Define stages for:
-   - Linting
-   - Testing
+   - Linting (Skip)
+   - Testing (`bundle exec rspec`)
    - Container Build (`docker build -t neighbourly-app:local .`)
 4. Ensure script uses colors, captures exit codes, and prints a summary block at the end.
 5. Make the script executable.
