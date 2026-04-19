@@ -57,12 +57,41 @@ fi
 if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Spin up a temporary database container for testing
     echo -e "${BLUE}Spinning up temporary PostgreSQL container for testing...${NC}"
-    docker run -d --name neighbourly-test-db -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -p 5433:5432 postgres:9.4 > /dev/null
+    if ! docker run -d --name neighbourly-test-db -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -p 5433:5432 postgres:9.4 > /dev/null 2>&1; then
+        echo -e "${RED}✗ Failed to start temporary PostgreSQL container! Port 5433 may be in use.${NC}"
+        run_stage "Testing" "false"
+        TEST_RESULT=1
+        
+        # Summary Report
+        echo -e "\n${BLUE}📊 Container Pipeline Summary:${NC}"
+        echo "----------------------"
+        for i in "${!STAGES[@]}"; do
+            STAGE="${STAGES[$i]}"
+            RESULT="${RESULTS[$i]}"
+            if [ "$RESULT" == "PASS" ]; then echo -e "${STAGE}: ${GREEN}${RESULT}${NC}"; elif [ "$RESULT" == "FAIL" ]; then echo -e "${STAGE}: ${RED}${RESULT}${NC}"; else echo -e "${STAGE}: ${YELLOW}${RESULT}${NC}"; fi
+        done
+        echo "Testing: ${RED}FAIL${NC}"
+        echo "----------------------"
+        echo -e "${RED}❌ Container Pipeline Failed.${NC}"
+        exit 1
+    fi
     
     # Wait for DB to be ready
     echo -e "${YELLOW}Waiting for DB to be ready...${NC}"
+    
+    # Add a timeout so we never hang infinitely
+    MAX_WAIT=30
+    WAIT_COUNT=0
     until docker exec neighbourly-test-db pg_isready -U postgres > /dev/null 2>&1; do
         sleep 1
+        WAIT_COUNT=$((WAIT_COUNT + 1))
+        if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+            echo -e "${RED}✗ Timed out waiting for PostgreSQL to be ready.${NC}"
+            docker logs neighbourly-test-db
+            docker stop neighbourly-test-db > /dev/null
+            docker rm neighbourly-test-db > /dev/null
+            exit 1
+        fi
     done
     sleep 2 # Extra safety margin
     
