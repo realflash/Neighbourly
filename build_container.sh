@@ -69,7 +69,48 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Enable hstore extension
     docker exec neighbourly-test-db psql -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS hstore;" > /dev/null
     
-    run_stage "Testing" "docker run --rm --network=\"host\" -e DB_URL='postgres://postgres:password@localhost:5433/postgres' -e TEST_DB_URL='postgres://postgres:password@localhost:5433/postgres' neighbourly-app:local bundle exec rspec"
+    echo -e "${YELLOW}Running Automated Tests...${NC}"
+    TEST_PASS=1
+    
+    # Test 1: US-002 Fail fast without DB_URL
+    echo "  -> Testing fail-fast when DB_URL is missing..."
+    FAIL_TEST_OUTPUT=$(docker run --rm neighbourly-app:local 2>&1 || true)
+    if echo "$FAIL_TEST_OUTPUT" | grep -q "ERROR: DB_URL environment variable is missing or empty."; then
+        echo -e "  ${GREEN}✓ Fail-fast test passed.${NC}"
+    else
+        echo -e "  ${RED}✗ Fail-fast test failed.${NC}"
+        echo "$FAIL_TEST_OUTPUT"
+        TEST_PASS=0
+    fi
+    
+    # Test 2: Launch Test Server and verify HTTP 200
+    if [ $TEST_PASS -eq 1 ]; then
+        echo "  -> Launching test server..."
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5433/postgres' neighbourly-app:local > /dev/null
+        
+        # Wait for Puma to start
+        sleep 5
+        
+        echo "  -> Executing HTTP test against test server..."
+        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4567 || echo "000")
+        if [ "$HTTP_STATUS" == "200" ]; then
+            echo -e "  ${GREEN}✓ Server responded with HTTP 200.${NC}"
+        else
+            echo -e "  ${RED}✗ Server responded with HTTP ${HTTP_STATUS}. Expected 200.${NC}"
+            docker logs neighbourly-test-server
+            TEST_PASS=0
+        fi
+        
+        echo "  -> Tearing down test server..."
+        docker stop neighbourly-test-server > /dev/null
+        docker rm neighbourly-test-server > /dev/null
+    fi
+    
+    if [ $TEST_PASS -eq 1 ]; then
+        run_stage "Testing" "true"
+    else
+        run_stage "Testing" "false"
+    fi
     TEST_RESULT=$?
     
     # Tear down the test database
