@@ -3,3 +3,9 @@
 | Epic Number | Title | Status |
 | :--- | :--- | :--- |
 | EPIC-001 | Functional Container | IMPLEMENTED |
+
+# Bug Board
+
+| Bug ID | Title | Status |
+| :--- | :--- | :--- |
+| BUG-2604191724 | build_container.sh hangs infinitely if test DB fails to bind to port 5433 | FIXED |

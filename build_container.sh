@@ -57,8 +57,9 @@ fi
 if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Spin up a temporary database container for testing
     echo -e "${BLUE}Spinning up temporary PostgreSQL container for testing...${NC}"
-    if ! docker run -d --name neighbourly-test-db -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -p 5433:5432 postgres:9.4 > /dev/null 2>&1; then
-        echo -e "${RED}✗ Failed to start temporary PostgreSQL container! Port 5433 may be in use.${NC}"
+    docker rm -f neighbourly-test-db > /dev/null 2>&1 || true
+    if ! docker run -d --name neighbourly-test-db -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -p 5435:5432 postgres:9.4 > /dev/null 2>&1; then
+        echo -e "${RED}✗ Failed to start temporary PostgreSQL container! Port 5435 may be in use.${NC}"
         run_stage "Testing" "false"
         TEST_RESULT=1
         
@@ -115,7 +116,8 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Test 2: Launch Test Server and verify HTTP 200
     if [ $TEST_PASS -eq 1 ]; then
         echo "  -> Launching test server..."
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5433/postgres' neighbourly-app:local > /dev/null
+        docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' neighbourly-app:local > /dev/null
         
         # Wait for Puma to start
         sleep 5
