@@ -4,7 +4,7 @@
 **Standard Addressed:** General Constraints 1, 2, & 4
 **Design:**
 - Introduce a new environment variable `COUNTRY` to `.env` and `.env.example`.
-- In `app.rb`, read `ENV['COUNTRY']` and default it to `'AU'` if missing.
+- In `app.rb`, read `ENV['COUNTRY']` and have the app abort if missing
 - Expose the `COUNTRY` variable to the frontend. Since we use Sinatra/HAML, we can inject this value via a `data-country` attribute on the `#map` container in `views/map.haml`.
 
 ## 2. Dynamic Map Fallback Location (UI)
