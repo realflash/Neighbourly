@@ -17,10 +17,12 @@ As a developer setting up a UK instance, I want to be able to seed the database 
 - [ ] Rename the existing `pcode_table.sql` to `pcode_bounds_au.sql` and update README.md accordingly.
 - [ ] Create `pcode_bounds_uk.sql` to load UK postcode bounding boxes and update README.md accordingly.
 
-## US_004: Configurable Spatial API Endpoint
-As a system administrator, I want to be able to point the app to a UK-specific spatial API, so that it can fetch UK electoral boundaries (Output Areas) and generate UK PDF maps instead of Australian Mesh blocks.
-- [ ] Ensure `LAMBDA_BASE_URL` is fully utilized for all spatial queries and PDF generation.
-- [ ] Document the required API contract for the spatial endpoint so a UK equivalent can be developed independently.
+## US_004: Local Spatial API & ETL Tooling
+As a system administrator, I want to run the spatial API as a local Kubernetes microservice rather than an AWS Lambda, and I need tools to load my raw UK data into it, so that the app works in the UK without relying on external cloud providers.
+- [ ] Document the setup of the internal Node.js Spatial API pod and the necessary `LAMBDA_BASE_URL` routing.
+- [ ] Create `etl/load_boundaries.sh` to import ONS Output Area shapefiles into PostGIS.
+- [ ] Create `etl/transform_addresses.rb` to ingest a Sanitised Electoral CSV and the OUPRD, outputting SQL `COPY` statements for the addresses table.
+- [ ] Update the Node.js API to use WGS84 (SRID 4326) coordinate systems for UK compatibility.
 
 ## US_005: Localised UI Terminology
 As a UK canvasser, I want the app to use familiar terminology (e.g., "Output Area" or "Polling District" instead of "Mesh block"), so that the interface makes sense in a UK context.
