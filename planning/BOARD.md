@@ -3,6 +3,7 @@
 | Epic Number | Title | Status |
 | :--- | :--- | :--- |
 | EPIC-001 | Functional Container | IMPLEMENTED |
+| EPIC-002 | Add UK Support & Internationalisation | IMPLEMENTED |
 
 # Bug Board
 
