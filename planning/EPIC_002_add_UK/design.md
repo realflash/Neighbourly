@@ -58,4 +58,7 @@
 - **ETL Scripts (To be created in this Epic):**
   - We will create an `etl/` directory containing the scripts needed to load UK data into the Australian schema expected by the Node API.
   - `etl/load_boundaries.sh`: A shell script utilizing `ogr2ogr` to import the ONS Output Area shapefile into PostGIS, and a SQL transformation to map the UK fields (e.g., `OA21CD`) to the expected columns (`mb_11code`, `geom`, `mb_category = 'RESIDENTIAL'`). Note: We will also update the Node.js API to query SRID `4326` (standard WGS84) instead of the Australian `4283`.
-  - `etl/transform_addresses.rb`: A Ruby/Python script that takes a standard UK Electoral Register CSV and maps it to the `gnaf_201702.addresses` table format (e.g., mapping UPRN to `gnaf_pid`, Output Area to `mb_2011_code`, and parsing building names/numbers into `number_first` and `street_name`). It will hardcode `alias_principal = 'P'` to satisfy the existing API queries.
+  - `etl/transform_addresses.rb`: A Ruby script that takes two inputs:
+    1. A **Sanitised Electoral CSV** (output from the `election-tools` sanitiser) containing fields like `UPRN`, `building`, `town`, `postcode`, `firstName`, `lastName`.
+    2. The **ONS UPRN Directory (OUPRD)**.
+    The script will cross-reference the `UPRN` against the OUPRD to determine the correct Output Area (`mb_2011_code`), and output the final SQL `COPY` statements for the `gnaf_201702.addresses` table. It will parse `building` and `town` into `number_first`, `street_name`, and `locality_name`, and hardcode `alias_principal = 'P'` to satisfy the existing API queries.
