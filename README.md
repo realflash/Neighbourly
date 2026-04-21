@@ -4,7 +4,7 @@
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
-After deployment you will need to run `heroku pg:psql < pcode_table.sql` to get the postcode search feature to work.
+After deployment you will need to run `heroku pg:psql < pcode_bounds_au.sql` (or `pcode_bounds_uk.sql` for UK deployments) to get the postcode search feature to work.
 
 ### Background notes
 
@@ -38,7 +38,7 @@ After deployment you will need to run `heroku pg:psql < pcode_table.sql` to get 
 5. Run the database migrations with the following commands:
     ```
     DATABASE_URL="postgres://localhost/neighbourly" rake db:migrate
-    psql neighbourly < pcode_table.sql
+    psql neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
     ```
 
 6. Create a new `.env` file in the project root and set the environment variables according to the examples in `.env.example`

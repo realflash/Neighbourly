@@ -13,9 +13,9 @@ As a user, I want the map to default to my country's location if my browser does
 
 ## US_003: Dynamic Postcode Boundary Seeding
 As a developer setting up a UK instance, I want to be able to seed the database with UK postcode bounding boxes, so that UK users can search for their local areas.
-- [ ] Provide a mechanism (e.g. a rake task, seed scripts, or separate SQL files) to load country-specific postcode bounds into the `pcode_bounds` table based on the `COUNTRY` setting.
-- [ ] Rename the existing `pcode_table.sql` to `pcode_bounds_au.sql` and update README.md accordingly.
-- [ ] Create `pcode_bounds_uk.sql` to load UK postcode bounding boxes and update README.md accordingly.
+- [x] Provide a mechanism (e.g. a rake task, seed scripts, or separate SQL files) to load country-specific postcode bounds into the `pcode_bounds` table based on the `COUNTRY` setting.
+- [x] Rename the existing `pcode_table.sql` to `pcode_bounds_au.sql` and update README.md accordingly.
+- [x] Create `pcode_bounds_uk.sql` to load UK postcode bounding boxes and update README.md accordingly.
 
 ## US_004: Local Spatial API & ETL Tooling
 As a system administrator, I want to run the spatial API as a local Kubernetes microservice rather than an AWS Lambda, and I need tools to load my raw UK data into it, so that the app works in the UK without relying on external cloud providers.
