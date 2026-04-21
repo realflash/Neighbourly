@@ -2,14 +2,14 @@
 
 ## US_001: Configure Target Country via Environment Variable
 As a developer, I want to be able to set a `COUNTRY` environment variable (defaulting to `AU`), so that the app's location-specific features can be toggled without breaking existing Australian deployments.
-- [ ] Add `COUNTRY` variable to `.env.example` with default `AU`.
-- [ ] The app reads the `COUNTRY` variable at startup.
+- [x] Add `COUNTRY` variable to `.env.example` with default `AU`.
+- [x] The app reads the `COUNTRY` variable at startup.
 
 ## US_002: Dynamic Map Fallback Location
 As a user, I want the map to default to my country's location if my browser doesn't have a cached location or if I haven't searched for a postcode, so that I don't have to pan across the globe from Australia.
-- [ ] Update `map.js` to read the configured country (e.g. via a data attribute rendered in the HTML `app.rb`).
-- [ ] Center map on `[-29.8650, 131.2094]` if `AU`.
-- [ ] Center map on `[54.5, -4]` (approximate UK center) if `UK` or `GB`.
+- [x] Update `map.js` to read the configured country (e.g. via a data attribute rendered in the HTML `app.rb`).
+- [x] Center map on `[-29.8650, 131.2094]` if `AU`.
+- [x] Center map on `[54.5, -4]` (approximate UK center) if `UK` or `GB`.
 
 ## US_003: Dynamic Postcode Boundary Seeding
 As a developer setting up a UK instance, I want to be able to seed the database with UK postcode bounding boxes, so that UK users can search for their local areas.
@@ -26,4 +26,4 @@ As a system administrator, I want to run the spatial API as a local Kubernetes m
 
 ## US_005: Localised UI Terminology
 As a UK canvasser, I want the app to use familiar terminology (e.g., "Output Area" or "Polling District" instead of "Mesh block"), so that the interface makes sense in a UK context.
-- [ ] Extract hardcoded terms like "Mesh block" and "SA1" into a simple locale or configuration dictionary based on the `COUNTRY` variable.
+- [x] Extract hardcoded terms like "Mesh block" and "SA1" into a simple locale or configuration dictionary based on the `COUNTRY` variable.

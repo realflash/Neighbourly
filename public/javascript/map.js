@@ -13,6 +13,10 @@ function makeMap() {
   var map = L.map('map')
   window.leafletMap = map
 
+  var country = $('#map').data('country') || 'AU'
+  var regionName = $('#map').data('region-name') || 'Mesh block'
+  var regionNamePlural = regionName + 's'
+
   var mesh_layer //Rendered map
   var last_update_bounds
   var last_update_centroid
@@ -52,8 +56,11 @@ function makeMap() {
       FitPcode(pcode)
     }
     else {
-      var australia_coord = [-29.8650, 131.2094]
-      map.setView(australia_coord, 5)
+      if (country === 'UK' || country === 'GB') {
+        map.setView([54.5, -4.0], 6)
+      } else {
+        map.setView([-29.8650, 131.2094], 5)
+      }
     }
   }
 
@@ -304,7 +311,7 @@ function makeMap() {
       $.getJSON('/meshblocks_bounds', data, getMeshblockCallback)
         .fail(function () {
           $('#load').addClass('hidden')
-          alert('Error loading meshblocks. Please reload the page.')
+          alert('Error loading ' + regionNamePlural.toLowerCase() + '. Please reload the page.')
         })
     }
     instruct.update()

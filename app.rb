@@ -23,6 +23,13 @@ set :session_secret, ENV["SECRET_KEY_BASE"]
 set :unclaim_token, ENV['DATA_ENTRY_UNCLAIM_TOKEN']
 
 abort("ERROR: DB_URL environment variable is missing or empty.") if ENV['DB_URL'].nil? || ENV['DB_URL'].empty?
+ENV['COUNTRY'] ||= 'AU'
+
+LOCALES = {
+  'AU' => { region_name: 'Mesh block' },
+  'UK' => { region_name: 'Output Area' },
+  'GB' => { region_name: 'Output Area' }
+}
 
 def test_db_connection
   Sequel.connect(ENV['TEST_DB_URL'] || "postgres://localhost/neighbourly_test")

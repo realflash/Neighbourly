@@ -1,4 +1,4 @@
-.map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": ENV['LAMBDA_BASE_URL']}
+.map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": ENV['LAMBDA_BASE_URL'], "data-country": ENV['COUNTRY'], "data-region-name": LOCALES[ENV['COUNTRY']][:region_name]}
 .block-stats-hover
 .hidden{id: "dialog", title: "FAQ"}
   .faq-intro
