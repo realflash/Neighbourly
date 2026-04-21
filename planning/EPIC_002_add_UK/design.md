@@ -55,4 +55,7 @@
 - **UK Data Sourcing & Preparation:**
   - **Boundaries (`admin_bdys` equivalent):** We will use the **ONS Output Area Boundaries** (available as open-source Shapefiles or GeoJSON via the ONS Open Geography Portal). These will be imported into a PostGIS table using standard GIS tools like `shp2pgsql` or `ogr2ogr`.
   - **Addresses (`gnaf_addresses` equivalent):** Since this is an election app, campaigns will use their legally obtained **Electoral Register**. This data will be matched with the open-source **OS Open UPRN** or **ONS UPRN Directory (OUPRD)** to geocode each address and assign it to the correct Output Area.
-- A future epic will detail the exact ETL (Extract, Transform, Load) scripts needed to format this raw data into the schema expected by the Node.js Spatial API.
+- **ETL Scripts (To be created in this Epic):**
+  - We will create an `etl/` directory containing the scripts needed to load UK data into the Australian schema expected by the Node API.
+  - `etl/load_boundaries.sh`: A shell script utilizing `ogr2ogr` to import the ONS Output Area shapefile into PostGIS, and a SQL transformation to map the UK fields (e.g., `OA21CD`) to the expected columns (`mb_11code`, `geom`, `mb_category = 'RESIDENTIAL'`). Note: We will also update the Node.js API to query SRID `4326` (standard WGS84) instead of the Australian `4283`.
+  - `etl/transform_addresses.rb`: A Ruby/Python script that takes a standard UK Electoral Register CSV and maps it to the `gnaf_201702.addresses` table format (e.g., mapping UPRN to `gnaf_pid`, Output Area to `mb_2011_code`, and parsing building names/numbers into `number_first` and `street_name`). It will hardcode `alias_principal = 'P'` to satisfy the existing API queries.

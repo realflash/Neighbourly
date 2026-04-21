@@ -21,9 +21,13 @@
    - Package the `neighbourly-serverless` codebase into a Docker container.
    - Configure a new Kubernetes Deployment and Service (`spatial-api-service`) to run alongside the Ruby app.
    - Set `LAMBDA_BASE_URL` in the Ruby app's K8s config to point to this internal service.
-7. **GIS Database Documentation & ETL Planning (`README.md`)**
+7. **GIS Database ETL Scripts**
+   - Create `etl/load_boundaries.sh` to import ONS shapefiles via `ogr2ogr` and transform them into the `admin_bdys_201702.abs_2011_mb` table format.
+   - Create `etl/transform_addresses.rb` to parse a UK Electoral Register CSV and generate SQL `COPY` statements for the `gnaf_201702.addresses` table.
+   - Update `neighbourly-serverless/handler.js` to use standard WGS84 coordinates (SRID `4326`) instead of the Australian standard (`4283`).
+8. **Documentation Updates (`README.md`)**
    - Add instructions for loading the correct postcode SQL file into the Ruby app DB.
-   - Add a high-level guide outlining the requirement for a separate PostGIS database containing ONS Output Area shapefiles and Electoral Register addresses for the Spatial API pod.
+   - Add instructions on how to run the ETL scripts to populate the local Spatial API pod's PostGIS database.
 
 ## Verification
 - Test map behavior manually for both `COUNTRY=AU` and `COUNTRY=UK` environments.
