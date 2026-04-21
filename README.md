@@ -12,7 +12,14 @@ After deployment you will need to run `heroku pg:psql < pcode_bounds_au.sql` (or
 - The deploy button above will create an app with its own database for supporter details, including the areas of the map they claim. By default the address and walklist data will be served by pre-existing backend infrastructure.
 - Optionally, if you would like to run your own version of the Neighbourly backend infrastructure you can follow the instructions available in [this google doc](https://docs.google.com/document/d/1Amn246ERnAL_LTfBhCIZpRyTPwwtUYUeD2u90qPPl0c/edit).
     - Those instructions outline all steps required to create the full Neighbourly backend using Amazon Web Services (AWS).
-    - The google doc explains how to deploy the code and other files in this repository, which includes all necessary deployment scripts and Lambda functions: https://github.com/TheCommonsLibrary/neighbourly-serverless.
+    - For UK deployments or local-first setups, you can package the spatial logic from [neighbourly-serverless](https://github.com/TheCommonsLibrary/neighbourly-serverless) into a Docker container. Deploy it as an internal Node.js API pod in your Kubernetes cluster alongside this application.
+    - Set the `LAMBDA_BASE_URL` in this app's environment to point to that internal Kubernetes Service (e.g., `http://spatial-api-service:3000/prod`).
+
+### Loading UK Spatial Data (ETL)
+For UK setups, use the provided tools in the `etl/` directory to load your boundaries and addresses into your dedicated PostGIS spatial database:
+1. Load ONS Output Areas: `./etl/load_boundaries.sh <shapefile.shp> <DB_URL>`
+2. Transform your Sanitised Electoral CSV: `./etl/transform_addresses.rb <sanitised_csv> <ouprd_csv> > addresses.sql`
+3. Load the transformed addresses: `psql <spatial_db_url> < addresses.sql`
 
 ### Run the app locally (optional)
 
