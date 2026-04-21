@@ -46,7 +46,13 @@
   `psql neighbourly < pcode_bounds_uk.sql` (for UK)
 - Ensure the table schema `pcode_bounds` remains identical in both files.
 
-## 5. Configurable Spatial API Endpoint
+## 5. Local Spatial API Pod (Replacement for AWS Lambda)
 **Standard Addressed:** General Constraint 4
 **Design:**
-- No code changes required, but we will document in the `README.md` that `LAMBDA_BASE_URL` must point to an API exposing `/territories/bounds` (GET) and `/map` (GET) endpoints that conform to the same GeoJSON and Base64-PDF schema as the Australian service.
+- **Architecture:** Deploy the Node.js logic from `neighbourly-serverless` as an internal microservice running in its own independent Pod within the K8s cluster namespace, completely removing the AWS Lambda dependency.
+- `LAMBDA_BASE_URL` in the Ruby app will simply point to the internal Kubernetes Service (e.g., `http://spatial-api-service:3000`).
+- **GIS Database Requirements:** The Spatial API pod will connect to a dedicated PostGIS-enabled PostgreSQL database (separate from the main app's database).
+- **UK Data Sourcing & Preparation:**
+  - **Boundaries (`admin_bdys` equivalent):** We will use the **ONS Output Area Boundaries** (available as open-source Shapefiles or GeoJSON via the ONS Open Geography Portal). These will be imported into a PostGIS table using standard GIS tools like `shp2pgsql` or `ogr2ogr`.
+  - **Addresses (`gnaf_addresses` equivalent):** Since this is an election app, campaigns will use their legally obtained **Electoral Register**. This data will be matched with the open-source **OS Open UPRN** or **ONS UPRN Directory (OUPRD)** to geocode each address and assign it to the correct Output Area.
+- A future epic will detail the exact ETL (Extract, Transform, Load) scripts needed to format this raw data into the schema expected by the Node.js Spatial API.

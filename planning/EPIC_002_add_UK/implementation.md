@@ -17,9 +17,13 @@
    - Create a barebones `pcode_bounds_uk.sql` containing the `CREATE TABLE` statement and a single test `COPY` command for `GU18 5SW`.
 5. **Update Container Build Scripts**
    - Modify `build_container.sh` to load `pcode_bounds_au.sql` or `pcode_bounds_uk.sql` based on the configured `COUNTRY` variable (defaulting to AU).
-6. **Documentation Updates (`README.md`)**
-   - Add instructions for loading the correct postcode SQL file.
-   - Document the API contract expected by `LAMBDA_BASE_URL` (i.e. `/territories/bounds` and `/map`).
+6. **Local Spatial API Deployment**
+   - Package the `neighbourly-serverless` codebase into a Docker container.
+   - Configure a new Kubernetes Deployment and Service (`spatial-api-service`) to run alongside the Ruby app.
+   - Set `LAMBDA_BASE_URL` in the Ruby app's K8s config to point to this internal service.
+7. **GIS Database Documentation & ETL Planning (`README.md`)**
+   - Add instructions for loading the correct postcode SQL file into the Ruby app DB.
+   - Add a high-level guide outlining the requirement for a separate PostGIS database containing ONS Output Area shapefiles and Electoral Register addresses for the Spatial API pod.
 
 ## Verification
 - Test map behavior manually for both `COUNTRY=AU` and `COUNTRY=UK` environments.
