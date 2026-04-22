@@ -1,1 +1,6 @@
 .env
+etl/ONSPD_*
+etl/ONSUD_*
+etl/Output_Areas_*
+error.log
+lwb_2026_local.sql
