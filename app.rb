@@ -124,7 +124,7 @@ def create_user(user_params)
   #Skip all errors and retry auth without ZAP_API call
   #REDUNDANT - Skip details re-entry if e-mail already exists in database
   #REDUNDANT - Skip if HTTParty fails to make the API call
-rescue StandardError, Sequel::UniqueConstraintViolation, HTTParty::Error => e
+rescue Sequel::UniqueConstraintViolation, HTTParty::Error => e
     puts "Error in User Details Submission: #{e.message}"
     authorise(user_params['email'])
     redirect "/map"
