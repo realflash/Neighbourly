@@ -13,6 +13,11 @@ module Sinatra
         session[:user][:first_name].split()[0]
       end
 
+      def user_postcode
+        session[:user] = settings.db[:users].where(email: user_email).first if session[:user].nil?
+        session[:user][:postcode]
+      end
+
       def authorise(email)
         #debug
         p "Auth attempt with: #{email}"
