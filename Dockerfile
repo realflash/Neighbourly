@@ -11,6 +11,8 @@ RUN echo "deb http://archive.debian.org/debian/ jessie main" > /etc/apt/sources.
 
 WORKDIR /app
 
+ENV LANG=C.UTF-8
+
 COPY Gemfile Gemfile.lock ./
 RUN gem install bundler -v 1.15.3 && bundle install --jobs 4 --retry 3
 
