@@ -19,12 +19,27 @@ else
 fi
 
 echo "Starting new container from image '$IMAGE_NAME'..."
+
+ENV_ARGS=()
+if [ -f .env ]; then
+    while IFS='=' read -r key value; do
+        if [[ $key && $key != \#* ]]; then
+            value="${value%\"}"
+            value="${value#\"}"
+            value="${value%\'}"
+            value="${value#\'}"
+            ENV_ARGS+=("-e" "$key")
+            export "$key=$value"
+        fi
+    done < <(grep -v '^#' .env | grep '=')
+fi
+
 # Using --network="host" allows the container to seamlessly connect to PostgreSQL 
 # running natively on the host machine's localhost:5432
 docker run -d \
     --name $CONTAINER_NAME \
     --network="host" \
-    -e DB_URL="$DB_URL" \
+    "${ENV_ARGS[@]}" \
     $IMAGE_NAME
 
 echo "Container is now running! You can access the app at http://localhost:4567"
