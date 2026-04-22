@@ -1,6 +1,7 @@
 .env
-etl/ONSPD_*
-etl/ONSUD_*
-etl/Output_Areas_*
+frontend/etl/ONSPD_*
+frontend/etl/ONSUD_*
+frontend/etl/Output_Areas_*
 error.log
 lwb_2026_local.sql
+pcode_table.sql

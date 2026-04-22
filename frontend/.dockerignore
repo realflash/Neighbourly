@@ -10,3 +10,5 @@ planning
 .agent
 build_container.sh*
 .env
+etl/
+*.sql

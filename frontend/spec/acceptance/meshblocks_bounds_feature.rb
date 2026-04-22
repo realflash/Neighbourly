@@ -2,8 +2,8 @@ require 'acceptance_helper'
 
 RSpec.describe 'Meshblocks bounds loading', type: :feature do
   before do
-    DB[:users].delete
-    DB[:users].insert(
+    RSpec.configuration.db[:users].delete
+    RSpec.configuration.db[:users].insert(
       email: 'test@example.com',
       first_name: 'Test',
       last_name: 'User',
