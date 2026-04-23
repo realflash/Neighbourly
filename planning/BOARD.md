@@ -21,3 +21,4 @@
 | BUG-2604231324 | rake db:migrate fails due to missing sequel gem when run natively | FIXED |
 | BUG-2604231333 | bundle install fails due to permission errors and Bundler 1.17.1 incompatibilities | FIXED |
 | BUG-2604231342 | bundle install fails to compile native extensions for ancient gems on Ruby 3.2 | FIXED |
+| BUG-2604231357 | Bounds service container crashes on startup with ISE due to old database credentials | FIXED |
