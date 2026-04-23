@@ -15,4 +15,4 @@
 | BUG-2604221249 | Map stays centred on Australia after login instead of jumping to the user's postcode bounding box | FIXED |
 | BUG-2604221610 | Having registered and logged in, the map doesn't load bounds correctly due to missing or unspaced postcode | FIXED |
 | BUG-2604222058 | /meshblocks_bounds returns HTTP 500 due to missing LAMBDA_BASE_URL inside Docker container | FIXED |
-| BUG-2604231009 | load_boundaries.sh fails with numeric field overflow during ogr2ogr | UNFIXED |
+| BUG-2604231009 | load_boundaries.sh fails with numeric field overflow during ogr2ogr | FIXED |
