@@ -33,8 +33,15 @@ puts "COPY gnaf_201702.addresses (gnaf_pid, street_name, locality_name, postcode
 sanitised_records = []
 target_uprns = {} # Hash for O(1) lookup: uprn -> oa
 
-File.open(sanitised_csv_path, 'r:bom|utf-8', invalid: :replace, undef: :replace, replace: '?') do |f|
-  CSV.new(f, headers: true).each do |row|
+headers = nil
+File.foreach(sanitised_csv_path, mode: 'rb:bom|utf-8') do |raw_line|
+  line = raw_line.scrub('?')
+  if headers.nil?
+    headers = CSV.parse_line(line)
+  else
+    fields = CSV.parse_line(line)
+    next unless fields
+    row = CSV::Row.new(headers, fields)
     uprn = row['UPRN']
     next unless uprn
     sanitised_records << row
@@ -48,8 +55,15 @@ ouprd_files = File.directory?(ouprd_csv_path) ? Dir.glob(File.join(ouprd_csv_pat
 
 ouprd_files.each do |file|
   # We use a simple line-by-line approach to avoid memory bloat
-  File.open(file, 'r:bom|utf-8', invalid: :replace, undef: :replace, replace: '?') do |f|
-    CSV.new(f, headers: true).each do |row|
+  headers = nil
+  File.foreach(file, mode: 'rb:bom|utf-8') do |raw_line|
+    line = raw_line.scrub('?')
+    if headers.nil?
+      headers = CSV.parse_line(line)
+    else
+      fields = CSV.parse_line(line)
+      next unless fields
+      row = CSV::Row.new(headers, fields)
       uprn = row['uprn'] || row['UPRN']
       next unless uprn && target_uprns.key?(uprn)
       
