@@ -1,20 +1,42 @@
 # Neighbourly
 
-### Instantly deploy your own version with Heroku
+## Background notes
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+- This repository contains all the code and instructions you need to run your own version of the Neighbourly doorknocking tool
 
-After deployment you will need to run `heroku pg:psql < pcode_table.sql` to get the postcode search feature to work.
+### Australia 
 
-### Background notes
-
-- This repository contains all the code and instructions you need to instantly run your own version of the Neighbourly doorknocking tool
-- The deploy button above will create an app with its own database for supporter details, including the areas of the map they claim. By default the address and walklist data will be served by pre-existing backend infrastructure.
-- Optionally, if you would like to run your own version of the Neighbourly backend infrastructure you can follow the instructions available in [this google doc](https://docs.google.com/document/d/1Amn246ERnAL_LTfBhCIZpRyTPwwtUYUeD2u90qPPl0c/edit).
+- To run your own version of the Neighbourly backend infrastructure you can follow the instructions available in [this google doc](https://docs.google.com/document/d/1Amn246ERnAL_LTfBhCIZpRyTPwwtUYUeD2u90qPPl0c/edit).
     - Those instructions outline all steps required to create the full Neighbourly backend using Amazon Web Services (AWS).
     - The google doc explains how to deploy the code and other files in this repository, which includes all necessary deployment scripts and Lambda functions: https://github.com/TheCommonsLibrary/neighbourly-serverless.
 
-### Run the app locally (optional)
+### United Kingdom
+
+- Adapted to run as a pair of docker containers. Follow the instructions below. 
+
+### Run the app locally
+
+### UK only prep
+
+If you are setting up the UK version, you must import the geographical boundaries and electoral address data into your database before using the app.
+
+1. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
+    ```bash
+    ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://localhost/neighbourly"
+    ```
+
+2. Transform and import the electoral address data using the `transform_addresses.rb` script. This requires your sanitised electoral CSV and the ONS UPRN Directory (OUPRD) CSV. Run the script and pipe its output directly into `psql`:
+    ```bash
+    ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | psql "postgres://localhost/neighbourly"
+    ```
+3. Download the CSV at https://www.data.gov.uk/dataset/36cf66a7-d570-4ee6-8ea0-f2e241d8b536/ons-postcode-directory-february-2026-for-the-uk-hosted-table or a later version and put it in the frontend/etl folder
+3. Import the UK postcode boundaries data by running the following command:
+    ```bash
+    psql "postgres://localhost/neighbourly" < pcode_bounds_uk.sql
+    ```
+
+### Both countries
+
 
 1. Download the code in this repository (click the "Clone or download" button above, then select "Download ZIP"). Once your download completes, unzip the folder.
 
@@ -40,6 +62,7 @@ After deployment you will need to run `heroku pg:psql < pcode_table.sql` to get 
     DATABASE_URL="postgres://localhost/neighbourly" rake db:migrate
     psql neighbourly < pcode_table.sql
     ```
+    *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
 
 6. Configure the Environment Variables for Both Services:
     The application is split into two microservices, each running in their own container. You must configure environment variables for both:
