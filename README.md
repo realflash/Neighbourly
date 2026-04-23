@@ -33,14 +33,16 @@
     ```
     *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
 
+### UK only
 
-### UK only prep
+#### Install pre-requisites
 
 If you are setting up the UK version, you must import the geographical boundaries and electoral address data into your database before using the app.
 
 1. `sudo apt-get install ruby gdal-bin`
 
 #### Load the Output Area boundary data
+This data tells the app what the electoral boundaries of the UK are. (in manageable equal numbers of houses). 
 
 1. Download the Shapefile zip from https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21 and extract it into the `frontend/etl` folder.
 1. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
@@ -48,13 +50,9 @@ If you are setting up the UK version, you must import the geographical boundarie
     ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://localhost/neighbourly"
     ```
 
-
-2. Transform and import the electoral address data using the `transform_addresses.rb` script. This requires your sanitised electoral CSV and the ONS UPRN Directory (OUPRD) CSV. Run the script and pipe its output directly into `psql`:
-    ```bash
-    ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | psql "postgres://localhost/neighbourly"
-    ```
-
 #### Load the postcode boundaries
+This data tells the app what the boundary of each postcode in the UK are, so that you can search for postcodes on the map.
+
 3. Download the CSV at https://www.data.gov.uk/dataset/36cf66a7-d570-4ee6-8ea0-f2e241d8b536/ons-postcode-directory-february-2026-for-the-uk-hosted-table or a later version and put it in the `frontend/etl` folder.
 4. Generate the postcode boundary SQL file using the downloaded ONSPD CSV:
     ```bash
@@ -65,22 +63,26 @@ If you are setting up the UK version, you must import the geographical boundarie
     psql "postgres://localhost/neighbourly" < pcode_bounds_uk.sql
     ```
 
+#### Load your target area 
+This data tells the app which Output Area each address belongs to. Rather than load every address in the UK, we only load the addresses for the areas that we are interested in - ie the scope of your campaign. Thus you will need an unredacted copy of the electoral roll for your area, adjusted for the format this ETL script expects, which isn't exactly the standard format. Only a candidate in an election can request this data.
+
+1. Download the ONS UPRN data at https://geoportal.statistics.gov.uk/datasets/9beb2361978146f8ac85da18d21ee266/about and extract it into the `frontend/etl` folder.
+
+2. Transform and import the electoral address data using the `transform_addresses.rb` script. This requires your sanitised electoral CSV and the ONS UPRN Directory (OUPRD) CSV. Run the script and pipe its output directly into `psql`:
+    ```bash
+    ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | psql "postgres://localhost/neighbourly"
+    ```
+
 ### Both countries
 
-
-1. Download the code in this repository (click the "Clone or download" button above, then select "Download ZIP"). Once your download completes, unzip the folder.
-
-2. Open the “Terminal” application on your Mac (or the equivalent application for your Operating System) and navigate to your new Neighbourly folder on the command line by following this instruction:
-    - Type `cd`, press the spacebar, then drag and drop the Neighbourly folder onto the command line (like [this example](https://s3-ap-southeast-2.amazonaws.com/neighbourly-data/change-directory-command-line.gif)). It should result in output something like this: `cd /Users/JoeBloggs/Desktop/Neighbourly`
-
-3. Install all project dependencies with the following commands:
+1. Install all project dependencies with the following commands:
     ```
     gem install bundler -v 1.15.3
     bundle install
     ```
 
 
-6. Configure the Environment Variables for Both Services:
+2. Configure the Environment Variables for Both Services:
     The application is split into two microservices, each running in their own container. You must configure environment variables for both:
 
     **Frontend App**:
@@ -97,7 +99,7 @@ If you are setting up the UK version, you must import the geographical boundarie
       ```
       *Note: The bounds service will crash on startup if `GOOGLE_MAPS_KEY` is missing. For local testing without a real key, you can set it to `GOOGLE_MAPS_KEY="dummy"` to trigger a fallback image.*
 
-7. Start the application using Docker:
+3. Start the application using Docker:
     Instead of running the application manually, you should build and run both containers using the provided scripts.
 
     **Start the Bounds Service**:
