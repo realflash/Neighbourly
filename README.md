@@ -6,26 +6,26 @@
 
 ### Australia 
 
-- To run your own version of the Neighbourly backend infrastructure you can follow the instructions available in [this google doc](https://docs.google.com/document/d/1Amn246ERnAL_LTfBhCIZpRyTPwwtUYUeD2u90qPPl0c/edit).
-    - Those instructions outline all steps required to create the full Neighbourly backend using Amazon Web Services (AWS).
-    - For UK deployments or local-first setups, you can package the spatial logic from [neighbourly-serverless](https://github.com/TheCommonsLibrary/neighbourly-serverless) into a Docker container. Deploy it as an internal Node.js API pod in your Kubernetes cluster alongside this application.
-    - Set the `LAMBDA_BASE_URL` in this app's environment to point to that internal Kubernetes Service (e.g., `http://spatial-api-service:3000/prod`).
+To run your own version of the Neighbourly backend infrastructure you can follow the instructions available in [this google doc](https://docs.google.com/document/d/1Amn246ERnAL_LTfBhCIZpRyTPwwtUYUeD2u90qPPl0c/edit).
+Those instructions outline all steps required to create the full Neighbourly backend using Amazon Web Services (AWS).
+For UK deployments or local-first setups, you can package the spatial logic from [neighbourly-serverless](https://github.com/TheCommonsLibrary/neighbourly-serverless) into a Docker container. Deploy it as an internal Node.js API pod in your Kubernetes cluster alongside this application.
+Set the `LAMBDA_BASE_URL` in this app's environment to point to that internal Kubernetes Service (e.g., `http://spatial-api-service:3000/prod`).
 
 ### United Kingdom
 
-- Adapted to run as a pair of docker containers. Follow the instructions below. 
+Adapted to run as a pair of docker containers. Follow the instructions below. 
 
 ### Run the app locally
 
 ### Both countries - DB creation
 
-4. Start a Dockerized PostGIS 16 database (matching production) configured to use `md5` password encryption for compatibility with the Ruby container:
+1. Start a Dockerized PostGIS 16 database (matching production) configured to use `md5` password encryption for compatibility with the Ruby container:
     *(Note: If you have a local PostgreSQL service running on port 5432, you must stop it first using `sudo systemctl stop postgresql`)*
     ```bash
-    docker run --name neighbourly-db -e POSTGRES_PASSWORD=neighbourly -e POSTGRES_DB=neighbourly -e POSTGRES_USER=neighbourly -e POSTGRES_HOST_AUTH_METHOD=md5 -e POSTGRES_INITDB_ARGS="--auth-host=md5 --auth-local=md5" -p 5432:5432 -d postgis/postgis:16-3.4 -c password_encryption=md5
+    docker run --name neighbourly-db -e POSTGRES_PASSWORD=neighbourly -e POSTGRES_DB=neighbourly -e POSTGRES_USER=neighbourly -e POSTGRES_HOST_AUTH_METHOD=md5 -e POSTGRES_INITDB_ARGS="--auth-host=md5 --auth-local=md5" -p 5432:5432 -d ghcr.io/cloudnative-pg/postgis:17 -c password_encryption=md5
     ```
 
-5. Run the database migrations using the frontend Docker container. First, build the container, then run the migration:
+2. Run the database migrations using the frontend Docker container. First, build the container, then run the migration:
     ```bash
     cd frontend
     ./build_container.sh
@@ -47,7 +47,7 @@ If you are setting up the UK version, you must import the geographical boundarie
 This data tells the app what the electoral boundaries of the UK are. (in manageable equal numbers of houses). 
 
 1. Download the Shapefile zip from https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21 and extract it into the `frontend/etl` folder.
-1. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
+2. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
     ```bash
     ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://neighbourly:neighbourly@localhost/neighbourly"
     ```
@@ -62,7 +62,7 @@ This data tells the app what the boundary of each postcode in the UK are, so tha
     ```
 5. Import the UK postcode boundaries data by running the following command:
     ```bash
-    docker exec -i -e PGPASSWORD=neighbourly neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_uk.sql
+    psql "postgres://neighbourly:neighbourly@localhost:5432/neighbourly" < pcode_bounds_uk.sql
     ```
 
 #### Load your target area 
