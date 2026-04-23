@@ -4,4 +4,7 @@ frontend/etl/ONSUD_*
 frontend/etl/Output_Areas_*
 error.log
 lwb_2026_local.sql
-pcode_table.sql
+pcode_bounds_au.sql
+frontend/etl/ONS_Postcode_Directory_*.csv
+pcode_bounds_uk.sql
+frontend/etl/pcode_bounds_uk.sql

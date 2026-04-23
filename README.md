@@ -8,7 +8,8 @@
 
 - To run your own version of the Neighbourly backend infrastructure you can follow the instructions available in [this google doc](https://docs.google.com/document/d/1Amn246ERnAL_LTfBhCIZpRyTPwwtUYUeD2u90qPPl0c/edit).
     - Those instructions outline all steps required to create the full Neighbourly backend using Amazon Web Services (AWS).
-    - The google doc explains how to deploy the code and other files in this repository, which includes all necessary deployment scripts and Lambda functions: https://github.com/TheCommonsLibrary/neighbourly-serverless.
+    - For UK deployments or local-first setups, you can package the spatial logic from [neighbourly-serverless](https://github.com/TheCommonsLibrary/neighbourly-serverless) into a Docker container. Deploy it as an internal Node.js API pod in your Kubernetes cluster alongside this application.
+    - Set the `LAMBDA_BASE_URL` in this app's environment to point to that internal Kubernetes Service (e.g., `http://spatial-api-service:3000/prod`).
 
 ### United Kingdom
 
@@ -20,6 +21,8 @@
 
 If you are setting up the UK version, you must import the geographical boundaries and electoral address data into your database before using the app.
 
+1. `sudo apt-get install ruby gdal-bin`
+
 1. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
     ```bash
     ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://localhost/neighbourly"
@@ -29,8 +32,12 @@ If you are setting up the UK version, you must import the geographical boundarie
     ```bash
     ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | psql "postgres://localhost/neighbourly"
     ```
-3. Download the CSV at https://www.data.gov.uk/dataset/36cf66a7-d570-4ee6-8ea0-f2e241d8b536/ons-postcode-directory-february-2026-for-the-uk-hosted-table or a later version and put it in the frontend/etl folder
-3. Import the UK postcode boundaries data by running the following command:
+3. Download the CSV at https://www.data.gov.uk/dataset/36cf66a7-d570-4ee6-8ea0-f2e241d8b536/ons-postcode-directory-february-2026-for-the-uk-hosted-table or a later version and put it in the `frontend/etl` folder.
+4. Generate the postcode boundary SQL file using the downloaded ONSPD CSV:
+    ```bash
+    ./frontend/etl/generate_postcode_bounds.rb frontend/etl/ONSPD_FEB_2026_UK.csv > pcode_bounds_uk.sql
+    ```
+5. Import the UK postcode boundaries data by running the following command:
     ```bash
     psql "postgres://localhost/neighbourly" < pcode_bounds_uk.sql
     ```
@@ -53,14 +60,13 @@ If you are setting up the UK version, you must import the geographical boundarie
     ```
     psql
     CREATE DATABASE neighbourly ENCODING 'UTF_8';
-    CREATE DATABASE neighbourly_test ENCODING 'UTF_8';
     \q
     ```
 
 5. Run the database migrations with the following commands:
     ```
     DATABASE_URL="postgres://localhost/neighbourly" rake db:migrate
-    psql neighbourly < pcode_table.sql
+    psql neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
     ```
     *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
 
