@@ -19,17 +19,19 @@
 
 ### Both countries - DB creation
 
-4. Create the database by running the following commands:
-    ```
-    psql
-    CREATE DATABASE neighbourly ENCODING 'UTF_8';
-    \q
+4. Start a Dockerized PostGIS database (required for geographical extensions) using `trust` authentication for local development compatibility:
+    *(Note: If you have a local PostgreSQL service running on port 5432, you must stop it first using `sudo systemctl stop postgresql`)*
+    ```bash
+    docker run --name neighbourly-db -e POSTGRES_PASSWORD=neighbourly -e POSTGRES_DB=neighbourly -e POSTGRES_USER=neighbourly -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 -d postgis/postgis:13-3.1
     ```
 
-5. Run the database migrations with the following commands:
-    ```
-    DATABASE_URL="postgres://localhost/neighbourly" bundle exec rake db:migrate
-    psql neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
+5. Run the database migrations using the frontend Docker container. First, build the container, then run the migration:
+    ```bash
+    cd frontend
+    ./build_container.sh
+    docker run --rm --network="host" -e DATABASE_URL="postgres://neighbourly:neighbourly@localhost/neighbourly" neighbourly-app:local bundle exec rake db:migrate
+    cd ..
+    docker exec -i neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
     ```
     *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
 
@@ -39,7 +41,7 @@
 
 If you are setting up the UK version, you must import the geographical boundaries and electoral address data into your database before using the app.
 
-1. `sudo apt-get install ruby ruby-dev ruby-bundler build-essential libpq-dev gdal-bin`
+1. `sudo apt-get install ruby gdal-bin postgresql-client`
 
 #### Load the Output Area boundary data
 This data tells the app what the electoral boundaries of the UK are. (in manageable equal numbers of houses). 
@@ -47,7 +49,7 @@ This data tells the app what the electoral boundaries of the UK are. (in managea
 1. Download the Shapefile zip from https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21 and extract it into the `frontend/etl` folder.
 1. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
     ```bash
-    ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://localhost/neighbourly"
+    ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://neighbourly:neighbourly@localhost/neighbourly"
     ```
 
 #### Load the postcode boundaries
@@ -60,7 +62,7 @@ This data tells the app what the boundary of each postcode in the UK are, so tha
     ```
 5. Import the UK postcode boundaries data by running the following command:
     ```bash
-    psql "postgres://localhost/neighbourly" < pcode_bounds_uk.sql
+    docker exec -i neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_uk.sql
     ```
 
 #### Load your target area 
@@ -70,30 +72,23 @@ This data tells the app which Output Area each address belongs to. Rather than l
 
 2. Transform and import the electoral address data using the `transform_addresses.rb` script. This requires your sanitised electoral CSV and the ONS UPRN Directory (OUPRD) CSV. Run the script and pipe its output directly into `psql`:
     ```bash
-    ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | psql "postgres://localhost/neighbourly"
+    ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | PGPASSWORD=neighbourly psql -h localhost -U neighbourly -d neighbourly
     ```
 
 ### Both countries
 
-1. Install all project dependencies with the following commands:
-    ```
-    bundle config set --local path 'vendor/bundle'
-    bundle install
-    ```
-
-
-2. Configure the Environment Variables for Both Services:
+1. Configure the Environment Variables for Both Services:
     The application is split into two microservices, each running in their own container. You must configure environment variables for both:
 
     **Frontend App**:
     - Copy the `.env.example` file located in the root directory to `frontend/.env` and customize the variables.
-    - Set the `DB_URL` to point to your local database (e.g., `postgres://localhost/neighbourly`).
+    - Set the `DB_URL` to point to your local database (e.g., `postgres://neighbourly:neighbourly@localhost/neighbourly`).
     - Point the `LAMBDA_BASE_URL` to your local bounds service (e.g., `http://localhost:3000`).
 
     **Bounds Service**:
     - Create a `.env` file inside the `bounds_service/` directory. It requires the following keys:
       ```env
-      DATABASE_URL="postgres://user:password@localhost:5432/neighbourly_uk"
+      DATABASE_URL="postgres://neighbourly:neighbourly@localhost:5432/neighbourly"
       GOOGLE_MAPS_KEY="your_google_maps_key_here"
       COUNTRY="UK" # or "AU"
       ```
