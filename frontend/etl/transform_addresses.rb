@@ -33,7 +33,7 @@ puts "COPY gnaf_201702.addresses (gnaf_pid, street_name, locality_name, postcode
 sanitised_records = []
 target_uprns = {} # Hash for O(1) lookup: uprn -> oa
 
-CSV.foreach(sanitised_csv_path, headers: true, encoding: 'bom|utf-8') do |row|
+CSV.foreach(sanitised_csv_path, headers: true, encoding: 'bom|utf-8', invalid: :replace, undef: :replace, replace: '?') do |row|
   uprn = row['UPRN']
   next unless uprn
   sanitised_records << row
@@ -46,7 +46,7 @@ ouprd_files = File.directory?(ouprd_csv_path) ? Dir.glob(File.join(ouprd_csv_pat
 
 ouprd_files.each do |file|
   # We use a simple line-by-line approach to avoid memory bloat
-  CSV.foreach(file, headers: true, encoding: 'bom|utf-8') do |row|
+  CSV.foreach(file, headers: true, encoding: 'bom|utf-8', invalid: :replace, undef: :replace, replace: '?') do |row|
     uprn = row['uprn'] || row['UPRN']
     next unless uprn && target_uprns.key?(uprn)
     

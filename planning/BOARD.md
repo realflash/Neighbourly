@@ -16,3 +16,4 @@
 | BUG-2604221610 | Having registered and logged in, the map doesn't load bounds correctly due to missing or unspaced postcode | FIXED |
 | BUG-2604222058 | /meshblocks_bounds returns HTTP 500 due to missing LAMBDA_BASE_URL inside Docker container | FIXED |
 | BUG-2604231009 | load_boundaries.sh fails with numeric field overflow during ogr2ogr | FIXED |
+| BUG-2604231049 | transform_addresses.rb fails with UTF-8 byte sequence error on CSV | FIXED |
