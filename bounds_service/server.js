@@ -11,8 +11,8 @@ if (!process.env.GOOGLE_MAPS_KEY) {
 
 app.use(express.json());
 
-// Helper to simulate the AWS Lambda callback
 const lambdaCallback = (res) => (err, response) => {
+  if (res.headersSent) return;
   if (err) {
     console.error('Lambda Error:', err);
     return res.status(500).json({ error: 'Internal Server Error' });

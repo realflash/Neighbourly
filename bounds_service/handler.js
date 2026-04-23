@@ -76,7 +76,9 @@ const getImage = function(client, slug,cb) {
 
 module.exports.getForBounds = (event, context, callback) => {
   const client = new Client({ connectionString: process.env.DATABASE_URL  })
-  client.connect();
+  client.connect().catch(err => {
+    return callback(err);
+  });
 
   client.query("SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(k.geom,7)::json As geometry, row_to_json((SELECT l FROM (SELECT mb_11code As slug,yes_quarantined As quarantined) As l)) As properties from admin_bdys_201702.abs_2011_mb as k WHERE ST_Intersects(ST_MakeEnvelope($1,$2,$3,$4,4326),k.geom) AND k.mb_category = 'RESIDENTIAL') As f ) As fc", [event.queryStringParameters.nwx,event.queryStringParameters.nwy,event.queryStringParameters.sex,event.queryStringParameters.sey], (err, res) => {
     client.end()
@@ -93,7 +95,9 @@ module.exports.getForBounds = (event, context, callback) => {
 
 module.exports.generateMap = (event, context, callback) => {
   const client = new Client({ connectionString: process.env.DATABASE_URL  })
-  client.connect();
+  client.connect().catch(err => {
+    return callback(err);
+  });
 
   async.parallel({
     image: cb => getImage(client, event.queryStringParameters.slug, cb),
