@@ -17,21 +17,44 @@
 
 ### Run the app locally
 
+### Both countries - DB creation
+
+4. Create the database by running the following commands:
+    ```
+    psql
+    CREATE DATABASE neighbourly ENCODING 'UTF_8';
+    \q
+    ```
+
+5. Run the database migrations with the following commands:
+    ```
+    DATABASE_URL="postgres://localhost/neighbourly" rake db:migrate
+    psql neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
+    ```
+    *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
+
+
 ### UK only prep
 
 If you are setting up the UK version, you must import the geographical boundaries and electoral address data into your database before using the app.
 
 1. `sudo apt-get install ruby gdal-bin`
 
+#### Load the Output Area boundary data
+
+1. Download the Shapefile zip from https://www.data.gov.uk/dataset/4d4e021d-fe98-4a0e-88e2-3ead84538537/output-areas-december-2021-boundaries-ew-bgc-v21 and extract it into the `frontend/etl` folder.
 1. Load the geographic boundaries using the `load_boundaries.sh` script. This requires the ONS Output Area shapefile and your database URL:
     ```bash
     ./frontend/etl/load_boundaries.sh path/to/shapefile.shp "postgres://localhost/neighbourly"
     ```
 
+
 2. Transform and import the electoral address data using the `transform_addresses.rb` script. This requires your sanitised electoral CSV and the ONS UPRN Directory (OUPRD) CSV. Run the script and pipe its output directly into `psql`:
     ```bash
     ./frontend/etl/transform_addresses.rb path/to/sanitised_electoral.csv path/to/ouprd.csv | psql "postgres://localhost/neighbourly"
     ```
+
+#### Load the postcode boundaries
 3. Download the CSV at https://www.data.gov.uk/dataset/36cf66a7-d570-4ee6-8ea0-f2e241d8b536/ons-postcode-directory-february-2026-for-the-uk-hosted-table or a later version and put it in the `frontend/etl` folder.
 4. Generate the postcode boundary SQL file using the downloaded ONSPD CSV:
     ```bash
@@ -56,19 +79,6 @@ If you are setting up the UK version, you must import the geographical boundarie
     bundle install
     ```
 
-4. Create the database by running the following commands:
-    ```
-    psql
-    CREATE DATABASE neighbourly ENCODING 'UTF_8';
-    \q
-    ```
-
-5. Run the database migrations with the following commands:
-    ```
-    DATABASE_URL="postgres://localhost/neighbourly" rake db:migrate
-    psql neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
-    ```
-    *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
 
 6. Configure the Environment Variables for Both Services:
     The application is split into two microservices, each running in their own container. You must configure environment variables for both:
