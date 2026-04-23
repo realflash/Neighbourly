@@ -8,3 +8,5 @@ pcode_bounds_au.sql
 frontend/etl/ONS_Postcode_Directory_*.csv
 pcode_bounds_uk.sql
 frontend/etl/pcode_bounds_uk.sql
+frontend/node_modules/
+frontend/test-results/
