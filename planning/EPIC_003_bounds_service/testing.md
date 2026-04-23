@@ -10,4 +10,7 @@
 
 ## End-to-End Functional Tests
 - **Map Interaction E2E**: The existing `spec/acceptance/meshblocks_bounds_feature.rb` (which logs in, navigates to `/map`, and attempts to load bounds) will be used to ensure the frontend can successfully communicate with the new containerised bounds service when `LAMBDA_BASE_URL` is pointed to it.
-- **PDF Generation E2E**: Add a test/curl command to verify the `/map` endpoint correctly returns a base64 encoded PDF payload when provided with a valid Meshblock slug.
+- **PDF Generation E2E**: Execute the following curl command to verify the `/map` endpoint returns a base64 encoded PDF payload for a valid Meshblock slug (e.g. `E00156867`):
+  ```bash
+  curl -s "http://localhost:3000/map?slug=E00156867" | jq -e '.base64 | startswith("JVBERi0x")' > /dev/null && echo "PDF generated successfully" || echo "PDF generation failed"
+  ```

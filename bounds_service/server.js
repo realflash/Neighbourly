@@ -4,6 +4,11 @@ const handler = require('./handler');
 const app = express();
 const port = process.env.PORT || 3000;
 
+if (!process.env.GOOGLE_MAPS_KEY) {
+  console.error('FATAL ERROR: GOOGLE_MAPS_KEY environment variable is missing or empty.');
+  process.exit(1);
+}
+
 app.use(express.json());
 
 // Helper to simulate the AWS Lambda callback

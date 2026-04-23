@@ -41,12 +41,42 @@ After deployment you will need to run `heroku pg:psql < pcode_table.sql` to get 
     psql neighbourly < pcode_table.sql
     ```
 
-6. Create a new `.env` file in the project root and set the environment variables according to the examples in `.env.example`
+6. Configure the Environment Variables for Both Services:
+    The application is split into two microservices, each running in their own container. You must configure environment variables for both:
 
-7. Finally start the application by running the following command:
+    **Frontend App**:
+    - Copy the `.env.example` file located in the root directory to `frontend/.env` and customize the variables.
+    - Set the `DB_URL` to point to your local database (e.g., `postgres://localhost/neighbourly`).
+    - Point the `LAMBDA_BASE_URL` to your local bounds service (e.g., `http://localhost:3000`).
+
+    **Bounds Service**:
+    - Create a `.env` file inside the `bounds_service/` directory. It requires the following keys:
+      ```env
+      DATABASE_URL="postgres://user:password@localhost:5432/neighbourly_uk"
+      GOOGLE_MAPS_KEY="your_google_maps_key_here"
+      COUNTRY="UK" # or "AU"
+      ```
+      *Note: The bounds service will crash on startup if `GOOGLE_MAPS_KEY` is missing. For local testing without a real key, you can set it to `GOOGLE_MAPS_KEY="dummy"` to trigger a fallback image.*
+
+7. Start the application using Docker:
+    Instead of running the application manually, you should build and run both containers using the provided scripts.
+
+    **Start the Bounds Service**:
+    ```bash
+    cd bounds_service
+    ./build_container.sh
+    ./run_docker.sh
+    cd ..
     ```
-    ruby app.rb
+
+    **Start the Frontend App**:
+    ```bash
+    cd frontend
+    ./build_container.sh
+    ./run_docker.sh
     ```
+    
+    The frontend will be accessible at `http://localhost:4567` and the bounds service at `http://localhost:3000`.
 
 ### Updating the design to suit your organisation
 
