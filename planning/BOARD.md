@@ -19,3 +19,4 @@
 | BUG-2604231049 | transform_addresses.rb fails with UTF-8 byte sequence error on CSV | FIXED |
 | BUG-2604231313 | rake db:migrate fails due to missing rspec/core/rake_task in frontend | FIXED |
 | BUG-2604231324 | rake db:migrate fails due to missing sequel gem when run natively | FIXED |
+| BUG-2604231333 | bundle install fails due to permission errors and Bundler 1.17.1 incompatibilities | FIXED |
