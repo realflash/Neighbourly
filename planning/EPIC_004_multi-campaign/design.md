@@ -5,19 +5,26 @@
 - **Table: `campaigns`**
   - `id`: Primary Key
   - `name`: String (Text), required
-  - `area_name`: String (Text), required (matches the Ward or boundary name)
   - `status`: String (Enum: `active`, `archived`), defaults to `active`
   - `created_at`: Timestamp
+- **Table: `wards` (New Reference Table)**
+  - `id`: Primary Key
+  - `name`: String (Text), required (e.g., 'Warringah', 'Lightwater')
+- **Table: `campaign_wards` (Mapping Table)**
+  - `campaign_id`: Foreign Key to `campaigns`
+  - `ward_id`: Foreign Key to `wards`
+- **Table: `ward_output_areas` (Mapping Table)**
+  - `ward_id`: Foreign Key to `wards`
+  - `oa_code`: String (maps to the `mb_2011_code` in `addresses` and `abs_2011_mb` tables)
 - **Table modifications**
-  - `meshblocks` (or equivalent territory table): Must support filtering. However, territories might already have an area label (e.g., Ward). A campaign maps to a specific `area_name`.
-  - `users` / `user_claims`: Must support associating a user's data entry to the currently active campaign context so that multiple campaigns operating in the same area do not collide. Wait, user stories say "The data entered is then associated with the selected campaign." So the table tracking claimed/visited areas must add `campaign_id`.
+  - `meshblocks` (or `abs_2011_mb` / `user_claims`): Must support associating a user's data entry to the currently active campaign context. The table tracking claimed/visited areas must add `campaign_id`. When filtering boundaries on the map, we will filter `abs_2011_mb` by joining `ward_output_areas` where `ward_id` is IN the list of `ward_ids` associated with the selected `campaign_id` via `campaign_wards`.
 
 ## 2. Admin UI (Campaign Administration)
 *(Adhering to UI Constraints: Premium Aesthetics, Forms)*
 - **Campaign List View**: A premium grid or glassmorphism list displaying all active and archived campaigns.
 - **Add/Edit Campaign Form**: A sleek modal or full-page form with smooth gradients and micro-animations. Contains:
   - Text input for "Name"
-  - Select dropdown for "Area" (populated from known UK wards)
+  - Multi-select dropdown for "Areas" (populated dynamically from the `wards` table, allowing one or more selections)
   - Submit button with hover animations.
 - **Archiving**: An "Archive" button on the list view that gracefully fades out the campaign (micro-animation).
 

@@ -10,7 +10,7 @@ As an administrator I want to be able to create and administer campaigns so that
 
 - [ ] I can add a new campaign. The following attributes are required:
     - Name (text)
-    - Area (which is selected from a list of known UK wards sorted alphabetically)
+    - Areas (which is selected from a multi-select list of known UK wards sorted alphabetically. A campaign must have at least one ward, but can have multiple).
 - [ ] I can edit an existing campaign
 - [ ] I can archive a campaign
 

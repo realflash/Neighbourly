@@ -7,10 +7,10 @@
 ## Playwright E2E Testing Plan
 
 ### 1. Admin Campaign Management
-- **Test:** Administrator can create a new campaign.
+- **Test:** Administrator can create a new campaign with multiple wards.
   - Setup: Login as Admin.
-  - Action: Navigate to Admin > Campaigns. Click "New Campaign", enter "Leaflet Drop 2026", select Ward "Warringah", click Save.
-  - Assertion: "Leaflet Drop 2026" appears in the active campaigns list.
+  - Action: Navigate to Admin > Campaigns. Click "New Campaign", enter "Leaflet Drop 2026", select Wards "Lightwater" AND "West End & Bisley", click Save.
+  - Assertion: "Leaflet Drop 2026" appears in the active campaigns list, showing multiple assigned wards.
 - **Test:** Administrator can edit an existing campaign.
 - **Test:** Administrator can archive an existing campaign.
   - Assertion: Archived campaign no longer appears in the Map View dropdown.
