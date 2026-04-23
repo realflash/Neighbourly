@@ -1,0 +1,23 @@
+current directory: /home/igibbs/localdev/Neighbourly/frontend/vendor/bundle/ruby/3.2.0/gems/json-1.8.3/ext/json/ext/generator
+/usr/bin/ruby3.2 -I/usr/lib/ruby/vendor_ruby extconf.rb
+creating Makefile
+
+current directory: /home/igibbs/localdev/Neighbourly/frontend/vendor/bundle/ruby/3.2.0/gems/json-1.8.3/ext/json/ext/generator
+make DESTDIR\= sitearchdir\=./.gem.20260423-184254-ttbf9k sitelibdir\=./.gem.20260423-184254-ttbf9k clean
+
+current directory: /home/igibbs/localdev/Neighbourly/frontend/vendor/bundle/ruby/3.2.0/gems/json-1.8.3/ext/json/ext/generator
+make DESTDIR\= sitearchdir\=./.gem.20260423-184254-ttbf9k sitelibdir\=./.gem.20260423-184254-ttbf9k
+compiling generator.c
+generator.c: In function ‘generate_json’:
+generator.c:861:25: error: ‘rb_cFixnum’ undeclared (first use in this function); did you mean ‘mFixnum’?
+  861 |     } else if (klass == rb_cFixnum) {
+      |                         ^~~~~~~~~~
+      |                         mFixnum
+generator.c:861:25: note: each undeclared identifier is reported only once for each function it appears in
+generator.c:863:25: error: ‘rb_cBignum’ undeclared (first use in this function); did you mean ‘mBignum’?
+  863 |     } else if (klass == rb_cBignum) {
+      |                         ^~~~~~~~~~
+      |                         mBignum
+make: *** [Makefile:248: generator.o] Error 1
+
+make failed, exit code 2

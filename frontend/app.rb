@@ -15,8 +15,6 @@ require_relative "lib/login_helper"
 require_relative 'lib/view_helper'
 require_relative './services/claim_service'
 require_relative './services/geo_service'
-require_relative "models/user"
-
 Dotenv.load
 enable :sessions
 set :session_secret, ENV["SECRET_KEY_BASE"]
@@ -24,18 +22,24 @@ set :unclaim_token, ENV['DATA_ENTRY_UNCLAIM_TOKEN']
 
 abort("ERROR: DB_URL environment variable is missing or empty.") if ENV['DB_URL'].nil? || ENV['DB_URL'].empty?
 
+DB = Sequel.connect(ENV['DB_URL']) unless defined?(DB)
+Sequel::Model.db = DB
+
+require_relative "models/user"
+require_relative "models/ward_output_area"
+require_relative "models/ward"
+require_relative "models/campaign"
+
 def test_db_connection
   Sequel.connect(ENV['TEST_DB_URL'] || "postgres://localhost/neighbourly_test")
 end
 
 configure do
-  db = Sequel.connect(ENV['DB_URL'])
-  set :db, db
+  set :db, DB
 end
 
 configure :production do
-  db = Sequel.connect(ENV['DB_URL'])
-  set :db, db
+  set :db, DB
 end
 
 configure :test do
@@ -147,6 +151,55 @@ get '/logout' do
   redirect '/'
 end
 
+get '/api/campaigns' do
+  authorised do
+    campaigns = Campaign.where(status: 'active').order(:name).all.map do |c|
+      { id: c.id, name: c.name, ward_ids: c.wards.map(&:id) }
+    end
+    json campaigns
+  end
+end
+
+get '/admin/campaigns' do
+  authorised do
+    redirect '/' unless is_admin?(user_email)
+    @campaigns = Campaign.order(:name).all
+    @wards = Ward.order(:name).all
+    haml :campaigns, locals: {page: 'campaigns'}
+  end
+end
+
+post '/admin/campaigns' do
+  authorised do
+    redirect '/' unless is_admin?(user_email)
+    name = params[:name]
+    ward_ids = params[:ward_ids] || []
+    
+    if name && !name.empty? && !ward_ids.empty?
+      campaign = Campaign.create(name: name, status: 'active')
+      ward_ids.each do |w_id|
+        campaign.add_ward(Ward[w_id.to_i])
+      end
+      flash[:notice] = 'Campaign created successfully.'
+    else
+      flash[:error] = 'Name and at least one Ward are required.'
+    end
+    redirect '/admin/campaigns'
+  end
+end
+
+post '/admin/campaigns/:id/archive' do
+  authorised do
+    redirect '/' unless is_admin?(user_email)
+    campaign = Campaign[params[:id].to_i]
+    if campaign
+      campaign.update(status: 'archived')
+      flash[:notice] = 'Campaign archived.'
+    end
+    redirect '/admin/campaigns'
+  end
+end
+
 def claim_status(claimer)
   if is_admin?(claimer)
     "quarantine"
@@ -157,10 +210,10 @@ def claim_status(claimer)
   end
 end
 
-def get_meshblocks_with_status(json)
+def get_meshblocks_with_status(json, campaign_id)
   slugs = json["features"].map{|feature| feature["properties"]["slug"] }
   claim_service = ClaimService.new(settings.db)
-  claims = claim_service.claims(slugs)
+  claims = claim_service.claims(slugs, campaign_id)
 
   statuses = claims.map do |c|
     [ c[:mesh_block_slug], claim_status(c[:mesh_block_claimer]) ]
@@ -186,7 +239,16 @@ get '/meshblocks_bounds' do
         puts "404 due to map location returning no meshblocks"
         status 404
     else
-      json get_meshblocks_with_status(data)
+      if params[:campaign_id] && !params[:campaign_id].empty?
+        campaign = Campaign[params[:campaign_id].to_i]
+        if campaign
+          # Preload for performance since we could have multiple wards
+          valid_oas = campaign.wards.map { |w| w.ward_output_areas.map(&:oa_code) }.flatten.uniq
+          data['features'].select! { |f| valid_oas.include?(f["properties"]["slug"]) }
+        end
+      end
+      
+      json get_meshblocks_with_status(data, params[:campaign_id])
     end
   end
 end
@@ -203,7 +265,7 @@ end
 post '/claim_meshblock/:id' do
   authorised do
     claim_service = ClaimService.new(settings.db)
-    claim_service.claim(params['id'], user_email)
+    claim_service.claim(params['id'], user_email, params['campaign_id'])
     status 200
   end
 end
@@ -214,10 +276,10 @@ post '/unclaim_meshblock/:id' do
     #TODO - return error on fail
     if is_admin?(user_email)
       ENV['ADMIN_UNCLAIM_ANY'] == 'true' \
-        ? claim_service.data_entry_unclaim(params['id']) \
-        : claim_service.admin_unclaim(params['id'])
+        ? claim_service.data_entry_unclaim(params['id'], params['campaign_id']) \
+        : claim_service.admin_unclaim(params['id'], params['campaign_id'])
     else
-      claim_service.unclaim(params['id'], user_email)
+      claim_service.unclaim(params['id'], user_email, params['campaign_id'])
     end
     status 200
   end
@@ -240,6 +302,6 @@ post '/unclaim_from_data_entry' do
     settings.unclaim_token.length > 5 &&
     settings.unclaim_token == data['token']
 
-  ClaimService.new(settings.db).data_entry_unclaim(data['id'])
+  ClaimService.new(settings.db).data_entry_unclaim(data['id'], data['campaign_id'])
   status 200
 end

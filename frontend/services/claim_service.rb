@@ -5,24 +5,26 @@ class ClaimService
     @db = db
   end
 
-  def claims(slugs)
+  def claims(slugs, campaign_id)
     @db[:claims]
       .where('deleted_at is NULL')
       .where('mesh_block_slug IN ?', slugs.map(&:to_s))
+      .where(campaign_id: campaign_id)
   end
 
-  def claim(mesh_block, claimer)
-    @db[:claims].insert(mesh_block_slug: mesh_block, mesh_block_claimer: claimer, claim_date: Time.now)
+  def claim(mesh_block, claimer, campaign_id)
+    @db[:claims].insert(mesh_block_slug: mesh_block, mesh_block_claimer: claimer, claim_date: Time.now, campaign_id: campaign_id)
   end
 
-  def unclaim(mesh_block, unclaimer)
+  def unclaim(mesh_block, unclaimer, campaign_id)
     @db[:claims]
       .where(mesh_block_claimer: unclaimer)
       .where(mesh_block_slug: mesh_block)
+      .where(campaign_id: campaign_id)
       .update(deleted_at: Time.now)
   end
 
-  def admin_unclaim(mesh_block)
+  def admin_unclaim(mesh_block, campaign_id)
     domains = ENV['PRIMARY_DOMAINS'].split(",").map(&:strip)
     domain_conditions = domains.map{ |domain|
       "lower(mesh_block_claimer) ILIKE '%#{domain}'"
@@ -30,13 +32,15 @@ class ClaimService
 
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
+      .where(campaign_id: campaign_id)
       .where(domain_conditions)
       .update(deleted_at: Time.now)
   end
 
-  def data_entry_unclaim(mesh_block)
+  def data_entry_unclaim(mesh_block, campaign_id)
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
+      .where(campaign_id: campaign_id)
       .update(deleted_at: Time.now)
   end
 

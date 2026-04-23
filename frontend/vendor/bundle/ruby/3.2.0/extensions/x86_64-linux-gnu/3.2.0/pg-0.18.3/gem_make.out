@@ -1,0 +1,83 @@
+current directory: /home/igibbs/localdev/Neighbourly/frontend/vendor/bundle/ruby/3.2.0/gems/pg-0.18.3/ext
+/usr/bin/ruby3.2 -I/usr/lib/ruby/vendor_ruby extconf.rb
+checking for pg_config... yes
+Using config values from /usr/bin/pg_config
+checking for libpq-fe.h... yes
+checking for libpq/libpq-fs.h... yes
+checking for pg_config_manual.h... yes
+checking for PQconnectdb() in -lpq... yes
+checking for PQconnectionUsedPassword()... yes
+checking for PQisthreadsafe()... yes
+checking for PQprepare()... yes
+checking for PQexecParams()... yes
+checking for PQescapeString()... yes
+checking for PQescapeStringConn()... yes
+checking for PQescapeLiteral()... yes
+checking for PQescapeIdentifier()... yes
+checking for PQgetCancel()... yes
+checking for lo_create()... yes
+checking for pg_encoding_to_char()... yes
+checking for pg_char_to_encoding()... yes
+checking for PQsetClientEncoding()... yes
+checking for PQlibVersion()... yes
+checking for PQping()... yes
+checking for PQsetSingleRowMode()... yes
+checking for PQconninfo()... yes
+checking for rb_encdb_alias()... yes
+checking for rb_enc_alias()... yes
+checking for rb_thread_call_without_gvl()... yes
+checking for rb_thread_call_with_gvl()... yes
+checking for rb_thread_fd_select()... yes
+checking for rb_w32_wrap_io_handle()... no
+checking for rb_str_modify_expand()... yes
+checking for rb_hash_dup()... yes
+checking for PGRES_COPY_BOTH in libpq-fe.h... yes
+checking for PGRES_SINGLE_TUPLE in libpq-fe.h... yes
+checking for PG_DIAG_TABLE_NAME in libpq-fe.h... yes
+checking for struct pgNotify.extra in libpq-fe.h... yes
+checking for unistd.h... yes
+checking for ruby/st.h... yes
+checking for C99 variable length arrays... yes
+creating extconf.h
+creating Makefile
+
+current directory: /home/igibbs/localdev/Neighbourly/frontend/vendor/bundle/ruby/3.2.0/gems/pg-0.18.3/ext
+make DESTDIR\= sitearchdir\=./.gem.20260423-184254-jinr3a sitelibdir\=./.gem.20260423-184254-jinr3a clean
+
+current directory: /home/igibbs/localdev/Neighbourly/frontend/vendor/bundle/ruby/3.2.0/gems/pg-0.18.3/ext
+make DESTDIR\= sitearchdir\=./.gem.20260423-184254-jinr3a sitelibdir\=./.gem.20260423-184254-jinr3a
+compiling gvl_wrappers.c
+compiling pg.c
+compiling pg_binary_decoder.c
+pg_binary_decoder.c: In function ‘pg_bin_dec_bytea’:
+pg_binary_decoder.c:95:15: warning: implicit declaration of function ‘rb_tainted_str_new’; did you mean ‘rb_enc_str_new’? [-Wimplicit-function-declaration]
+   95 |         ret = rb_tainted_str_new( val, len );
+      |               ^~~~~~~~~~~~~~~~~~
+      |               rb_enc_str_new
+compiling pg_binary_encoder.c
+In file included from /usr/include/ruby-3.2.0/ruby/internal/stdbool.h:40,
+                 from /usr/include/ruby-3.2.0/ruby/backward/2/bool.h:22,
+                 from /usr/include/ruby-3.2.0/ruby/defines.h:74,
+                 from /usr/include/ruby-3.2.0/ruby/ruby.h:25,
+                 from /usr/include/ruby-3.2.0/ruby.h:38,
+                 from pg.h:17,
+                 from pg_binary_encoder.c:7:
+pg_binary_encoder.c: In function ‘pg_bin_enc_boolean’:
+pg_binary_encoder.c:25:14: error: two or more data types in declaration specifiers
+   25 |         char bool;
+      |              ^~~~
+pg_binary_encoder.c:25:9: warning: useless type name in empty declaration
+   25 |         char bool;
+      |         ^~~~
+pg_binary_encoder.c:27:35: error: expected identifier or ‘(’ before ‘=’ token
+   27 |                 case Qtrue : bool = 1; break;
+      |                                   ^
+pg_binary_encoder.c:28:36: error: expected identifier or ‘(’ before ‘=’ token
+   28 |                 case Qfalse : bool = 0; break;
+      |                                    ^
+pg_binary_encoder.c:32:24: error: expected expression before ‘_Bool’
+   32 |         if(out) *out = bool;
+      |                        ^~~~
+make: *** [Makefile:248: pg_binary_encoder.o] Error 1
+
+make failed, exit code 2

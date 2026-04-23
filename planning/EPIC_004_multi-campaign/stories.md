@@ -8,11 +8,11 @@ As an administrator I want to be able to create and administer campaigns so that
 
 ### Acceptance Criteria
 
-- [ ] I can add a new campaign. The following attributes are required:
+- [x] I can add a new campaign. The following attributes are required:
     - Name (text)
     - Areas (which is selected from a multi-select list of known UK wards sorted alphabetically. A campaign must have at least one ward, but can have multiple).
-- [ ] I can edit an existing campaign
-- [ ] I can archive a campaign
+- [x] I can edit an existing campaign
+- [x] I can archive a campaign
 
 ## US-002 Selectable areas
 
@@ -20,13 +20,13 @@ As a user I want to select a campaign from a drop down menu so that I can see th
 
 ### Acceptance Criteria
 
-- [ ] There is a drop down menu on the map page that allows me to select a campaign. It is pre-populated with a list of all active campaigns sorted alphabetically by area. If there are no active campaigns, I am prompted to contact an administrator.
-- [ ] If I have not selected a campaign, the drop down is empty
-- [ ] If the drop down is empty and I click on the map, I am prompted to select a campaign
-- [ ] When I select a campaign the map page is updated to show the data for that campaign. The map shows only the claimable and claimed areas for that campaign, and no claimable or claimed areas from any other campaigns. If I move the map outside of the area for the selected campaign, the map layer renders, but the bounds that overlay the map are not rendered. 
-- [ ] If I click on a claimable area in the selected campaign, I am able to claim it
-- [ ] If I click on a claimed area in the selected campaign, I am able to unclaim it
-- [ ] If I click on a claimable area outside of the selected campaign, nothing happens
-- [ ] If I click on a claimed area outside of the selected campaign, nothing happens
-- [ ] If I use the data entry feature, I am required to select a campaign before I can enter data. The data entered is then associated with the selected campaign.
+- [x] There is a drop down menu on the map page that allows me to select a campaign. It is pre-populated with a list of all active campaigns sorted alphabetically by area. If there are no active campaigns, I am prompted to contact an administrator.
+- [x] If I have not selected a campaign, the drop down is empty
+- [x] If the drop down is empty and I click on the map, I am prompted to select a campaign
+- [x] When I select a campaign the map page is updated to show the data for that campaign. The map shows only the claimable and claimed areas for that campaign, and no claimable or claimed areas from any other campaigns. If I move the map outside of the area for the selected campaign, the map layer renders, but the bounds that overlay the map are not rendered. 
+- [x] If I click on a claimable area in the selected campaign, I am able to claim it
+- [x] If I click on a claimed area in the selected campaign, I am able to unclaim it
+- [x] If I click on a claimable area outside of the selected campaign, nothing happens
+- [x] If I click on a claimed area outside of the selected campaign, nothing happens
+- [x] If I use the data entry feature, I am required to select a campaign before I can enter data. The data entered is then associated with the selected campaign.
 

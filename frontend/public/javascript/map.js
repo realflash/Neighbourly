@@ -16,6 +16,33 @@ function makeMap() {
   var country = $('#map').data('country') || 'AU'
   var regionName = $('#map').data('region-name') || 'Mesh block'
   var regionNamePlural = regionName + 's'
+  
+  var selectedCampaignId = null;
+
+  // Fetch active campaigns and populate the dropdown
+  $.getJSON('/api/campaigns', function(campaigns) {
+    var select = $('#campaign-select');
+    campaigns.forEach(function(c) {
+      select.append($('<option></option>').val(c.id).text(c.name));
+    });
+    
+    // Restore previous selection if any
+    var saved = localStorage.getItem('selectedCampaignId');
+    if (saved) {
+      select.val(saved);
+      selectedCampaignId = saved;
+    }
+    
+    select.on('change', function() {
+      selectedCampaignId = $(this).val();
+      if (selectedCampaignId) {
+        localStorage.setItem('selectedCampaignId', selectedCampaignId);
+      } else {
+        localStorage.removeItem('selectedCampaignId');
+      }
+      updateMap(true);
+    });
+  });
 
   var mesh_layer //Rendered map
   var last_update_bounds
@@ -130,8 +157,11 @@ function makeMap() {
         }
 
         this.btnClaim = function () {
+          if (!selectedCampaignId) {
+            return alert('Please select a campaign from the dropdown first.');
+          }
           var leaflet_id = this._leaflet_id
-          $.post('/claim_meshblock/' + leaflet_id)
+          $.post('/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId)
           $('.unclaim').removeClass('hidden')
           $('.download').removeClass('hidden')
           $('.claim').addClass('hidden')
@@ -299,6 +329,10 @@ function makeMap() {
     var forceAllowed = force && zoom > 14
 
     if (moveTrigger || forceAllowed) {
+      if (!selectedCampaignId) {
+        if (mesh_layer) { map.removeLayer(mesh_layer) }
+        return;
+      }
       $('#load').removeClass('hidden')
 
       var data = {
@@ -306,6 +340,7 @@ function makeMap() {
         sex: lat_lng_bnd.getSouthWest().lng,
         nwy: lat_lng_bnd.getNorthEast().lat,
         nwx: lat_lng_bnd.getNorthEast().lng,
+        campaign_id: selectedCampaignId
       }
 
       $.getJSON('/meshblocks_bounds', data, getMeshblockCallback)
@@ -373,13 +408,7 @@ try { helpSeen = window.localStorage.getItem('helpSeen') } catch (_) { }
 if (helpSeen !== 'true') $(window).load(openHelp)
 
 
-$('#campaign').change(function () {
-  var campaign = $('#campaign').val()
-  try { window.localStorage.setItem('campaign', campaign) } catch (_) { }
-})
-var campaign
-try { campaign = window.localStorage.getItem('campaign') } catch (_) { }
-$('#campaign').val(campaign || 'warringah') //default b/c decentralised
+// Removed hardcoded campaign handling
 
 $('#template').change(function () {
   var template = $('#template').val()

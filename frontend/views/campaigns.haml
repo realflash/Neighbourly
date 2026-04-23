@@ -1,0 +1,78 @@
+!!!
+%html
+  %head
+    %title Campaign Administration
+    %link{:rel => "stylesheet", :href => "/css/main.css"}
+    %style
+      :plain
+        .campaign-card {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .gradient-btn {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .gradient-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .archive-btn {
+          background: linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%);
+        }
+        .form-control {
+          width: 100%;
+          padding: 10px;
+          margin-top: 5px;
+          margin-bottom: 15px;
+          border-radius: 6px;
+          border: 1px solid #ccc;
+        }
+        select[multiple] {
+          height: 150px;
+        }
+  %body
+    .container{:style => "padding: 40px; max-width: 800px; margin: 0 auto; font-family: 'Inter', sans-serif;"}
+      %h1 Campaign Administration
+      
+      - if flash[:notice]
+        .alert.alert-success{:style => "color: green; margin-bottom: 20px;"}= flash[:notice]
+      - if flash[:error]
+        .alert.alert-danger{:style => "color: red; margin-bottom: 20px;"}= flash[:error]
+
+      .campaign-card
+        %h2 Create New Campaign
+        %form{:action => "/admin/campaigns", :method => "post"}
+          %label{:for => "name"} Campaign Name:
+          %input.form-control{:type => "text", :name => "name", :required => true}
+          
+          %label{:for => "ward_ids"} Select Wards (Hold Ctrl/Cmd to select multiple):
+          %select.form-control{:name => "ward_ids[]", :multiple => true, :required => true}
+            - @wards.each do |ward|
+              %option{:value => ward.id}= ward.name
+          
+          %button.gradient-btn{:type => "submit"} Create Campaign
+          
+      %h2 Active Campaigns
+      - @campaigns.select(&:active?).each do |campaign|
+        .campaign-card
+          %h3= campaign.name
+          %p Wards: #{campaign.wards.map(&:name).join(', ')}
+          %form{:action => "/admin/campaigns/#{campaign.id}/archive", :method => "post", :style => "display:inline;"}
+            %button.gradient-btn.archive-btn{:type => "submit", :onclick => "return confirm('Archive this campaign?');"} Archive Campaign
+
+      %h2 Archived Campaigns
+      - @campaigns.reject(&:active?).each do |campaign|
+        .campaign-card{:style => "opacity: 0.6;"}
+          %h3= campaign.name
+          %p Wards: #{campaign.wards.map(&:name).join(', ')}
