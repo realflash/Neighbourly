@@ -17,3 +17,5 @@
 | BUG-2604222058 | /meshblocks_bounds returns HTTP 500 due to missing LAMBDA_BASE_URL inside Docker container | FIXED |
 | BUG-2604231009 | load_boundaries.sh fails with numeric field overflow during ogr2ogr | FIXED |
 | BUG-2604231049 | transform_addresses.rb fails with UTF-8 byte sequence error on CSV | FIXED |
+| BUG-2604231313 | rake db:migrate fails due to missing rspec/core/rake_task in frontend | FIXED |
+| BUG-2604231324 | rake db:migrate fails due to missing sequel gem when run natively | FIXED |
