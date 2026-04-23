@@ -39,7 +39,7 @@
 
 If you are setting up the UK version, you must import the geographical boundaries and electoral address data into your database before using the app.
 
-1. `sudo apt-get install ruby gdal-bin`
+1. `sudo apt-get install ruby ruby-dev ruby-bundler build-essential libpq-dev gdal-bin`
 
 #### Load the Output Area boundary data
 This data tells the app what the electoral boundaries of the UK are. (in manageable equal numbers of houses). 
@@ -77,7 +77,7 @@ This data tells the app which Output Area each address belongs to. Rather than l
 
 1. Install all project dependencies with the following commands:
     ```
-    gem install bundler -v 1.15.3
+    bundle config set --local path 'vendor/bundle'
     bundle install
     ```
 
