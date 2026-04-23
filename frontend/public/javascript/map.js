@@ -32,9 +32,11 @@ function makeMap() {
       select.val(saved);
       selectedCampaignId = saved;
     }
+    window.selectedCampaignId = selectedCampaignId;
     
     select.on('change', function() {
       selectedCampaignId = $(this).val();
+      window.selectedCampaignId = selectedCampaignId;
       if (selectedCampaignId) {
         localStorage.setItem('selectedCampaignId', selectedCampaignId);
       } else {
