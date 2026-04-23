@@ -36,7 +36,6 @@ ogr2ogr -f "PostgreSQL" "$OGR_CONN" "$SHAPEFILE" \
     -nlt MULTIPOLYGON \
     -t_srs EPSG:4326 \
     -lco GEOMETRY_NAME=geom \
-    -lco PRECISION=NO \
     -lco OVERWRITE=YES
 
 echo "Transforming temp table to 'admin_bdys_201702.abs_2011_mb' schema..."
@@ -54,7 +53,7 @@ CREATE TABLE admin_bdys_201702.abs_2011_mb (
 
 INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, mb_category, geom)
 SELECT 
-    oa21cd as mb_11code,
+    "OA21CD" as mb_11code,
     'RESIDENTIAL' as mb_category,
     geom
 FROM uk_output_areas;
