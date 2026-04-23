@@ -19,10 +19,10 @@
 
 ### Both countries - DB creation
 
-4. Start a Dockerized PostGIS database (required for geographical extensions) using `trust` authentication for local development compatibility:
+4. Start a Dockerized PostGIS 16 database (matching production) configured to use `md5` password encryption for compatibility with the Ruby container:
     *(Note: If you have a local PostgreSQL service running on port 5432, you must stop it first using `sudo systemctl stop postgresql`)*
     ```bash
-    docker run --name neighbourly-db -e POSTGRES_PASSWORD=neighbourly -e POSTGRES_DB=neighbourly -e POSTGRES_USER=neighbourly -e POSTGRES_HOST_AUTH_METHOD=trust -p 5432:5432 -d postgis/postgis:13-3.1
+    docker run --name neighbourly-db -e POSTGRES_PASSWORD=neighbourly -e POSTGRES_DB=neighbourly -e POSTGRES_USER=neighbourly -e POSTGRES_HOST_AUTH_METHOD=md5 -e POSTGRES_INITDB_ARGS="--auth-host=md5 --auth-local=md5" -p 5432:5432 -d postgis/postgis:16-3.4 -c password_encryption=md5
     ```
 
 5. Run the database migrations using the frontend Docker container. First, build the container, then run the migration:
@@ -31,7 +31,7 @@
     ./build_container.sh
     docker run --rm --network="host" -e DATABASE_URL="postgres://neighbourly:neighbourly@localhost/neighbourly" neighbourly-app:local bundle exec rake db:migrate
     cd ..
-    docker exec -i neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
+    docker exec -i -e PGPASSWORD=neighbourly neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
     ```
     *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
 
@@ -62,7 +62,7 @@ This data tells the app what the boundary of each postcode in the UK are, so tha
     ```
 5. Import the UK postcode boundaries data by running the following command:
     ```bash
-    docker exec -i neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_uk.sql
+    docker exec -i -e PGPASSWORD=neighbourly neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_uk.sql
     ```
 
 #### Load your target area 
