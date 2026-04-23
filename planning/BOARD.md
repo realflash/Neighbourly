@@ -20,3 +20,4 @@
 | BUG-2604231313 | rake db:migrate fails due to missing rspec/core/rake_task in frontend | FIXED |
 | BUG-2604231324 | rake db:migrate fails due to missing sequel gem when run natively | FIXED |
 | BUG-2604231333 | bundle install fails due to permission errors and Bundler 1.17.1 incompatibilities | FIXED |
+| BUG-2604231342 | bundle install fails to compile native extensions for ancient gems on Ruby 3.2 | FIXED |
