@@ -28,7 +28,7 @@
 
 5. Run the database migrations with the following commands:
     ```
-    DATABASE_URL="postgres://localhost/neighbourly" rake db:migrate
+    DATABASE_URL="postgres://localhost/neighbourly" bundle exec rake db:migrate
     psql neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
     ```
     *Note: When deploying the UK version of this app, you must use the `postgis/postgis` image for your PostgreSQL database to support the necessary geographical extensions.*
