@@ -1,17 +1,24 @@
 require 'rubygems'
-require 'rspec/core/rake_task'
-require 'dotenv'
-Dotenv.load
+begin
+  require 'dotenv'
+  Dotenv.load
+rescue LoadError
+end
+begin
+  require 'rspec/core/rake_task'
 
-namespace :spec do
-  RSpec::Core::RakeTask.new(:unit_tests) do |task|
-    task.rspec_opts = ["-c", "-f progress", "-r ./spec/spec_helper.rb"]
-    task.pattern    = 'spec/unit_tests/**/*_spec.rb'
+  namespace :spec do
+    RSpec::Core::RakeTask.new(:unit_tests) do |task|
+      task.rspec_opts = ["-c", "-f progress", "-r ./spec/spec_helper.rb"]
+      task.pattern    = 'spec/unit_tests/**/*_spec.rb'
+    end
+    RSpec::Core::RakeTask.new(:acceptance) do |task|
+      task.rspec_opts = ["-c", "-f documentation", "-r ./spec/acceptance_helper.rb"]
+      task.pattern    = 'spec/acceptance/**/*_feature.rb'
+    end
   end
-  RSpec::Core::RakeTask.new(:acceptance) do |task|
-    task.rspec_opts = ["-c", "-f documentation", "-r ./spec/acceptance_helper.rb"]
-    task.pattern    = 'spec/acceptance/**/*_feature.rb'
-  end
+rescue LoadError
+  # RSpec is not available, skipping spec tasks
 end
 
 namespace :db do
