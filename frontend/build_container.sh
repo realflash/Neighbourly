@@ -45,7 +45,8 @@ LINT_RESULT=0
 
 # 2. Building
 if [ $LINT_RESULT -eq 0 ]; then
-    run_stage "Building (Container)" "DOCKER_BUILDKIT=0 docker build -t neighbourly-app:local ."
+    VERSION=$(cat VERSION 2>/dev/null || echo "1.0.0")
+    run_stage "Building (Container)" "DOCKER_BUILDKIT=0 docker build --label version=${VERSION} -t neighbourly-app:local -t neighbourly-app:v${VERSION} ."
     BUILD_CONT_RESULT=$?
 else
     STAGES+=("Building (Container)")
