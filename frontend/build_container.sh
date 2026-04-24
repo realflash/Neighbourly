@@ -115,20 +115,24 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     
     # Test 2: Launch Test Server and verify HTTP 200
     if [ $TEST_PASS -eq 1 ]; then
+        echo "  -> Running database migrations on test db..."
+        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@localhost:5435/postgres' neighbourly-app:local bundle exec rake db:migrate > /dev/null
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "INSERT INTO wards (name) VALUES ('Test Ward 1'), ('Test Ward 2');" > /dev/null
+        
         echo "  -> Launching test server..."
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e ADMIN_EMAILS='admin@example.com' neighbourly-app:local > /dev/null
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e ADMIN_EMAILS='admin@example.com' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
         
         # Wait for Puma to start
         sleep 5
         
         echo "  -> Executing HTTP test against test server..."
-        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4567 || echo "000")
+        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4568 || echo "000")
         if [ "$HTTP_STATUS" == "200" ]; then
             echo -e "  ${GREEN}✓ Server responded with HTTP 200.${NC}"
             
             echo "  -> Running Playwright E2E tests against test server..."
-            if npx playwright test; then
+            if APP_PORT=4568 npx playwright test; then
                 echo -e "  ${GREEN}✓ Playwright E2E tests passed.${NC}"
             else
                 echo -e "  ${RED}✗ Playwright E2E tests failed.${NC}"

@@ -2,8 +2,9 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Campaign Admin and Filtering', () => {
   test('admin can create and archive a campaign', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
     // 0. Login as admin
-    await page.goto('http://localhost:4567/');
+    await page.goto(`http://localhost:${port}/`);
     await page.fill('input[name="email"]', 'admin@example.com');
     await page.click('input[value="Log In"]');
     // If user didn't exist, we might need to fill details.
@@ -17,9 +18,9 @@ test.describe('Campaign Admin and Filtering', () => {
     }
     
     // Wait for map redirect
-    await page.waitForURL('http://localhost:4567/map');
+    await page.waitForURL(`http://localhost:${port}/map`);
     // 1. Create campaign
-    await page.goto('http://localhost:4567/admin/campaigns');
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
     await expect(page.locator('h1')).toContainText('Campaign Administration');
 
     const uniqueName = `Test Campaign ${Date.now()}`;
@@ -46,8 +47,9 @@ test.describe('Campaign Admin and Filtering', () => {
   });
 
   test('map view interactions with campaigns', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
     // 0. Login as admin (using the same logic)
-    await page.goto('http://localhost:4567/');
+    await page.goto(`http://localhost:${port}/`);
     await page.fill('input[name="email"]', 'admin@example.com');
     await page.click('input[value="Log In"]');
     if (await page.url().includes('user_details')) {
@@ -57,10 +59,10 @@ test.describe('Campaign Admin and Filtering', () => {
       await page.fill('input[name="user_details[postcode]"]', '1234');
       await page.click('input[value="Submit"]');
     }
-    await page.waitForURL('http://localhost:4567/map');
+    await page.waitForURL(`http://localhost:${port}/map`);
 
     // 1. Create a campaign first so we have one
-    await page.goto('http://localhost:4567/admin/campaigns');
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
     const uniqueName = `Map Test Campaign ${Date.now()}`;
     await page.fill('input[name="name"]', uniqueName);
     const wardSelect = page.locator('select[name="ward_ids[]"]');
@@ -68,7 +70,7 @@ test.describe('Campaign Admin and Filtering', () => {
     await page.click('button:has-text("Create Campaign")');
 
     // 2. Go back to map
-    await page.goto('http://localhost:4567/map');
+    await page.goto(`http://localhost:${port}/map`);
     
     // Test: Dropdown populates correctly
     const dropdown = page.locator('#campaign-select');
