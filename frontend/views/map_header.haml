@@ -18,8 +18,7 @@
           .input-group-btn
             %button#postcode-button#address_search_button.btn.btn-custom.button-light-blue{:name => "search", :type => "submit"} Go To Postcode
         %select#campaign.form-control.half-width
-          - campaigns.each do |campaign|
-            %option{value: campaign.downcase}= campaign
+          %option{:value => ""} -- Select a Campaign --
         %select#template.form-control.half-width
           - templates.each do |template|
             %option{value: template[:value]}= template[:label]

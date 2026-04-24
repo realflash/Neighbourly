@@ -1,0 +1,219 @@
+﻿CTYUA25CD,CTYUA25NM,CTYUA25NMW,ObjectId
+E06000001,Hartlepool,,1
+E06000002,Middlesbrough,,2
+E06000003,Redcar and Cleveland,,3
+E06000004,Stockton-on-Tees,,4
+E06000005,Darlington,,5
+E06000006,Halton,,6
+E06000007,Warrington,,7
+E06000008,Blackburn with Darwen,,8
+E06000009,Blackpool,,9
+E06000010,"Kingston upon Hull, City of",,10
+E06000011,East Riding of Yorkshire,,11
+E06000012,North East Lincolnshire,,12
+E06000013,North Lincolnshire,,13
+E06000014,York,,14
+E06000015,Derby,,15
+E06000016,Leicester,,16
+E06000017,Rutland,,17
+E06000018,Nottingham,,18
+E06000019,"Herefordshire, County of",,19
+E06000020,Telford and Wrekin,,20
+E06000021,Stoke-on-Trent,,21
+E06000022,Bath and North East Somerset,,22
+E06000023,"Bristol, City of",,23
+E06000024,North Somerset,,24
+E06000025,South Gloucestershire,,25
+E06000026,Plymouth,,26
+E06000027,Torbay,,27
+E06000030,Swindon,,28
+E06000031,Peterborough,,29
+E06000032,Luton,,30
+E06000033,Southend-on-Sea,,31
+E06000034,Thurrock,,32
+E06000035,Medway,,33
+E06000036,Bracknell Forest,,34
+E06000037,West Berkshire,,35
+E06000038,Reading,,36
+E06000039,Slough,,37
+E06000040,Windsor and Maidenhead,,38
+E06000041,Wokingham,,39
+E06000042,Milton Keynes,,40
+E06000043,Brighton and Hove,,41
+E06000044,Portsmouth,,42
+E06000045,Southampton,,43
+E06000046,Isle of Wight,,44
+E06000047,County Durham,,45
+E06000049,Cheshire East,,46
+E06000050,Cheshire West and Chester,,47
+E06000051,Shropshire,,48
+E06000052,Cornwall,,49
+E06000053,Isles of Scilly,,50
+E06000054,Wiltshire,,51
+E06000055,Bedford,,52
+E06000056,Central Bedfordshire,,53
+E06000057,Northumberland,,54
+E06000058,"Bournemouth, Christchurch and Poole",,55
+E06000059,Dorset,,56
+E06000060,Buckinghamshire,,57
+E06000061,North Northamptonshire,,58
+E06000062,West Northamptonshire,,59
+E06000063,Cumberland,,60
+E06000064,Westmorland and Furness,,61
+E06000065,North Yorkshire,,62
+E06000066,Somerset,,63
+E08000001,Bolton,,64
+E08000002,Bury,,65
+E08000003,Manchester,,66
+E08000004,Oldham,,67
+E08000005,Rochdale,,68
+E08000006,Salford,,69
+E08000007,Stockport,,70
+E08000008,Tameside,,71
+E08000009,Trafford,,72
+E08000010,Wigan,,73
+E08000011,Knowsley,,74
+E08000012,Liverpool,,75
+E08000013,St. Helens,,76
+E08000014,Sefton,,77
+E08000015,Wirral,,78
+E08000017,Doncaster,,79
+E08000018,Rotherham,,80
+E08000021,Newcastle upon Tyne,,81
+E08000022,North Tyneside,,82
+E08000023,South Tyneside,,83
+E08000024,Sunderland,,84
+E08000025,Birmingham,,85
+E08000026,Coventry,,86
+E08000027,Dudley,,87
+E08000028,Sandwell,,88
+E08000029,Solihull,,89
+E08000030,Walsall,,90
+E08000031,Wolverhampton,,91
+E08000032,Bradford,,92
+E08000033,Calderdale,,93
+E08000034,Kirklees,,94
+E08000035,Leeds,,95
+E08000036,Wakefield,,96
+E08000037,Gateshead,,97
+E08000038,Barnsley,,98
+E08000039,Sheffield,,99
+E09000001,City of London,,100
+E09000002,Barking and Dagenham,,101
+E09000003,Barnet,,102
+E09000004,Bexley,,103
+E09000005,Brent,,104
+E09000006,Bromley,,105
+E09000007,Camden,,106
+E09000008,Croydon,,107
+E09000009,Ealing,,108
+E09000010,Enfield,,109
+E09000011,Greenwich,,110
+E09000012,Hackney,,111
+E09000013,Hammersmith and Fulham,,112
+E09000014,Haringey,,113
+E09000015,Harrow,,114
+E09000016,Havering,,115
+E09000017,Hillingdon,,116
+E09000018,Hounslow,,117
+E09000019,Islington,,118
+E09000020,Kensington and Chelsea,,119
+E09000021,Kingston upon Thames,,120
+E09000022,Lambeth,,121
+E09000023,Lewisham,,122
+E09000024,Merton,,123
+E09000025,Newham,,124
+E09000026,Redbridge,,125
+E09000027,Richmond upon Thames,,126
+E09000028,Southwark,,127
+E09000029,Sutton,,128
+E09000030,Tower Hamlets,,129
+E09000031,Waltham Forest,,130
+E09000032,Wandsworth,,131
+E09000033,Westminster,,132
+E10000003,Cambridgeshire,,133
+E10000007,Derbyshire,,134
+E10000008,Devon,,135
+E10000011,East Sussex,,136
+E10000012,Essex,,137
+E10000013,Gloucestershire,,138
+E10000014,Hampshire,,139
+E10000015,Hertfordshire,,140
+E10000016,Kent,,141
+E10000017,Lancashire,,142
+E10000018,Leicestershire,,143
+E10000019,Lincolnshire,,144
+E10000020,Norfolk,,145
+E10000024,Nottinghamshire,,146
+E10000025,Oxfordshire,,147
+E10000028,Staffordshire,,148
+E10000029,Suffolk,,149
+E10000030,Surrey,,150
+E10000031,Warwickshire,,151
+E10000032,West Sussex,,152
+E10000034,Worcestershire,,153
+N09000001,Antrim and Newtownabbey,,154
+N09000002,"Armagh City, Banbridge and Craigavon",,155
+N09000003,Belfast,,156
+N09000004,Causeway Coast and Glens,,157
+N09000005,Derry City and Strabane,,158
+N09000006,Fermanagh and Omagh,,159
+N09000007,Lisburn and Castlereagh,,160
+N09000008,Mid and East Antrim,,161
+N09000009,Mid Ulster,,162
+N09000010,"Newry, Mourne and Down",,163
+N09000011,Ards and North Down,,164
+S12000005,Clackmannanshire,,165
+S12000006,Dumfries and Galloway,,166
+S12000008,East Ayrshire,,167
+S12000010,East Lothian,,168
+S12000011,East Renfrewshire,,169
+S12000013,Na h-Eileanan Siar,,170
+S12000014,Falkirk,,171
+S12000017,Highland,,172
+S12000018,Inverclyde,,173
+S12000019,Midlothian,,174
+S12000020,Moray,,175
+S12000021,North Ayrshire,,176
+S12000023,Orkney Islands,,177
+S12000026,Scottish Borders,,178
+S12000027,Shetland Islands,,179
+S12000028,South Ayrshire,,180
+S12000029,South Lanarkshire,,181
+S12000030,Stirling,,182
+S12000033,Aberdeen City,,183
+S12000034,Aberdeenshire,,184
+S12000035,Argyll and Bute,,185
+S12000036,City of Edinburgh,,186
+S12000038,Renfrewshire,,187
+S12000039,West Dunbartonshire,,188
+S12000040,West Lothian,,189
+S12000041,Angus,,190
+S12000042,Dundee City,,191
+S12000045,East Dunbartonshire,,192
+S12000047,Fife,,193
+S12000048,Perth and Kinross,,194
+S12000049,Glasgow City,,195
+S12000050,North Lanarkshire,,196
+W06000001,Isle of Anglesey,Ynys Môn,197
+W06000002,Gwynedd,Gwynedd,198
+W06000003,Conwy,Conwy,199
+W06000004,Denbighshire,Sir Ddinbych,200
+W06000005,Flintshire,Sir y Fflint,201
+W06000006,Wrexham,Wrecsam,202
+W06000008,Ceredigion,Ceredigion,203
+W06000009,Pembrokeshire,Sir Benfro,204
+W06000010,Carmarthenshire,Sir Gaerfyrddin,205
+W06000011,Swansea,Abertawe,206
+W06000012,Neath Port Talbot,Castell-nedd Port Talbot,207
+W06000013,Bridgend,Pen-y-bont ar Ogwr,208
+W06000014,Vale of Glamorgan,Bro Morgannwg,209
+W06000015,Cardiff,Caerdydd,210
+W06000016,Rhondda Cynon Taf,Rhondda Cynon Taf,211
+W06000018,Caerphilly,Caerffili,212
+W06000019,Blaenau Gwent,Blaenau Gwent,213
+W06000020,Torfaen,Torfaen,214
+W06000021,Monmouthshire,Sir Fynwy,215
+W06000022,Newport,Casnewydd,216
+W06000023,Powys,Powys,217
+W06000024,Merthyr Tydfil,Merthyr Tudful,218

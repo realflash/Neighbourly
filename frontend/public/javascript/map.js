@@ -21,7 +21,7 @@ function makeMap() {
 
   // Fetch active campaigns and populate the dropdown
   $.getJSON('/api/campaigns', function(campaigns) {
-    var select = $('#campaign-select');
+    var select = $('#campaign');
     campaigns.forEach(function(c) {
       select.append($('<option></option>').val(c.id).text(c.name));
     });

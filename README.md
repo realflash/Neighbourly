@@ -55,7 +55,7 @@ This data tells the app what the electoral boundaries of the UK are. (in managea
 #### Load the postcode boundaries
 This data tells the app what the boundary of each postcode in the UK are, so that you can search for postcodes on the map.
 
-3. Download the CSV at https://www.data.gov.uk/dataset/36cf66a7-d570-4ee6-8ea0-f2e241d8b536/ons-postcode-directory-february-2026-for-the-uk-hosted-table or a later version and put it in the `frontend/etl` folder.
+3. Download the zip at https://geoportal.statistics.gov.uk/datasets/3080229224424c9cb53c0b48f5a64d27/about or a later version and put it in the `frontend/etl` folder.
 4. Generate the postcode boundary SQL file using the downloaded ONSPD CSV:
     ```bash
     ./frontend/etl/generate_postcode_bounds.rb frontend/etl/ONSPD_FEB_2026_UK.csv > pcode_bounds_uk.sql

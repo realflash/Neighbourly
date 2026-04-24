@@ -1,8 +1,5 @@
 .map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": ENV['LAMBDA_BASE_URL'], "data-postcode": user_postcode}
-.campaign-overlay{:style => "position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"}
-  %label{:for => "campaign-select"} Select Campaign:
-  %select#campaign-select.form-control{:style => "margin-left: 10px;"}
-    %option{:value => ""} -- Select a Campaign --
+
 .block-stats-hover
 .hidden{id: "dialog", title: "FAQ"}
   .faq-intro
