@@ -1,3 +1,5 @@
 require './app.rb'
 
-run Sinatra::Application
+map ENV['RACK_BASE_URI'] || '/' do
+  run Sinatra::Application
+end

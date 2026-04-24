@@ -1,7 +1,7 @@
-%a{href: '/'}
-  %img.home-logo{src: '/images/home-logo.png'}
+%a{href: to('/')}
+  %img.home-logo{src: to('/images/home-logo.png')}
 - if authorised?
   .nav-top-right
     Hi
     .welcome-message #{user_name} &nbsp;
-    %a#logout.button{href: '/logout'}="Logout"
+    %a#logout.button{href: to('/logout')}="Logout"

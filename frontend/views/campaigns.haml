@@ -2,7 +2,7 @@
 %html
   %head
     %title Campaign Administration
-    %link{:rel => "stylesheet", :href => "/css/main.css"}
+    %link{:rel => "stylesheet", :href => to("/css/main.css")}
     %style
       :plain
         .campaign-card {
@@ -52,7 +52,7 @@
 
       .campaign-card
         %h2 Create New Campaign
-        %form{:action => "/admin/campaigns", :method => "post"}
+        %form{:action => to("/admin/campaigns"), :method => "post"}
           %label{:for => "name"} Campaign Name:
           %input.form-control{:type => "text", :name => "name", :required => true}
           
@@ -68,7 +68,7 @@
         .campaign-card
           %h3= campaign.name
           %p CEDs: #{campaign.ceds.map(&:name).join(', ')}
-          %form{:action => "/admin/campaigns/#{campaign.id}/archive", :method => "post", :style => "display:inline;"}
+          %form{:action => to("/admin/campaigns/#{campaign.id}/archive"), :method => "post", :style => "display:inline;"}
             %button.gradient-btn.archive-btn{:type => "submit", :onclick => "return confirm('Archive this campaign?');"} Archive Campaign
 
       %h2 Archived Campaigns

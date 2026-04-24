@@ -19,8 +19,10 @@ function makeMap() {
   
   var selectedCampaignId = null;
 
+  var APP_BASE_URL = $('#map').data('app-base-url') || '';
+  
   // Fetch active campaigns and populate the dropdown
-  $.getJSON('/api/campaigns', function(campaigns) {
+  $.getJSON(APP_BASE_URL + '/api/campaigns', function(campaigns) {
     var select = $('#campaign');
     campaigns.forEach(function(c) {
       select.append($('<option></option>').val(c.id).text(c.name));
@@ -63,7 +65,7 @@ function makeMap() {
   })
 
   var FitPcode = function (pcode) {
-    $.getJSON('/pcode_get_bounds?pcode=' + pcode, function (json) {
+    $.getJSON(APP_BASE_URL + '/pcode_get_bounds?pcode=' + pcode, function (json) {
       if (json) {
         map.fitBounds([[json.swlat, json.swlng], [json.nelat, json.nelng]])
       }
@@ -166,7 +168,7 @@ function makeMap() {
             return alert('Please select a campaign from the dropdown first.');
           }
           var leaflet_id = this._leaflet_id
-          $.post('/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId)
+          $.post(APP_BASE_URL + '/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId)
           $('.unclaim').removeClass('hidden')
           $('.download').removeClass('hidden')
           $('.claim').addClass('hidden')
@@ -180,7 +182,7 @@ function makeMap() {
         }
 
         this.btnUnclaim = function () {
-          $.post('/unclaim_meshblock/' + this._leaflet_id)
+          $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id)
           this.setStyle(claimStyles.firstQuartile)
           $('.unclaim').addClass('hidden')
           $('.download').addClass('hidden')
@@ -348,7 +350,7 @@ function makeMap() {
         campaign_id: selectedCampaignId
       }
 
-      $.getJSON('/meshblocks_bounds', data, getMeshblockCallback)
+      $.getJSON(APP_BASE_URL + '/meshblocks_bounds', data, getMeshblockCallback)
         .fail(function () {
           $('#load').addClass('hidden')
           alert('Error loading ' + regionNamePlural.toLowerCase() + '. Please reload the page.')

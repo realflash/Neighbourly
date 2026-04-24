@@ -33,7 +33,7 @@ module Sinatra
           yield
         else
           flash[:notice] = "You need to login before you can view that page."
-          redirect "/"
+          redirect to('/')
         end
       end
     end

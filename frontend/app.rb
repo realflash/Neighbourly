@@ -50,7 +50,7 @@ Sequel.datetime_class = DateTime
 
 get '/' do
   if authorised?
-    redirect '/map'
+    redirect to('/map')
   else
     haml :main, locals: {page: 'main', body: 'main'}
   end
@@ -66,7 +66,7 @@ def login_attempt
   elsif cookies.has_key?("email")
     authorise(cookies[:email])
   else
-    redirect '/'
+    redirect to('/')
   end
 
   user_params = Hash.new
@@ -74,11 +74,11 @@ def login_attempt
 
   #Check that user exists for current e-mail
   if authorised?
-    redirect "/map"
+    redirect to('/map')
 
   #If e-mail is set in param - go straight to the user_details page
   elsif params.has_key?("email")
-    redirect "/user_details?email=#{CGI.escape(user_email)}"
+    redirect to("/user_details?email=#{CGI.escape(user_email)}")
 
   #If user does not exist and all fields exist in cookie - create_user
   elsif fields.all? {|s| cookies.key? s}
@@ -86,7 +86,7 @@ def login_attempt
       user_params[key_get] = cookies[key_get]
     end
   create_user(user_params)
-  redirect "/map"
+  redirect to('/map')
 
   end
 end
@@ -118,7 +118,7 @@ def create_user(user_params)
 
       #Once the user is created - authorise them
       authorise(user_params['email'])
-      redirect "/map"
+      redirect to('/map')
     else
       #TODO - needs validation
       flash[:error] = "Please enter correct details."
@@ -131,7 +131,7 @@ def create_user(user_params)
 rescue Sequel::UniqueConstraintViolation, HTTParty::Error => e
     puts "Error in User Details Submission: #{e.message}"
     authorise(user_params['email'])
-    redirect "/map"
+    redirect to('/map')
   end
 end
 
@@ -148,7 +148,7 @@ end
 get '/logout' do
   session.clear
   flash[:notice] = 'You have been logged out.'
-  redirect '/'
+  redirect to('/')
 end
 
 get '/api/campaigns' do
@@ -162,7 +162,7 @@ end
 
 get '/admin/campaigns' do
   authorised do
-    redirect '/' unless is_admin?(user_email)
+    redirect to('/') unless is_admin?(user_email)
     @campaigns = Campaign.order(:name).all
     @ceds = Ced.order(:name).all
     haml :campaigns, locals: {page: 'campaigns'}
@@ -171,7 +171,7 @@ end
 
 post '/admin/campaigns' do
   authorised do
-    redirect '/' unless is_admin?(user_email)
+    redirect to('/') unless is_admin?(user_email)
     name = params[:name]
     ced_ids = params[:ced_ids] || []
     
@@ -184,19 +184,19 @@ post '/admin/campaigns' do
     else
       flash[:error] = 'Name and at least one CED are required.'
     end
-    redirect '/admin/campaigns'
+    redirect to('/admin/campaigns')
   end
 end
 
 post '/admin/campaigns/:id/archive' do
   authorised do
-    redirect '/' unless is_admin?(user_email)
+    redirect to('/') unless is_admin?(user_email)
     campaign = Campaign[params[:id].to_i]
     if campaign
       campaign.update(status: 'archived')
       flash[:notice] = 'Campaign archived.'
     end
-    redirect '/admin/campaigns'
+    redirect to('/admin/campaigns')
   end
 end
 

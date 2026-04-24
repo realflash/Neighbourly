@@ -5,7 +5,7 @@
   .errors-container
   %h3{class: 'grey'} Please enter your details
   %hr
-  %form{method: "post", action: "/user_details", class: "user-details-box"}
+  %form{method: "post", action: to("/user_details"), class: "user-details-box"}
     %input#email{placeholder: "Email", name: "user_details[email]", type: "email", value: email, required: true}
     %br
     %input#first_name{placeholder: "First Name", name: "user_details[first_name]", type: "text", required: true}

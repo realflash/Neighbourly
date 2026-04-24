@@ -24,11 +24,11 @@ module Sinatra
       end
 
       def versioned_stylesheet(stylesheet)
-        "/stylesheets/#{stylesheet}.css?" + File.mtime(File.join("public", "stylesheets", "#{stylesheet}.css")).to_i.to_s
+        to("/stylesheets/#{stylesheet}.css?") + File.mtime(File.join("public", "stylesheets", "#{stylesheet}.css")).to_i.to_s
       end
 
       def versioned_javascript(js)
-        "/javascript/#{js}.js?" + File.mtime(File.join("public", "javascript", "#{js}.js")).to_i.to_s
+        to("/javascript/#{js}.js?") + File.mtime(File.join("public", "javascript", "#{js}.js")).to_i.to_s
       end
 
       def is_admin?(email)

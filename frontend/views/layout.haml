@@ -14,7 +14,7 @@
     - if page == 'map'
       %script{src: 'https://code.jquery.com/ui/1.12.1/jquery-ui.js'}
       %script{:src => "https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"}
-      %script{ src: '/javascript/js.cookie.js', type: 'text/javascript' }
+      %script{ src: to('/javascript/js.cookie.js'), type: 'text/javascript' }
       %link{:href => "https://unpkg.com/leaflet@0.7.7/dist/leaflet.css", :rel => "stylesheet"}
       %link{:href => versioned_stylesheet('theme'), :rel => "stylesheet"}
       %link{:href => versioned_stylesheet('mapHeader'), :rel => "stylesheet"}
