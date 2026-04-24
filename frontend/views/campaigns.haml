@@ -56,10 +56,10 @@
           %label{:for => "name"} Campaign Name:
           %input.form-control{:type => "text", :name => "name", :required => true}
           
-          %label{:for => "ward_ids"} Select Wards (Hold Ctrl/Cmd to select multiple):
-          %select.form-control{:name => "ward_ids[]", :multiple => true, :required => true}
-            - @wards.each do |ward|
-              %option{:value => ward.id}= ward.name
+          %label{:for => "ced_ids"} Select County Electoral Divisions (Hold Ctrl/Cmd to select multiple):
+          %select.form-control{:name => "ced_ids[]", :multiple => true, :required => true}
+            - @ceds.each do |ced|
+              %option{:value => ced.id}= ced.name
           
           %button.gradient-btn{:type => "submit"} Create Campaign
           
@@ -67,7 +67,7 @@
       - @campaigns.select(&:active?).each do |campaign|
         .campaign-card
           %h3= campaign.name
-          %p Wards: #{campaign.wards.map(&:name).join(', ')}
+          %p CEDs: #{campaign.ceds.map(&:name).join(', ')}
           %form{:action => "/admin/campaigns/#{campaign.id}/archive", :method => "post", :style => "display:inline;"}
             %button.gradient-btn.archive-btn{:type => "submit", :onclick => "return confirm('Archive this campaign?');"} Archive Campaign
 
@@ -75,4 +75,4 @@
       - @campaigns.reject(&:active?).each do |campaign|
         .campaign-card{:style => "opacity: 0.6;"}
           %h3= campaign.name
-          %p Wards: #{campaign.wards.map(&:name).join(', ')}
+          %p CEDs: #{campaign.ceds.map(&:name).join(', ')}

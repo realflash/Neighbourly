@@ -26,8 +26,8 @@ DB = Sequel.connect(ENV['DB_URL']) unless defined?(DB)
 Sequel::Model.db = DB
 
 require_relative "models/user"
-require_relative "models/ward_output_area"
-require_relative "models/ward"
+require_relative "models/ced_output_area"
+require_relative "models/ced"
 require_relative "models/campaign"
 
 def test_db_connection
@@ -154,7 +154,7 @@ end
 get '/api/campaigns' do
   authorised do
     campaigns = Campaign.where(status: 'active').order(:name).all.map do |c|
-      { id: c.id, name: c.name, ward_ids: c.wards.map(&:id) }
+      { id: c.id, name: c.name, ced_ids: c.ceds.map(&:id) }
     end
     json campaigns
   end
@@ -164,7 +164,7 @@ get '/admin/campaigns' do
   authorised do
     redirect '/' unless is_admin?(user_email)
     @campaigns = Campaign.order(:name).all
-    @wards = Ward.order(:name).all
+    @ceds = Ced.order(:name).all
     haml :campaigns, locals: {page: 'campaigns'}
   end
 end
@@ -173,16 +173,16 @@ post '/admin/campaigns' do
   authorised do
     redirect '/' unless is_admin?(user_email)
     name = params[:name]
-    ward_ids = params[:ward_ids] || []
+    ced_ids = params[:ced_ids] || []
     
-    if name && !name.empty? && !ward_ids.empty?
+    if name && !name.empty? && !ced_ids.empty?
       campaign = Campaign.create(name: name, status: 'active')
-      ward_ids.each do |w_id|
-        campaign.add_ward(Ward[w_id.to_i])
+      ced_ids.each do |c_id|
+        campaign.add_ced(Ced[c_id.to_i])
       end
       flash[:notice] = 'Campaign created successfully.'
     else
-      flash[:error] = 'Name and at least one Ward are required.'
+      flash[:error] = 'Name and at least one CED are required.'
     end
     redirect '/admin/campaigns'
   end
@@ -242,8 +242,8 @@ get '/meshblocks_bounds' do
       if params[:campaign_id] && !params[:campaign_id].empty?
         campaign = Campaign[params[:campaign_id].to_i]
         if campaign
-          # Preload for performance since we could have multiple wards
-          valid_oas = campaign.wards.map { |w| w.ward_output_areas.map(&:oa_code) }.flatten.uniq
+          # Preload for performance since we could have multiple ceds
+          valid_oas = campaign.ceds.map { |c| c.ced_output_areas.map(&:oa_code) }.flatten.uniq
           data['features'].select! { |f| valid_oas.include?(f["properties"]["slug"]) }
         end
       end

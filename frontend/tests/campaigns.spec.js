@@ -25,9 +25,9 @@ test.describe('Campaign Admin and Filtering', () => {
 
     const uniqueName = `Test Campaign ${Date.now()}`;
     await page.fill('input[name="name"]', uniqueName);
-    // Select first ward
-    const wardSelect = page.locator('select[name="ward_ids[]"]');
-    await wardSelect.selectOption({ index: 1 });
+    // Select first CED
+    const cedSelect = page.locator('select[name="ced_ids[]"]');
+    await cedSelect.selectOption({ index: 1 });
     
     await page.click('button:has-text("Create Campaign")');
 
@@ -65,8 +65,8 @@ test.describe('Campaign Admin and Filtering', () => {
     await page.goto(`http://localhost:${port}/admin/campaigns`);
     const uniqueName = `Map Test Campaign ${Date.now()}`;
     await page.fill('input[name="name"]', uniqueName);
-    const wardSelect = page.locator('select[name="ward_ids[]"]');
-    await wardSelect.selectOption({ index: 1 });
+    const cedSelect = page.locator('select[name="ced_ids[]"]');
+    await cedSelect.selectOption({ index: 1 });
     await page.click('button:has-text("Create Campaign")');
 
     // 2. Go back to map
@@ -122,7 +122,7 @@ test.describe('Campaign Admin and Filtering', () => {
     expect(url.searchParams.get('campaign_id')).toBeTruthy();
   });
 
-  test('ward dropdown does not contain duplicate ambiguous names', async ({ page }) => {
+  test('CED dropdown does not contain duplicate ambiguous names', async ({ page }) => {
     const port = process.env.APP_PORT || 4567;
     // Login as admin
     await page.goto(`http://localhost:${port}/`);
@@ -132,9 +132,9 @@ test.describe('Campaign Admin and Filtering', () => {
     // Go to create campaign page
     await page.goto(`http://localhost:${port}/admin/campaigns`);
     
-    // Check ward dropdown
-    const wardSelect = page.locator('select[name="ward_ids[]"]');
-    const options = await wardSelect.locator('option').allInnerTexts();
+    // Check CED dropdown
+    const cedSelect = page.locator('select[name="ced_ids[]"]');
+    const options = await cedSelect.locator('option').allInnerTexts();
     
     // Remove the placeholder or empty first option if it exists
     const validOptions = options.filter(opt => opt.trim().length > 0);

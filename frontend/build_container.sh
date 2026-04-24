@@ -117,7 +117,7 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     if [ $TEST_PASS -eq 1 ]; then
         echo "  -> Running database migrations on test db..."
         docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@localhost:5435/postgres' neighbourly-app:local bundle exec rake db:migrate > /dev/null
-        docker exec neighbourly-test-db psql -U postgres -d postgres -c "INSERT INTO wards (name) VALUES ('Abbey (E05001260)'), ('Abbey (E05009544)'), ('West (E05010001)');" > /dev/null
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "INSERT INTO ceds (name) VALUES ('Abbey ED (Cambridgeshire)'), ('Abbey ED (Lincolnshire)'), ('West ED');" > /dev/null
         
         echo "  -> Launching test server..."
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true

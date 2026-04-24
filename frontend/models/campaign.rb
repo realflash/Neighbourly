@@ -1,5 +1,6 @@
 class Campaign < Sequel::Model
-  many_to_many :wards, join_table: :campaign_wards
+  one_to_many :claims
+  many_to_many :ceds, join_table: :campaign_ceds
   
   def active?
     status == 'active'

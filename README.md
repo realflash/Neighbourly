@@ -65,6 +65,16 @@ This data tells the app what the boundary of each postcode in the UK are, so tha
     psql "postgres://neighbourly:neighbourly@localhost:5432/neighbourly" < pcode_bounds_uk.sql
     ```
 
+#### Load the County Electoral Divisions (CEDs)
+This data maps output areas to their respective County Electoral Divisions, which are used to define your campaign boundaries.
+
+1. Download the CED names CSV from ONS (e.g. `CED_names_and_codes.csv`) and extract it into the `frontend/etl` folder.
+2. Download the Counties and Unitary Authorities names CSV from ONS (e.g. `CTYUA_APR_2025_UK_NC.csv`) and place it in the `frontend/etl` folder.
+3. Import the CED mappings using the `import_ceds.rb` script. To ensure compatibility with the Ruby version, run this inside the frontend Docker container (using the same ONSPD file you downloaded in the previous step):
+    ```bash
+    docker run --rm --network="host" -v $(pwd)/frontend/etl:/app/frontend/etl -e DB_URL="postgres://neighbourly:neighbourly@localhost:5432/neighbourly" neighbourly-app:local bundle exec ruby frontend/etl/import_ceds.rb frontend/etl/CED_names_and_codes.csv frontend/etl/CTYUA_APR_2025_UK_NC.csv frontend/etl/ONSPD_FEB_2026_UK.csv
+    ```
+
 #### Load your target area 
 This data tells the app which Output Area each address belongs to. Rather than load every address in the UK, we only load the addresses for the areas that we are interested in - ie the scope of your campaign. Thus you will need an unredacted copy of the electoral roll for your area, adjusted for the format this ETL script expects, which isn't exactly the standard format. Only a candidate in an election can request this data.
 
