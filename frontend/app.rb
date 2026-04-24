@@ -48,6 +48,15 @@ end
 
 Sequel.datetime_class = DateTime
 
+set :absolute_redirects, false
+
+helpers do
+  def url(addr = nil, absolute = false, add_script_name = true)
+    super(addr, false, add_script_name)
+  end
+  alias to url
+end
+
 get '/' do
   if authorised?
     redirect to('/map')

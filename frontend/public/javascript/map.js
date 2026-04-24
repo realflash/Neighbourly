@@ -20,6 +20,7 @@ function makeMap() {
   var selectedCampaignId = null;
 
   var APP_BASE_URL = $('#map').data('app-base-url') || '';
+  APP_BASE_URL = APP_BASE_URL.replace(/\/$/, "");
   
   // Fetch active campaigns and populate the dropdown
   $.getJSON(APP_BASE_URL + '/api/campaigns', function(campaigns) {
