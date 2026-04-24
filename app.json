@@ -17,8 +17,8 @@
       "value": "A turf-cutting tool for door-knocking campaigns",
       "required": true
     },
-    "PRIMARY_DOMAINS": {
-      "description": "An optional comma-separated list of domains. Users with email addresses at these domains will be able to manage areas selected for centrally-organised doorknocking events",
+    "ADMIN_EMAILS": {
+      "description": "An optional comma-separated list of admin email addresses. Users with these email addresses will be able to manage areas selected for centrally-organised doorknocking events",
       "value": "",
       "required": false
     },

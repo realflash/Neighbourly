@@ -4,7 +4,7 @@ The front end currenly has a dropdown which defaults to 'Warringah' indicating t
 
 ## US-001 Administer campaigns
 
-As an administrator I want to be able to create and administer campaigns so that I can track the delivery of lealets and door knocking for different wards. 
+As an administrator I want to be able to create and administer campaigns so that I can track the delivery of lealets and door knocking for different wards. Administrators should be defined by a list of email addresses provided via an environment variable, rather than by a domain. 
 
 ### Acceptance Criteria
 
@@ -13,6 +13,7 @@ As an administrator I want to be able to create and administer campaigns so that
     - Areas (which is selected from a multi-select list of known UK wards sorted alphabetically. A campaign must have at least one ward, but can have multiple).
 - [x] I can edit an existing campaign
 - [x] I can archive a campaign
+- [x] Admins are defined by an ADMIN_EMAILS environment variable containing a comma-separated list of emails, instead of checking primary domains.
 
 ## US-002 Selectable areas
 

@@ -32,9 +32,9 @@ module Sinatra
       end
 
       def is_admin?(email)
-        if !ENV['PRIMARY_DOMAINS'].to_s.strip.empty?
-          domains = ENV['PRIMARY_DOMAINS'].split(",").map(&:strip)
-          domains.any? { |domain| email.include?(domain) }
+        if !ENV['ADMIN_EMAILS'].to_s.strip.empty?
+          emails = ENV['ADMIN_EMAILS'].split(",").map(&:strip).map(&:downcase)
+          emails.include?(email.to_s.downcase)
         else
           false
         end

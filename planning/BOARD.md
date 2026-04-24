@@ -5,7 +5,7 @@
 | EPIC-001 | Functional Container | IMPLEMENTED |
 | EPIC-002 | Add UK Support & Internationalisation | IMPLEMENTED |
 | EPIC-003 | Bounds Service | IMPLEMENTED |
-| EPIC-004 | Multi-Campaign Capabilities | IMPLEMENTED |
+| EPIC-004 | Multi-Campaign Capabilities | UNDER REVISION |
 
 # Bug Board
 

@@ -25,15 +25,12 @@ class ClaimService
   end
 
   def admin_unclaim(mesh_block, campaign_id)
-    domains = ENV['PRIMARY_DOMAINS'].split(",").map(&:strip)
-    domain_conditions = domains.map{ |domain|
-      "lower(mesh_block_claimer) ILIKE '%#{domain}'"
-    }.join(' OR ')
+    emails = ENV['ADMIN_EMAILS'].to_s.split(",").map(&:strip).map(&:downcase)
 
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
       .where(campaign_id: campaign_id)
-      .where(domain_conditions)
+      .where('lower(mesh_block_claimer) IN ?', emails)
       .update(deleted_at: Time.now)
   end
 
