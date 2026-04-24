@@ -143,4 +143,39 @@ test.describe('Campaign Admin and Filtering', () => {
     const uniqueOptions = new Set(validOptions);
     expect(validOptions.length).toBe(uniqueOptions.size);
   });
+
+  test('Campaign dropdown defaults to empty selection when no campaign was previously selected', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
+    
+    // Login as admin (using the same logic)
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    if (await page.url().includes('user_details')) {
+      await page.fill('input[name="user_details[first_name]"]', 'Admin');
+      await page.fill('input[name="user_details[last_name]"]', 'User');
+      await page.fill('input[name="user_details[phone]"]', '123456');
+      await page.fill('input[name="user_details[postcode]"]', '1234');
+      await page.click('input[value="Submit"]');
+    }
+
+    // 1. Create a campaign first so we have at least one in the list
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
+    const uniqueName = `Default Selection Test ${Date.now()}`;
+    await page.fill('input[name="name"]', uniqueName);
+    const cedSelect = page.locator('select[name="ced_ids[]"]');
+    await cedSelect.selectOption({ index: 1 });
+    await page.click('button:has-text("Create Campaign")');
+
+    // Clear local storage to simulate a fresh session
+    await page.evaluate(() => localStorage.clear());
+
+    // Go back to map
+    await page.goto(`http://localhost:${port}/map`);
+    
+    const dropdown = page.locator('#campaign');
+    
+    // The dropdown should have the empty option selected (value '')
+    await expect(dropdown).toHaveValue('');
+  });
 });

@@ -28,9 +28,12 @@ function makeMap() {
     
     // Restore previous selection if any
     var saved = localStorage.getItem('selectedCampaignId');
-    if (saved) {
+    if (saved && select.find('option[value="' + saved + '"]').length > 0) {
       select.val(saved);
       selectedCampaignId = saved;
+    } else {
+      select.val('');
+      selectedCampaignId = '';
     }
     window.selectedCampaignId = selectedCampaignId;
     
