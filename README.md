@@ -30,6 +30,9 @@ Adapted to run as a pair of docker containers. Follow the instructions below.
     cd frontend
     ./build_container.sh
     docker run --rm --network="host" -e DATABASE_URL="postgres://neighbourly:neighbourly@localhost/neighbourly" neighbourly-app:local bundle exec rake db:migrate
+
+### Australia only
+ 
     cd ..
     docker exec -i -e PGPASSWORD=neighbourly neighbourly-db psql -U neighbourly -d neighbourly < pcode_bounds_au.sql  # Use pcode_bounds_uk.sql for UK deployments
     ```
