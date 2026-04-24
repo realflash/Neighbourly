@@ -73,7 +73,7 @@ test.describe('Campaign Admin and Filtering', () => {
     await page.goto(`http://localhost:${port}/map`);
     
     // Test: Dropdown populates correctly
-    const dropdown = page.locator('#campaign-select');
+    const dropdown = page.locator('#campaign');
     await expect(dropdown).toContainText(uniqueName);
 
     // Test: Cannot claim without selecting a campaign
