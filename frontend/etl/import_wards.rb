@@ -59,7 +59,8 @@ db.transaction do
   # Insert wards
   ward_code_to_id = {}
   ward_names.each do |code, name|
-    id = db[:wards].insert(name: name)
+    display_name = "#{name} (#{code})"
+    id = db[:wards].insert(name: display_name)
     ward_code_to_id[code] = id
   end
 

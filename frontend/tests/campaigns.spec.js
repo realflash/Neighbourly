@@ -121,4 +121,26 @@ test.describe('Campaign Admin and Filtering', () => {
     const url = new URL(request.url());
     expect(url.searchParams.get('campaign_id')).toBeTruthy();
   });
+
+  test('ward dropdown does not contain duplicate ambiguous names', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
+    // Login as admin
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    
+    // Go to create campaign page
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
+    
+    // Check ward dropdown
+    const wardSelect = page.locator('select[name="ward_ids[]"]');
+    const options = await wardSelect.locator('option').allInnerTexts();
+    
+    // Remove the placeholder or empty first option if it exists
+    const validOptions = options.filter(opt => opt.trim().length > 0);
+    
+    // Check for duplicates
+    const uniqueOptions = new Set(validOptions);
+    expect(validOptions.length).toBe(uniqueOptions.size);
+  });
 });

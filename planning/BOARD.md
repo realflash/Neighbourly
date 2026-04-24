@@ -9,6 +9,8 @@
 
 # Bug Board
 
+| BUG-2604240717 | Duplicate truncated ward names (e.g. Abbey, West) in dropdown | FIXED |
+
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |
 | BUG-2604191724 | build_container.sh hangs infinitely if test DB fails to bind to port 5433 | FIXED |
