@@ -126,6 +126,14 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
         HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4567 || echo "000")
         if [ "$HTTP_STATUS" == "200" ]; then
             echo -e "  ${GREEN}✓ Server responded with HTTP 200.${NC}"
+            
+            echo "  -> Running Playwright E2E tests against test server..."
+            if npx playwright test; then
+                echo -e "  ${GREEN}✓ Playwright E2E tests passed.${NC}"
+            else
+                echo -e "  ${RED}✗ Playwright E2E tests failed.${NC}"
+                TEST_PASS=0
+            fi
         else
             echo -e "  ${RED}✗ Server responded with HTTP ${HTTP_STATUS}. Expected 200.${NC}"
             docker logs neighbourly-test-server
