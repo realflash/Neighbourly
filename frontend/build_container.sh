@@ -117,16 +117,16 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Test 2: Launch Test Server and verify HTTP 200
     if [ $TEST_PASS -eq 1 ]; then
         echo "  -> Running database migrations on test db..."
-        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@127.0.0.1:5435/postgres' neighbourly-app:local bundle exec rake db:migrate > /dev/null
+        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@127.0.0.1:5435/postgres' neighbourly-app:local bundle exec rake db:migrate
         docker exec -i neighbourly-test-db psql -U postgres -d postgres < ceds.sql > /dev/null
         
         echo "  -> Launching test server..."
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e ADMIN_EMAILS='admin@example.com' -e PROXY_SECRET='test_proxy_secret' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e LAMBDA_BASE_URL='http://localhost:3000/ground-bounds' -e ADMIN_EMAILS='admin@example.com' -e PROXY_SECRET='test_proxy_secret' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
         
         echo "  -> Launching test bounds service..."
         docker rm -f neighbourly-test-bounds > /dev/null 2>&1 || true
-        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DATABASE_URL='postgres://neighbourly:neighbourly@localhost:5432/neighbourly' -e BASE_PATH='/ground-bounds' -e GOOGLE_MAPS_KEY='dummy_key' -e COUNTRY='UK' neighbourly-bounds-service:local > /dev/null 2>&1; then
+        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DATABASE_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e BASE_PATH='/ground-bounds' -e GOOGLE_MAPS_KEY='dummy_key' -e COUNTRY='UK' neighbourly-bounds-service:local > /dev/null 2>&1; then
             echo -e "  ${RED}✗ Failed to start test bounds service container.${NC}"
             docker logs neighbourly-test-bounds 2>/dev/null || true
             TEST_PASS=0
