@@ -18,6 +18,10 @@ RUN gem install bundler -v 1.15.3 && bundle install --jobs 4 --retry 3
 
 COPY . ./
 
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]
+
 EXPOSE 4567
 
 CMD ["bundle", "exec", "puma", "-p", "4567", "-e", "development"]

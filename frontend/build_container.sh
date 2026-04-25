@@ -117,12 +117,12 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     # Test 2: Launch Test Server and verify HTTP 200
     if [ $TEST_PASS -eq 1 ]; then
         echo "  -> Running database migrations on test db..."
-        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@localhost:5435/postgres' neighbourly-app:local bundle exec rake db:migrate > /dev/null
+        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@127.0.0.1:5435/postgres' neighbourly-app:local bundle exec rake db:migrate > /dev/null
         docker exec neighbourly-test-db psql -U postgres -d postgres -c "INSERT INTO ceds (name) VALUES ('Abbey ED (Cambridgeshire)'), ('Abbey ED (Lincolnshire)'), ('West ED');" > /dev/null
         
         echo "  -> Launching test server..."
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e ADMIN_EMAILS='admin@example.com' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e ADMIN_EMAILS='admin@example.com' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
         
         # Wait for Puma to start
         sleep 5

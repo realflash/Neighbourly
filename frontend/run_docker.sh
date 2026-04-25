@@ -43,7 +43,4 @@ docker run -d \
     $IMAGE_NAME
 
 echo "Container is now running! You can access the app at http://localhost:4567"
-
-echo "Running database migrations..."
-docker exec $CONTAINER_NAME ruby -e "require 'sequel'; Sequel.extension :migration; db = Sequel.connect(ENV['DB_URL']); Sequel::Migrator.run(db, 'migrations')"
-echo "Database migrations completed."
+echo "Database migrations will run automatically on container startup."

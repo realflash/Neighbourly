@@ -25,7 +25,9 @@ end
 namespace :db do
   require "sequel"
   Sequel.extension :migration
-  DB = Sequel.connect(ENV['DATABASE_URL'])
+  db_url = ENV['DATABASE_URL']
+  db_url = ENV['DB_URL'] if db_url.nil? || db_url.empty?
+  DB = Sequel.connect(db_url)
 
   desc "Prints current schema version"
   task :version do

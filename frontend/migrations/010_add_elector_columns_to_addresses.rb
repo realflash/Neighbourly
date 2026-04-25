@@ -2,7 +2,7 @@ Sequel.migration do
   no_transaction
 
   up do
-    has_table = db.fetch("SELECT 1 FROM information_schema.tables WHERE table_schema = 'gnaf_201702' AND table_name = 'addresses'").count > 0
+    has_table = self.fetch("SELECT 1 FROM information_schema.tables WHERE table_schema = 'gnaf_201702' AND table_name = 'addresses'").count > 0
     
     if has_table
       begin
@@ -20,7 +20,7 @@ Sequel.migration do
   end
 
   down do
-    has_table = db.fetch("SELECT 1 FROM information_schema.tables WHERE table_schema = 'gnaf_201702' AND table_name = 'addresses'").count > 0
+    has_table = self.fetch("SELECT 1 FROM information_schema.tables WHERE table_schema = 'gnaf_201702' AND table_name = 'addresses'").count > 0
     if has_table
       begin
         alter_table(Sequel.qualify(:gnaf_201702, :addresses)) do
