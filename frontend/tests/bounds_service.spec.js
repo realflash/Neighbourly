@@ -41,3 +41,11 @@ test.describe('EPIC_006 - Campaign Type PDF Generation', () => {
     expect(data.text).toMatch(/\(F, \d+\)|\(M, \d+\)/);
   });
 });
+
+test('Bounds service should successfully generate a PDF map without addresses', async ({ request }) => {
+  // Call the map endpoint
+  const response = await request.get('http://localhost:3000/ground-bounds/map?slug=E00157097');
+  
+  // The service must return 200 OK
+  expect(response.status()).toBe(200);
+});

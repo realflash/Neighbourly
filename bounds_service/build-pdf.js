@@ -100,16 +100,7 @@ module.exports = {
                 {
                     image: image,
                     fit: [595, 250]
-                },
-              {
-                style: 'table',
-                table: {
-                  headerRows: 0,
-                  dontBreakRows: true,
-                  widths: campaignType === 'leafleting' ? ['50%', '50%'] : [ '18%', '12%', '25%', '10%', '10%', '10%', '15%'],
-                  body: table
                 }
-              }
             ],
             styles: {
                 streetLocalityHR1: {
@@ -135,7 +126,19 @@ module.exports = {
                 alignment: 'center',
                 fontSize: 11
             }
-          };
+        };
+
+        if (table.length > 0) {
+            docDefinition.content.push({
+                style: 'table',
+                table: {
+                    headerRows: 0,
+                    dontBreakRows: true,
+                    widths: campaignType === 'leafleting' ? ['50%', '50%'] : [ '18%', '12%', '25%', '10%', '10%', '10%', '15%'],
+                    body: table
+                }
+            });
+        }
 
           var fontDescriptors = {
             Roboto: {
