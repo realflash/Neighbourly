@@ -1,6 +1,32 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Campaign Admin and Filtering', () => {
+
+  test('CEDs list is populated on campaign admin page', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
+    // 0. Login as admin
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    if (await page.url().includes('user_details')) {
+      await page.fill('input[name="user_details[first_name]"]', 'Admin');
+      await page.fill('input[name="user_details[last_name]"]', 'User');
+      await page.fill('input[name="user_details[phone]"]', '123456');
+      await page.fill('input[name="user_details[postcode]"]', '1234');
+      await page.click('input[value="Submit"]');
+    }
+    
+    // Wait for map redirect
+    await page.waitForURL(`http://localhost:${port}/map`);
+    
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
+    
+    // The list of CEDs should not be empty
+    const options = page.locator('select[name="ced_ids[]"] option');
+    const count = await options.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
   test('admin can create and archive a campaign', async ({ page }) => {
     const port = process.env.APP_PORT || 4567;
     // 0. Login as admin
