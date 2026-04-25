@@ -3,6 +3,7 @@ function makeMap() {
   var claimStyles = {
     claimed_by_you: $.extend({}, commonStyles, { 'fillColor': '#9d5fa7', 'fillOpacity': 0.8 }),
     claimed: $.extend({}, commonStyles, { 'fillColor': '#d5545a', 'fillOpacity': 0.8 }),
+    complete: $.extend({}, commonStyles, { 'fillColor': '#2171b5', 'fillOpacity': 0.8 }),
     quarantine: $.extend({}, commonStyles, { 'fillColor': '#2171b5', 'fillOpacity': 0.8 }),
     firstQuartile: $.extend({}, commonStyles, { 'fillColor': '#ffffcc' }),
     secondQuartile: $.extend({}, commonStyles, { 'fillColor': '#c2e699' }),
@@ -129,8 +130,12 @@ function makeMap() {
         switch (feature.properties.claim_status) {
         case 'claimed_by_you': return claimStyles.claimed_by_you
         case 'claimed': return claimStyles.claimed
-        case 'quarantine': return claimStyles.quarantine
-        default: return priorityStyles(feature)
+        case 'complete': return claimStyles.complete
+        case 'quarantine': return claimStyles.complete
+        default: 
+          if (feature.properties.claim_priority === 'high') return claimStyles.fourthQuartile
+          if (feature.properties.claim_priority === 'low') return claimStyles.firstQuartile
+          return priorityStyles(feature)
         }
       },
       onEachFeature: function (feature, featureLayer) {
@@ -198,6 +203,7 @@ function makeMap() {
           $('.download').addClass('hidden')
           $('.admin-unclaim').addClass('hidden')
           $('.admin-download').addClass('hidden')
+          $('.mark-complete').addClass('hidden')
           $('.claim').removeClass('hidden')
         }
 
@@ -205,6 +211,15 @@ function makeMap() {
           var leaflet_id = this._leaflet_id
           $('#load').removeClass('hidden')
           downloadmesh(leaflet_id)
+        }
+
+        this.btnMarkComplete = function() {
+          var leaflet_id = this._leaflet_id
+          $.post(APP_BASE_URL + '/claims/' + leaflet_id + '/status', { campaign_id: selectedCampaignId, status: 'complete' }, function() {
+            updateMap(true)
+          })
+          this.setStyle(claimStyles.complete)
+          $('.mark-complete').addClass('hidden')
         }
 
         function create_popup_btn(container, div_class, btn_text_inner, faq_text_inner) {
@@ -241,6 +256,38 @@ function makeMap() {
         adminUnclaim.btndom.addListener(adminUnclaim.btn, 'click', this.btnUnclaim, featureLayer)
         var adminDownload = create_popup_btn(container, 'admin-download', 'Download', 'Click to download the claimed area.<br>')
         adminDownload.btndom.addListener(adminDownload.btn, 'click', this.btnDownload, featureLayer)
+        var markCompleteOut = create_popup_btn(container, 'mark-complete', 'Mark Complete', 'Click to mark this area as completely door-knocked.<br>')
+        markCompleteOut.btndom.addListener(markCompleteOut.btn, 'click', this.btnMarkComplete, featureLayer)
+
+        var ownerName = feature.properties.claim_owner_name;
+        if (ownerName) {
+           var ownerContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
+           ownerContainer.innerHTML = 'Claimed by: ' + ownerName;
+        }
+
+        var priorityContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
+        var priorityHtml = 'Priority: '
+        var currentPriority = feature.properties.claim_priority || 'high';
+        if (admin) {
+           priorityHtml += '<select class="form-control priority-select half-width" data-slug="' + feature.properties.slug + '">' + 
+                           '<option value="high" ' + (currentPriority === 'high' ? 'selected' : '') + '>High</option>' +
+                           '<option value="low" ' + (currentPriority === 'low' ? 'selected' : '') + '>Low</option>' +
+                           '</select>';
+        } else {
+           priorityHtml += (currentPriority === 'low' ? 'Low' : 'High');
+        }
+        priorityContainer.innerHTML = priorityHtml;
+
+        if (admin) {
+           $(priorityContainer).find('select').on('change', function() {
+              var newPrio = $(this).val();
+              var slug = $(this).data('slug');
+              $.post(APP_BASE_URL + '/claims/' + slug + '/priority', { campaign_id: selectedCampaignId, priority: newPrio }, function() {
+                 updateMap(true); 
+              });
+           });
+        }
+
         var otherstxtcontainer = L.DomUtil.create('div', 'popuptxt hidden otherstext', container)
         otherstxtcontainer.innerHTML = 'This area is claimed by someone else and is unable to be claimed.'
         var quarantinetxtcontainer = L.DomUtil.create('div', 'popuptxt hidden quarantinetext', container)
@@ -250,11 +297,13 @@ function makeMap() {
         if (feature.properties.claim_status === 'claimed_by_you') {
           L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
           L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
+          L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
         }
         else if (feature.properties.claim_status === 'claimed') {
           if (admin) {
             L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
             L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
+            L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
           } else {
             L.DomUtil.removeClass(otherstxtcontainer, 'hidden')
           }
@@ -263,8 +312,19 @@ function makeMap() {
           if (admin) {
             L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
             L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
+            L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
           } else {
             L.DomUtil.removeClass(quarantinetxtcontainer, 'hidden')
+          }
+        }
+        else if (feature.properties.claim_status === 'complete') {
+          if (admin) {
+            L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
+            L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
+          } else if (ownerName && feature.properties.claim_status === 'complete') {
+             // Let user unclaim if they want, but don't show mark complete
+             L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
+             L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
           }
         }
         else {
@@ -382,7 +442,7 @@ function makeMap() {
       '<i style="opacity:0.8;background:', claimStyles.firstQuartile.fillColor, '"></i><div>Lower Priority</div>',
       '<i style="opacity:0.8;background:', claimStyles.claimed_by_you.fillColor, '"></i><div>My area</div>',
       '<i style="opacity:0.8;background:', claimStyles.claimed.fillColor, '"></i><div>Claimed</div>',
-      '<i style="opacity:0.8;background:', claimStyles.quarantine.fillColor, '"></i><div>Organised event</div>',
+      '<i style="opacity:0.8;background:', claimStyles.complete.fillColor, '"></i><div>Complete</div>',
     ].join('')
     return div
   }

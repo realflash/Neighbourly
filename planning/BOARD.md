@@ -6,6 +6,7 @@
 | EPIC-002 | Add UK Support & Internationalisation | IMPLEMENTED |
 | EPIC-003 | Bounds Service | IMPLEMENTED |
 | EPIC-004 | Multi-Campaign Capabilities | IMPLEMENTED |
+| EPIC-005 | Claim Properties | IMPLEMENTED |
 | EPIC-006 | Campaign Type | IMPLEMENTED |
 
 # Bug Board
