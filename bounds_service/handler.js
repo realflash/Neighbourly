@@ -13,16 +13,20 @@ const corsHeaders = {
 }
 
 const getAddresses = function(client, slug,cb) {
+  let queryStr = "";
   if (process.env.COUNTRY === 'UK') {
-    return cb(null, []);
+    queryStr = "SELECT k.gnaf_pid, k.locality_name, k.postcode, k.street_name AS street, k.number_first AS street_number, CASE WHEN k.number_first IS NOT NULL AND k.number_first ~ '^[0-9]+' THEN regexp_replace(k.number_first, '[^0-9]+', '', 'g')::integer ELSE NULL END as premise_sort FROM gnaf_201702.addresses k WHERE k.mb_2011_code = $1 AND k.alias_principal = 'P' ORDER BY street, premise_sort, street_number";
+  } else {
+    queryStr = "select k.gnaf_pid, k.street_locality_pid, k.address, k.locality_name, k.postcode, CONCAT(k.street_name,' ',k.street_type) AS street, CASE WHEN k.flat_number IS NULL THEN CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END ELSE CONCAT(k.flat_number,'/',CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END) END AS street_number, CASE WHEN k.flat_number IS NOT NULL AND k.flat_number LIKE '[0-9]+' THEN regexp_replace(k.flat_number, '[^0-9]+', '', 'g')::integer ELSE NULL END as subpremise_sort, k.number_first as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND(primary_secondary IS NULL OR primary_secondary = 'S') AND alias_principal = 'P' order by 2,9,8";
   }
 
-  let queryStr = "select k.gnaf_pid, k.street_locality_pid, k.address, k.locality_name, k.postcode, CONCAT(k.street_name,' ',k.street_type) AS street, CASE WHEN k.flat_number IS NULL THEN CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END ELSE CONCAT(k.flat_number,'/',CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END) END AS street_number, CASE WHEN k.flat_number IS NOT NULL AND k.flat_number LIKE '[0-9]+' THEN regexp_replace(k.flat_number, '[^0-9]+', '', 'g')::integer ELSE NULL END as subpremise_sort, k.number_first as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND(primary_secondary IS NULL OR primary_secondary = 'S') AND alias_principal = 'P' order by 2,9,8";
-  
   client.query(queryStr, [slug], (err, res) => {
-    if (err) return cb(err);
+    if (err) {
+      console.error("Error fetching addresses, returning empty list:", err.message);
+      return cb(null, []);
+    }
     var data = res.rows;
-    cb(err,data);
+    cb(null, data);
   });
 }
 
