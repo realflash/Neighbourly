@@ -32,12 +32,17 @@ module Sinatra
       end
 
       def is_admin?(email)
+        email_str = email.to_s.downcase
+        
+        # Check environment variable (override/legacy)
         if !ENV['ADMIN_EMAILS'].to_s.strip.empty?
           emails = ENV['ADMIN_EMAILS'].split(",").map(&:strip).map(&:downcase)
-          emails.include?(email.to_s.downcase)
-        else
-          false
+          return true if emails.include?(email_str)
         end
+        
+        # Check database role
+        user = settings.db[:users].where(email: email_str).first
+        user && user[:role] == 'admin'
       end
     end
 

@@ -25,12 +25,14 @@ class ClaimService
   end
 
   def admin_unclaim(mesh_block, campaign_id)
-    emails = ENV['ADMIN_EMAILS'].to_s.split(",").map(&:strip).map(&:downcase)
+    env_emails = ENV['ADMIN_EMAILS'].to_s.split(",").map(&:strip).map(&:downcase)
+    db_admin_emails = @db[:users].where(role: 'admin').select_map(:email).map(&:downcase)
+    all_admin_emails = (env_emails + db_admin_emails).uniq
 
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
       .where(campaign_id: campaign_id)
-      .where('lower(mesh_block_claimer) IN ?', emails)
+      .where('lower(mesh_block_claimer) IN ?', all_admin_emails)
       .update(deleted_at: Time.now)
   end
 
