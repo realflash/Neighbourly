@@ -25,6 +25,8 @@ function makeMap() {
   // Fetch active campaigns and populate the dropdown
   $.getJSON(APP_BASE_URL + '/api/campaigns', function(campaigns) {
     var select = $('#campaign');
+    select.empty();
+    select.append($('<option></option>').val('').text('-- Select a Campaign --'));
     campaigns.forEach(function(c) {
       select.append($('<option></option>').val(c.id).text(c.name));
     });
@@ -39,6 +41,9 @@ function makeMap() {
       selectedCampaignId = '';
     }
     window.selectedCampaignId = selectedCampaignId;
+    if (selectedCampaignId) {
+      updateMap(true);
+    }
     
     select.on('change', function() {
       selectedCampaignId = $(this).val();
