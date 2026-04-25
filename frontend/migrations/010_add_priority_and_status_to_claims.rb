@@ -1,8 +1,14 @@
 Sequel.migration do
   up do
-    alter_table(:claims) do
-      add_column :priority, String, default: 'high'
-      add_column :status, String, default: 'claimed'
+    if !DB[:claims].columns.include?(:priority)
+      alter_table(:claims) do
+        add_column :priority, String, default: 'high'
+      end
+    end
+    if !DB[:claims].columns.include?(:status)
+      alter_table(:claims) do
+        add_column :status, String, default: 'claimed'
+      end
     end
     
     # Backfill existing active claims

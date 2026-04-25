@@ -1,7 +1,9 @@
 Sequel.migration do
   up do
-    alter_table(:users) do
-      add_column :role, String, default: 'user'
+    if !DB[:users].columns.include?(:role)
+      alter_table(:users) do
+        add_column :role, String, default: 'user'
+      end
     end
   end
 

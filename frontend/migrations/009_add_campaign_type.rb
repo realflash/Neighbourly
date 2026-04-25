@@ -1,7 +1,9 @@
 Sequel.migration do
   up do
-    alter_table(:campaigns) do
-      add_column :campaign_type, String, default: 'leafleting'
+    if !DB[:campaigns].columns.include?(:campaign_type)
+      alter_table(:campaigns) do
+        add_column :campaign_type, String, default: 'leafleting'
+      end
     end
   end
 
