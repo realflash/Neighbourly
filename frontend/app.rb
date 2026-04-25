@@ -20,6 +20,21 @@ enable :sessions
 set :session_secret, ENV["SECRET_KEY_BASE"]
 set :unclaim_token, ENV['DATA_ENTRY_UNCLAIM_TOKEN']
 
+before do
+  # SSO via proxy (election-tools)
+  # We check for a shared secret to ensure the request is coming from our proxy
+  proxy_email = request.env['HTTP_X_FORWARDED_EMAIL']
+  proxy_secret = request.env['HTTP_X_PROXY_SECRET']
+  
+  if proxy_email && proxy_secret && proxy_secret == ENV['PROXY_SECRET']
+    # If the user is not already authorised as this email, authorise them
+    unless authorised? && user_email == proxy_email.downcase
+      puts "SSO Auth for: #{proxy_email}"
+      authorise(proxy_email)
+    end
+  end
+end
+
 abort("ERROR: DB_URL environment variable is missing or empty.") if ENV['DB_URL'].nil? || ENV['DB_URL'].empty?
 
 DB = Sequel.connect(ENV['DB_URL']) unless defined?(DB)

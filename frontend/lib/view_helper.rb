@@ -9,9 +9,7 @@ module Sinatra
 
       def campaigns
         [
-          'If applicable, select campaign before claiming',
-          'Dickson',
-          'Warringah',
+          'If applicable, select campaign before claiming'
         ]
       end
 

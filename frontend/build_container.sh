@@ -122,7 +122,7 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
         
         echo "  -> Launching test server..."
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e ADMIN_EMAILS='admin@example.com' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e ADMIN_EMAILS='admin@example.com' -e PROXY_SECRET='test_proxy_secret' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
         
         # Wait for Puma to start
         sleep 5
