@@ -15,6 +15,9 @@ const lambdaCallback = (res) => (err, response) => {
   if (res.headersSent) return;
   if (err) {
     console.error('Lambda Error:', err);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,x-requested-with');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
     return res.status(500).json({ error: 'Internal Server Error' });
   }
   

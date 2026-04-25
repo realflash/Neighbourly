@@ -13,6 +13,7 @@
 | BUG-2604241159 | Campaign dropdown defaults to last item instead of none | FIXED |
 | BUG-2604240717 | Duplicate truncated ward names (e.g. Abbey, West) in dropdown | FIXED |
 | BUG-2604250631 | admin/campaigns route fails with undefined method `campaign_type` due to missing db migrations on start | FIXED |
+| BUG-2604250642 | Bounds service returns CORS error due to 500 internal server error from missing elector columns | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |
