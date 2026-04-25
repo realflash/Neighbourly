@@ -76,60 +76,73 @@ const getImage = function(client, slug,cb) {
 
 module.exports.getForBounds = (event, context, callback) => {
   const client = new Client({ connectionString: process.env.DATABASE_URL  })
-  client.connect().catch(err => {
-    return callback(err);
+  
+  client.on('error', err => {
+    console.error('pg client error', err.message);
   });
 
-  client.query("SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(k.geom,7)::json As geometry, row_to_json((SELECT l FROM (SELECT mb_11code As slug,yes_quarantined As quarantined) As l)) As properties from admin_bdys_201702.abs_2011_mb as k WHERE ST_Intersects(ST_MakeEnvelope($1,$2,$3,$4,4326),k.geom) AND k.mb_category = 'RESIDENTIAL') As f ) As fc", [event.queryStringParameters.nwx,event.queryStringParameters.nwy,event.queryStringParameters.sex,event.queryStringParameters.sey], (err, res) => {
-    client.end()
-    if (err) return callback(err)
+  client.connect(err => {
+    if (err) {
+      return callback(err);
+    }
+    
+    client.query("SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(k.geom,7)::json As geometry, row_to_json((SELECT l FROM (SELECT mb_11code As slug,yes_quarantined As quarantined) As l)) As properties from admin_bdys_201702.abs_2011_mb as k WHERE ST_Intersects(ST_MakeEnvelope($1,$2,$3,$4,4326),k.geom) AND k.mb_category = 'RESIDENTIAL') As f ) As fc", [event.queryStringParameters.nwx,event.queryStringParameters.nwy,event.queryStringParameters.sex,event.queryStringParameters.sey], (err, res) => {
+      client.end()
+      if (err) return callback(err)
 
-    const response = {
-      statusCode: 200,
-      headers: corsHeaders,
-      body: JSON.stringify(res.rows[0].row_to_json)
-    };
-    callback(null, response);
+      const response = {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify(res.rows[0].row_to_json)
+      };
+      callback(null, response);
+    });
   });
 };
 
 module.exports.generateMap = (event, context, callback) => {
   const client = new Client({ connectionString: process.env.DATABASE_URL  })
-  client.connect().catch(err => {
-    return callback(err);
+  
+  client.on('error', err => {
+    console.error('pg client error', err.message);
   });
 
-  async.parallel({
-    image: cb => getImage(client, event.queryStringParameters.slug, cb),
-    addresses: cb => getAddresses(client, event.queryStringParameters.slug, cb)
-  }, function(err, results) {
-    client.end()
-    if (err) return callback(err)
-
-    console.log("generateMap success. slug:", event.queryStringParameters.slug, "addresses:", results.addresses ? results.addresses.length : 0);
-    if (!results.addresses || results.addresses.length === 0) {
-      return callback(new Error("No addresses found for this slug."));
+  client.connect(err => {
+    if (err) {
+      return callback(err);
     }
 
-    var pdf = require('./build-pdf').create(results.image,results.addresses,event.queryStringParameters.slug, event.queryStringParameters.campaign_type),
-    stream = pdf.pipe(b64Stream.encode()),
-    // Uncomment to preview the pdf locally
-    //  stream = pdf.pipe(require('fs').createWriteStream('output.pdf')),
-    data = '';
-    pdf.end();
+    async.parallel({
+      image: cb => getImage(client, event.queryStringParameters.slug, cb),
+      addresses: cb => getAddresses(client, event.queryStringParameters.slug, cb)
+    }, function(err, results) {
+      client.end()
+      if (err) return callback(err)
 
-    stream.on('data', function(chunk) {
-      data += chunk;
-    });
+      console.log("generateMap success. slug:", event.queryStringParameters.slug, "addresses:", results.addresses ? results.addresses.length : 0);
+      if (!results.addresses || results.addresses.length === 0) {
+        return callback(new Error("No addresses found for this slug."));
+      }
 
-    stream.on('end', function() {
-      const response = {
-        statusCode: 200,
-        headers: corsHeaders,
-        body: JSON.stringify({base64: data})
-      };
-      callback(null,response);
+      var pdf = require('./build-pdf').create(results.image,results.addresses,event.queryStringParameters.slug, event.queryStringParameters.campaign_type),
+      stream = pdf.pipe(b64Stream.encode()),
+      // Uncomment to preview the pdf locally
+      //  stream = pdf.pipe(require('fs').createWriteStream('output.pdf')),
+      data = '';
+      pdf.end();
+
+      stream.on('data', function(chunk) {
+        data += chunk;
+      });
+
+      stream.on('end', function() {
+        const response = {
+          statusCode: 200,
+          headers: corsHeaders,
+          body: JSON.stringify({base64: data})
+        };
+        callback(null,response);
+      });
     });
   });
-
 };
