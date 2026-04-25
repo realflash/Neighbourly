@@ -209,10 +209,13 @@ post '/admin/campaigns/:id/archive' do
   end
 end
 
-def claim_status(claimer)
-  if is_admin?(claimer)
+def claim_status(claim)
+  return claim[:status] if claim[:status] == 'complete'
+  return 'released' if claim[:status] == 'released' || claim[:mesh_block_claimer].nil?
+
+  if is_admin?(claim[:mesh_block_claimer])
     "quarantine"
-  elsif claimer == session[:user_email]
+  elsif claim[:mesh_block_claimer] == session[:user_email]
     "claimed_by_you"
   else
     "claimed"
@@ -224,17 +227,50 @@ def get_meshblocks_with_status(json, campaign_id)
   claim_service = ClaimService.new(settings.db)
   claims = claim_service.claims(slugs, campaign_id)
 
-  statuses = claims.map do |c|
-    [ c[:mesh_block_slug], claim_status(c[:mesh_block_claimer]) ]
+  claim_data = claims.map do |c|
+    owner_name = nil
+    if c[:mesh_block_claimer]
+      user = settings.db[:users].where(email: c[:mesh_block_claimer]).first
+      owner_name = "#{user[:first_name]} #{user[:last_name]}".strip if user
+    end
+    [ c[:mesh_block_slug], { status: claim_status(c), priority: c[:priority], owner_name: owner_name } ]
   end.to_h
 
   json["features"] = json["features"].map do |feature|
-    state = statuses[feature["properties"]["slug"].to_s]
-    feature["properties"]["claim_status"] = state || "unclaimed"
+    data = claim_data[feature["properties"]["slug"].to_s]
+    if data
+      feature["properties"]["claim_status"] = data[:status]
+      feature["properties"]["claim_priority"] = data[:priority]
+      feature["properties"]["claim_owner_name"] = data[:owner_name]
+    else
+      feature["properties"]["claim_status"] = "unclaimed"
+    end
     feature
   end
 
   json
+end
+
+post '/claims/:id/priority' do
+  authorised do
+    redirect to('/') unless is_admin?(user_email)
+    claim_service = ClaimService.new(settings.db)
+    claim_service.set_priority(params['id'], params['campaign_id'], params['priority'])
+    status 200
+  end
+end
+
+post '/claims/:id/status' do
+  authorised do
+    claim_service = ClaimService.new(settings.db)
+    claim = settings.db[:claims].where(mesh_block_slug: params['id'], campaign_id: params['campaign_id'], deleted_at: nil).first
+    if is_admin?(user_email) || (claim && claim[:mesh_block_claimer] == user_email)
+      claim_service.set_status(params['id'], params['campaign_id'], params['status'])
+      status 200
+    else
+      status 403
+    end
+  end
 end
 
 #For loading new SA1s when scrolling on the map
