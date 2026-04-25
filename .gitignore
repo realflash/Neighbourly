@@ -11,3 +11,5 @@ frontend/etl/pcode_bounds_uk.sql
 frontend/node_modules/
 frontend/test-results/
 frontend/etl/*.csv
+users.csv
+.~lock.users.csv#
