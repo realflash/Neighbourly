@@ -278,6 +278,13 @@ get '/meshblocks_bounds' do
   authorised do
     url = "#{ENV['LAMBDA_BASE_URL']}/territories/bounds"
     response = HTTParty.get(url, {query: params})
+    
+    if response.code != 200
+      puts "500 due to bounds service returning #{response.code}"
+      status 500
+      return json({error: 'Internal Server Error from bounds service'})
+    end
+    
     data = JSON.parse response.body
 
     if data['features'] == nil

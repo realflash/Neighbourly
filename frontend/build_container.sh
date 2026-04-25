@@ -126,7 +126,7 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
         
         echo "  -> Launching test bounds service..."
         docker rm -f neighbourly-test-bounds > /dev/null 2>&1 || true
-        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e GOOGLE_MAPS_KEY='dummy_key' neighbourly-bounds-service:local > /dev/null 2>&1; then
+        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DATABASE_URL='postgres://postgres:password@localhost:5435/postgres' -e BASE_PATH='/ground-bounds' -e GOOGLE_MAPS_KEY='dummy_key' neighbourly-bounds-service:local > /dev/null 2>&1; then
             echo -e "  ${RED}✗ Failed to start test bounds service container.${NC}"
             docker logs neighbourly-test-bounds 2>/dev/null || true
             TEST_PASS=0
