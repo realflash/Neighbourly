@@ -11,6 +11,7 @@
 
 # Bug Board
 
+| BUG-2604250639 | List of CEDs is empty on /admin/campaigns | FIXED |
 | BUG-2604241159 | Campaign dropdown defaults to last item instead of none | FIXED |
 | BUG-2604240717 | Duplicate truncated ward names (e.g. Abbey, West) in dropdown | FIXED |
 | BUG-2604250631 | admin/campaigns route fails with undefined method `campaign_type` due to missing db migrations on start | FIXED |

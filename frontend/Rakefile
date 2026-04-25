@@ -58,4 +58,11 @@ namespace :db do
     Sequel::Migrator.run(DB, "migrations")
     Rake::Task['db:version'].execute
   end
+
+  desc "Load seed data into the database"
+  task :seed do
+    puts "Loading ceds.sql into database..."
+    `psql #{ENV['DATABASE_URL']} < ceds.sql`
+    puts "Done."
+  end
 end
