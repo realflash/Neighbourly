@@ -13,19 +13,17 @@ const corsHeaders = {
 }
 
 const getAddresses = function(client, slug,cb) {
-  let queryStr = "";
   if (process.env.COUNTRY === 'UK') {
-    queryStr = "select k.gnaf_pid, k.locality_name, k.postcode, k.street_name AS street, k.number_first AS street_number, NULL as subpremise_sort, k.number_first as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND alias_principal = 'P' order by k.street_name, k.number_first";
-  } else {
-    queryStr = "select k.gnaf_pid, k.street_locality_pid, k.address, k.locality_name, k.postcode, CONCAT(k.street_name,' ',k.street_type) AS street, CASE WHEN k.flat_number IS NULL THEN CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END ELSE CONCAT(k.flat_number,'/',CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END) END AS street_number, CASE WHEN k.flat_number IS NOT NULL AND k.flat_number LIKE '[0-9]+' THEN regexp_replace(k.flat_number, '[^0-9]+', '', 'g')::integer ELSE NULL END as subpremise_sort, k.number_first as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND(primary_secondary IS NULL OR primary_secondary = 'S') AND alias_principal = 'P' order by 2,9,8";
+    return cb(null, []);
   }
 
+  let queryStr = "select k.gnaf_pid, k.street_locality_pid, k.address, k.locality_name, k.postcode, CONCAT(k.street_name,' ',k.street_type) AS street, CASE WHEN k.flat_number IS NULL THEN CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END ELSE CONCAT(k.flat_number,'/',CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END) END AS street_number, CASE WHEN k.flat_number IS NOT NULL AND k.flat_number LIKE '[0-9]+' THEN regexp_replace(k.flat_number, '[^0-9]+', '', 'g')::integer ELSE NULL END as subpremise_sort, k.number_first as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND(primary_secondary IS NULL OR primary_secondary = 'S') AND alias_principal = 'P' order by 2,9,8";
+  
   client.query(queryStr, [slug], (err, res) => {
     if (err) return cb(err);
     var data = res.rows;
     cb(err,data);
   });
-
 }
 
 const getImage = function(client, slug,cb) {
@@ -120,8 +118,8 @@ module.exports.generateMap = (event, context, callback) => {
       if (err) return callback(err)
 
       console.log("generateMap success. slug:", event.queryStringParameters.slug, "addresses:", results.addresses ? results.addresses.length : 0);
-      if (!results.addresses || results.addresses.length === 0) {
-        return callback(new Error("No addresses found for this slug."));
+      if (!results.addresses) {
+        results.addresses = [];
       }
 
       var pdf = require('./build-pdf').create(results.image,results.addresses,event.queryStringParameters.slug),

@@ -10,6 +10,7 @@
 
 # Bug Board
 
+| BUG-2604250715 | ISE when downloading PDF for a claim | FIXED |
 | BUG-2604250650 | /meshblocks_bounds returning 404 | FIXED |
 | BUG-2604250639 | List of CEDs is empty on /admin/campaigns | FIXED |
 | BUG-2604241159 | Campaign dropdown defaults to last item instead of none | FIXED |

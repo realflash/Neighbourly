@@ -7,3 +7,12 @@ test('Bounds service should not crash and return 500 when database connection fa
   // The service must return 200 OK
   expect(response.status()).toBe(200);
 });
+
+test('Bounds service should successfully generate a PDF map without addresses', async ({ request }) => {
+  // Call the map endpoint
+  const response = await request.get('http://localhost:3000/ground-bounds/map?slug=E00157097');
+  
+  // The service must return 200 OK
+  expect(response.status()).toBe(200);
+});
+
