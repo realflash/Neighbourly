@@ -183,11 +183,7 @@ function makeMap() {
           $('.unclaim').removeClass('hidden')
           $('.download').removeClass('hidden')
           $('.claim').addClass('hidden')
-          if (admin) {
-            this.setStyle(claimStyles.quarantine)
-          } else {
-            this.setStyle(claimStyles.claimed_by_you)
-          }
+          this.setStyle(claimStyles.claimed_by_you)
           $('#load').removeClass('hidden')
           downloadmesh(leaflet_id)
         }

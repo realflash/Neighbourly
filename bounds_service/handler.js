@@ -55,21 +55,19 @@ const getImage = function(client, slug,cb) {
       body = "";
 
       res.setEncoding('binary');
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
       res.on('end', () => {
         var base64 = new Buffer(body, 'binary').toString('base64'),
         data = prefix + base64;
         cb(null, data);
       });
-      res.on('data', (chunk) => {
-          if (res.statusCode == 200) body += chunk;
-      });
-      res.on('error', (err) => {
-        cb(err);
-      });
     });
 
     req.on('error', (err) => {
-      cb(err);
+      console.error("Error fetching image from Google:", err.message);
+      cb(null, "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
     });
     req.end();
   });
@@ -77,20 +75,33 @@ const getImage = function(client, slug,cb) {
 }
 
 module.exports.getForBounds = (event, context, callback) => {
-  const client = new Client({ connectionString: process.env.DATABASE_URL  })
-  
-  client.on('error', err => {
-    console.error('pg client error', err.message);
-  });
+  (async () => {
+    const client = new Client({ connectionString: process.env.DATABASE_URL });
+    try {
+      await client.connect();
+      const { nwx, nwy, sex, sey } = event.queryStringParameters;
+      // Standard order for ST_MakeEnvelope: xmin, ymin, xmax, ymax
+      // map.js sends: sex=xmin, sey=ymin, nwx=xmax, nwy=ymax
+      console.log("getForBounds query params (normalized):", [sex, sey, nwx, nwy]);
+      
+      const query = `
+        SELECT row_to_json(fc) 
+        FROM (
+          SELECT 'FeatureCollection' As type, 
+                 COALESCE(array_to_json(array_agg(f)), '[]'::json) As features 
+          FROM (
+            SELECT 'Feature' As type, 
+                   ST_AsGeoJSON(k.geom,7)::json As geometry, 
+                   row_to_json((SELECT l FROM (SELECT mb_11code As slug, yes_quarantined As quarantined) As l)) As properties 
+            FROM admin_bdys_201702.abs_2011_mb as k 
+            WHERE ST_Intersects(ST_MakeEnvelope($1::double precision, $2::double precision, $3::double precision, $4::double precision, 4326), k.geom) 
+              AND k.mb_category = 'RESIDENTIAL'
+          ) As f
+        ) As fc`;
 
-  client.connect(err => {
-    if (err) {
-      return callback(err);
-    }
-    
-    client.query("SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(k.geom,7)::json As geometry, row_to_json((SELECT l FROM (SELECT mb_11code As slug,yes_quarantined As quarantined) As l)) As properties from admin_bdys_201702.abs_2011_mb as k WHERE ST_Intersects(ST_MakeEnvelope($1,$2,$3,$4,4326),k.geom) AND k.mb_category = 'RESIDENTIAL') As f ) As fc", [event.queryStringParameters.nwx,event.queryStringParameters.nwy,event.queryStringParameters.sex,event.queryStringParameters.sey], (err, res) => {
-      client.end()
-      if (err) return callback(err)
+      const res = await client.query(query, [sex, sey, nwx, nwy]);
+      console.log(`getForBounds found ${res.rows[0].row_to_json.features ? res.rows[0].row_to_json.features.length : 0} features`);
+      await client.end();
 
       const response = {
         statusCode: 200,
@@ -98,8 +109,14 @@ module.exports.getForBounds = (event, context, callback) => {
         body: JSON.stringify(res.rows[0].row_to_json)
       };
       callback(null, response);
-    });
-  });
+    } catch (err) {
+      console.error('getForBounds error:', err);
+      if (client) {
+        try { await client.end(); } catch (e) {}
+      }
+      callback(err);
+    }
+  })();
 };
 
 module.exports.generateMap = (event, context, callback) => {

@@ -116,17 +116,33 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
     
     # Test 2: Launch Test Server and verify HTTP 200
     if [ $TEST_PASS -eq 1 ]; then
+        TEST_DB_URL='postgres://postgres:password@localhost:5435/postgres'
+        
+        # Run migrations
         echo "  -> Running database migrations on test db..."
-        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@localhost:5435/postgres' neighbourly-app:local bundle exec rake db:migrate > /dev/null
+        docker run --rm --network="host" -e DB_URL="$TEST_DB_URL" neighbourly-app:local bundle exec sequel -m migrations "$TEST_DB_URL" > /dev/null 2>&1
+        
+        # Seed pcode_bounds (needed for map centering)
+        echo "  -> Seeding pcode_bounds in test db..."
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "CREATE TABLE IF NOT EXISTS pcode_bounds (pcode varchar(255), swlat double precision, swlng double precision, nelat double precision, nelng double precision);" > /dev/null
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "CREATE INDEX idx_pcode_bounds_pcode ON pcode_bounds (pcode);" > /dev/null
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM pcode_bounds WHERE pcode = 'GU24 9LY';" > /dev/null
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "INSERT INTO pcode_bounds (pcode, swlat, swlng, nelat, nelng) VALUES ('GU24 9LY', 51.32282, -0.659385, 51.342819999999996, -0.629385);" > /dev/null
+        
+        # Seed CEDS
+        echo "  -> Seeding CEDS in test db..."
         docker exec -i neighbourly-test-db psql -U postgres -d postgres < ceds.sql > /dev/null
+        
+        # Ensure admin user is fresh
+        docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM users WHERE email = 'admin@example.com';" > /dev/null
         
         echo "  -> Launching test server..."
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e ADMIN_EMAILS='admin@example.com' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
+        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e ADMIN_EMAILS='admin@example.com,admin-bug@example.com' -e LAMBDA_BASE_URL='http://localhost:3000/ground-bounds' -e GOOGLE_MAPS_KEY='AIzaSyB_F6fUgOp7aRCzo8lSi6KbcqDktZcdc_0' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
         
         echo "  -> Launching test bounds service..."
         docker rm -f neighbourly-test-bounds > /dev/null 2>&1 || true
-        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DATABASE_URL='postgres://neighbourly:neighbourly@localhost:5432/neighbourly' -e BASE_PATH='/ground-bounds' -e GOOGLE_MAPS_KEY='dummy_key' -e COUNTRY='UK' neighbourly-bounds-service:local > /dev/null 2>&1; then
+        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DATABASE_URL='postgres://neighbourly:neighbourly@localhost:5432/neighbourly' -e BASE_PATH='/ground-bounds' -e GOOGLE_MAPS_KEY='AIzaSyB_F6fUgOp7aRCzo8lSi6KbcqDktZcdc_0' -e COUNTRY='UK' neighbourly-bounds-service:local > /dev/null 2>&1; then
             echo -e "  ${RED}✗ Failed to start test bounds service container.${NC}"
             docker logs neighbourly-test-bounds 2>/dev/null || true
             TEST_PASS=0
@@ -152,6 +168,9 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
             docker logs neighbourly-test-server
             TEST_PASS=0
         fi
+        
+        echo "  -> Bounds Service Logs:"
+        docker logs neighbourly-test-bounds
         
         echo "  -> Tearing down test containers..."
         docker stop neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
