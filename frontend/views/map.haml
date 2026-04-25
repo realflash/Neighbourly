@@ -1,4 +1,4 @@
-.map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": ENV['LAMBDA_BASE_URL'], "data-postcode": user_postcode, "data-app-base-url": to('/')}
+.map#map{"data-central-events-url": ENV['CENTRALLY_COORDINATED_EVENTS_URL'], "data-is-admin": is_admin?(user_email).to_s, "data-lambda-base-url": (ENV['LAMBDA_PUBLIC_URL'] || ENV['LAMBDA_BASE_URL']), "data-postcode": user_postcode, "data-app-base-url": to('/')}
 
 .block-stats-hover
 .hidden{id: "dialog", title: "FAQ"}

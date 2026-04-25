@@ -35,15 +35,17 @@ const lambdaCallback = (res) => (err, response) => {
   }
 };
 
-app.get('/territories/bounds', (req, res) => {
-  console.log('Received request for /territories/bounds', req.query);
+const basePath = process.env.BASE_PATH || '';
+
+app.get(`${basePath}/territories/bounds`, (req, res) => {
+  console.log(`Received request for ${basePath}/territories/bounds`, req.query);
   const event = {
     queryStringParameters: req.query
   };
   handler.getForBounds(event, {}, lambdaCallback(res));
 });
 
-app.get('/map', (req, res) => {
+app.get(`${basePath}/map`, (req, res) => {
   const event = {
     queryStringParameters: req.query
   };
