@@ -58,19 +58,29 @@ ouprd_files = File.directory?(ouprd_csv_path) ? Dir.glob(File.join(ouprd_csv_pat
 
 ouprd_files.each do |file|
   # We use a simple line-by-line approach to avoid memory bloat
-  headers = nil
+  uprn_idx = nil
+  oa_idx = nil
   File.foreach(file, mode: 'rb:bom|utf-8') do |raw_line|
     line = raw_line.scrub('?')
-    if headers.nil?
+    if uprn_idx.nil?
       headers = CSV.parse_line(line)
+      uprn_idx = headers.index('uprn') || headers.index('UPRN') || 0
+      oa_idx = headers.index('oa21cd') || headers.index('OA21CD') || headers.index('oa11cd') || headers.index('OA11CD')
     else
+      # Fast UPRN check (assuming UPRN is usually the first column, or we just extract the first field)
+      first_val = line.split(',', 2).first.to_s.delete('"')
+      # We just check if first_val is a target UPRN. If uprn_idx is not 0, this might miss, but usually UPRN is 1st.
+      # If not, we fallback to parsing
+      if uprn_idx == 0
+        next unless target_uprns.key?(first_val)
+      end
+      
       fields = CSV.parse_line(line)
       next unless fields
-      row = CSV::Row.new(headers, fields)
-      uprn = row['uprn'] || row['UPRN']
+      uprn = fields[uprn_idx]
       next unless uprn && target_uprns.key?(uprn)
       
-      oa = row['oa21cd'] || row['OA21CD'] || row['oa11cd'] || row['OA11CD']
+      oa = fields[oa_idx]
       target_uprns[uprn] = oa if oa
     end
   end
@@ -82,9 +92,9 @@ sanitised_records.each do |row|
   building = row['building']
   town = row['town']
   postcode = row['postcode']
-  elector_name = row['Elector Name'] || row['elector_name'] || ''
-  gender = row['Gender'] || row['gender'] || ''
-  age = row['Age'] || row['age'] || ''
+  elector_name = row['Elector Name'] || row['elector_name'] || [row['firstName'], row['middleNames'], row['lastName']].compact.join(' ').gsub(/\s+/, ' ').strip
+  gender = row['Gender'] || row['gender'] || row['estimatedGender'] || ''
+  age = row['Age'] || row['age'] || row['estimatedAge'] || ''
   
   oa = target_uprns[uprn]
   next unless oa # Skip if we can't map it to an Output Area
