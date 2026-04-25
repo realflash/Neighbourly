@@ -9,27 +9,72 @@ function fontPath(file) {
 }
 
 module.exports = {
-    create: function(image,addresses,slug) {
+    create: function(image,addresses,slug, campaignType) {
         var table = [];
+        campaignType = campaignType || 'leafleting';
 
-        _.forEach(_.groupBy(addresses,'street'), function(value, key) {
-            table.push([
-                {text: key, style:'streetLocalityHR1'},
-                {text: 'Unable to knock', style:['streetLocalityHR1','streetLocalityHR2']},
-                {text: 'Not Home', style:['streetLocalityHR1','streetLocalityHR2']},
-                {text: 'Not Interested', style:['streetLocalityHR1','streetLocalityHR2']},
-                {text: 'Meaningful Conversation', style:['streetLocalityHR1','streetLocalityHR2']},
-            ]);
-            _.forEach(value, function(adr) {
+        if (campaignType === 'leafleting') {
+            _.forEach(_.groupBy(addresses,'street'), function(value, key) {
                 table.push([
-                    [{text: adr.street_number, bold: true, fontSize: 10},{text: adr.gnaf_pid, fontSize: 6}],
-                    {canvas:[{type: 'rect',x: 20,y: 2.5,w: 10,h: 10,r: 3,lineWidth: 1,lineColor: '#000000'}]},
-                    {canvas:[{type: 'rect',x: 20,y: 2.5,w: 10,h: 10,r: 3,lineWidth: 1,lineColor: '#000000'}]},
-                    {canvas:[{type: 'rect',x: 20,y: 2.5,w: 10,h: 10,r: 3,lineWidth: 1,lineColor: '#000000'}]},
-                    {canvas:[{type: 'rect',x: 20,y: 2.5,w: 10,h: 10,r: 3,lineWidth: 1,lineColor: '#000000'}]}
-            ])
-        })
-    });
+                    {text: key, style:'streetLocalityHR1', colSpan: 2},
+                    {}
+                ]);
+                
+                // Group numbers on the same street
+                var numbers = [];
+                var lastAdr = null;
+                _.forEach(value, function(adr) {
+                    // if elector_name exists, we might have duplicates per house, so we unique them
+                    if (lastAdr && lastAdr.gnaf_pid === adr.gnaf_pid) return;
+                    numbers.push(adr.street_number);
+                    lastAdr = adr;
+                });
+                
+                // create ranges: e.g. 1,2,3 -> 1-3
+                var numberStr = numbers.reduce((acc, curr, i) => {
+                    if (i === 0) return [curr];
+                    var last = acc[acc.length - 1];
+                    var lastNum = parseInt(last.split('-').pop(), 10);
+                    var currNum = parseInt(curr, 10);
+                    if (!isNaN(lastNum) && !isNaN(currNum) && currNum === lastNum + 1) {
+                        var base = last.split('-')[0];
+                        acc[acc.length - 1] = base + '-' + curr;
+                    } else {
+                        acc.push(curr);
+                    }
+                    return acc;
+                }, []).join(', ');
+                
+                table.push([
+                    {text: numberStr, bold: true, fontSize: 10, alignment: 'left'},
+                    {text: lastAdr ? lastAdr.postcode : '', fontSize: 10, alignment: 'right'}
+                ]);
+            });
+        } else {
+            // Canvassing layout
+            _.forEach(_.groupBy(addresses,'street'), function(value, key) {
+                table.push([
+                    {text: key, style:'streetLocalityHR1'},
+                    {text: 'Postcode', style:['streetLocalityHR1','streetLocalityHR2']},
+                    {text: 'Elector name', style:['streetLocalityHR1','streetLocalityHR2']},
+                    {text: 'Unsuccessful', style:['streetLocalityHR1','streetLocalityHR2']},
+                    {text: 'Refused', style:['streetLocalityHR1','streetLocalityHR2']},
+                    {text: 'Postal vote', style:['streetLocalityHR1','streetLocalityHR2']},
+                    {text: 'Response code', style:['streetLocalityHR1','streetLocalityHR2']},
+                ]);
+                _.forEach(value, function(adr) {
+                    table.push([
+                        [{text: adr.street_number, bold: true, fontSize: 10},{text: ' ' + (adr.gnaf_pid || ''), fontSize: 6}],
+                        {text: adr.postcode || '', fontSize: 8},
+                        {text: (adr.elector_name || '') + (adr.age ? ' ('+adr.age+')' : ''), fontSize: 8},
+                        {text: ''}, // Unsuccessful (blank cell)
+                        {text: ''}, // Refused (blank cell)
+                        {text: ''}, // Postal vote
+                        {text: ''}  // Response code (blank cell)
+                    ])
+                })
+            });
+        }
 
         var docDefinition = {
             pageSize: 'A4',
@@ -55,7 +100,7 @@ module.exports = {
                 table: {
                   headerRows: 0,
                   dontBreakRows: true,
-                  widths: [ '20%', '*', '*', '*', '*'],
+                  widths: campaignType === 'leafleting' ? ['50%', '50%'] : [ '18%', '12%', '25%', '10%', '10%', '10%', '15%'],
                   body: table
                 }
               }

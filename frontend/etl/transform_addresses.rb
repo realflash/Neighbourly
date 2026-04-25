@@ -24,10 +24,13 @@ puts "  locality_name varchar(255),"
 puts "  postcode varchar(255),"
 puts "  alias_principal varchar(1),"
 puts "  mb_2011_code varchar(255),"
-puts "  number_first varchar(255)"
+puts "  number_first varchar(255),"
+puts "  elector_name varchar(255),"
+puts "  gender varchar(10),"
+puts "  age varchar(10)"
 puts ");"
 puts ""
-puts "COPY gnaf_201702.addresses (gnaf_pid, street_name, locality_name, postcode, alias_principal, mb_2011_code, number_first) FROM stdin;"
+puts "COPY gnaf_201702.addresses (gnaf_pid, street_name, locality_name, postcode, alias_principal, mb_2011_code, number_first, elector_name, gender, age) FROM stdin;"
 
 # 1. Load Sanitised Electoral CSV into memory and extract UPRNs
 sanitised_records = []
@@ -79,6 +82,9 @@ sanitised_records.each do |row|
   building = row['building']
   town = row['town']
   postcode = row['postcode']
+  elector_name = row['Elector Name'] || row['elector_name'] || ''
+  gender = row['Gender'] || row['gender'] || ''
+  age = row['Age'] || row['age'] || ''
   
   oa = target_uprns[uprn]
   next unless oa # Skip if we can't map it to an Output Area
@@ -101,7 +107,10 @@ sanitised_records.each do |row|
     postcode,
     'P', # Hardcoded alias_principal
     oa,
-    number_first
+    number_first,
+    elector_name,
+    gender,
+    age
   ]
   
   # Escape tabs and newlines if they exist in the data

@@ -32,4 +32,4 @@
 - [ ] Download the PDF map.
 - [ ] Verify the PDF contains: The map, a detailed table with one row per elector.
 - [ ] Verify the columns match exactly: "UPRN & Building", "Postcode", "Elector name", "Unsuccessful", "Refused", "Postal vote", "Response code".
-- [ ] Verify the checkboxes are rendered for the appropriate response columns.
+- [ ] Verify that the Unsuccessful, Refused, and Response Code columns are rendered as completely empty cells (no checkboxes or text).

@@ -8,11 +8,11 @@ As an administrator, I want to be able to set the type of campaign so that the s
 
 ### Acceptance Criteria
 
-- [ ] As an admin, when creating a campaign, I see a drop down box to select the type of campaign (default is leafleting). The possible options are.
-    - [ ] Leafleting
-    - [ ] Canvassing
-- [ ] Next to the drop-down box is guidance explaining that changing the type will change the PDFs generated: 
-- [ ] As an admin, when I edit a campaign, I can change the type of campaign.
+- [x] As an admin, when creating a campaign, I see a drop down box to select the type of campaign (default is leafleting). The possible options are.
+    - [x] Leafleting
+    - [x] Canvassing
+- [x] Next to the drop-down box is guidance explaining that changing the type will change the PDFs generated: 
+- [x] As an admin, when I edit a campaign, I can change the type of campaign.
 
 ## US-002 Leafleting PDF content
 
@@ -20,7 +20,7 @@ As an administrator, I want the leafleting PDF to be briefer so that volunteers 
 
 ### Acceptance Criteria
 
-- [ ] As an anyone, when I download a claim PDF for a leafleting campaign, the PDF should contain the following:
+- [x] As an anyone, when I download a claim PDF for a leafleting campaign, the PDF should contain the following:
     - The map of the claim as it currently does
     - The list of properties as it currently does, one on each line. Each line should contain the full address of the property, so that isolated properties are easy to find. 
     - There should be no checkboxes for collecting responses.
@@ -33,17 +33,17 @@ As an administrator, I want the canvassing PDF to include checkboxes for collect
 
 ### Acceptance Criteria
 
-- [ ] As an anyone, when I download a claim PDF for a canvassing campaign, the PDF should contain the following:
+- [x] As an anyone, when I download a claim PDF for a canvassing campaign, the PDF should contain the following:
     - The map of the claim as it currently does
     - The list should be retain the current order of the properties (typically in street order).
     - The columns should be:
-        - [ ] UPRN & Building (populated from DB)
-        - [ ] Postcode (populated from DB)
-        - [ ] Elector name, gender and age (populated from DB)
-        - [ ] Unsuccessful (blank)
-        - [ ] Refused (blank)
-        - [ ] Postal vote
-        - [ ] Response code (blank)
+        - [x] UPRN & Building (populated from DB)
+        - [x] Postcode (populated from DB)
+        - [x] Elector name, gender and age (populated from DB)
+        - [x] Unsuccessful (blank)
+        - [x] Refused (blank)
+        - [x] Postal vote
+        - [x] Response code (blank)
     - THere should be one row per elector.
 
         

@@ -43,4 +43,4 @@
 - **Canvassing Layout**:
   - The map image.
   - A robust table, keeping the existing street order, but showing one row per *elector*.
-  - The columns: "UPRN & Building", "Postcode", "Elector name", "Unsuccessful (box)", "Refused (box)", "Postal vote", "Response code (box)".
+  - The columns: "UPRN & Building", "Postcode", "Elector name", "Unsuccessful (blank cell)", "Refused (blank cell)", "Postal vote (blank cell)", "Response code (blank cell)".

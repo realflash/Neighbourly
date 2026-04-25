@@ -1,7 +1,7 @@
 !!!
 %html
   %head
-    %title Campaign Administration
+    %title Edit Campaign
     %link{:rel => "stylesheet", :href => versioned_stylesheet('main')}
     %style
       :plain
@@ -27,9 +27,6 @@
           transform: translateY(-2px);
           box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
-        .archive-btn {
-          background: linear-gradient(135deg, #ff6b6b 0%, #c0392b 100%);
-        }
         .form-control {
           width: 100%;
           padding: 10px;
@@ -43,44 +40,24 @@
         }
   %body
     .container{:style => "padding: 40px; max-width: 800px; margin: 0 auto; font-family: 'Inter', sans-serif;"}
-      %h1 Campaign Administration
+      %h1 Edit Campaign
       
-      - if flash[:notice]
-        .alert.alert-success{:style => "color: green; margin-bottom: 20px;"}= flash[:notice]
-      - if flash[:error]
-        .alert.alert-danger{:style => "color: red; margin-bottom: 20px;"}= flash[:error]
-
       .campaign-card
-        %h2 Create New Campaign
-        %form{:action => to("/admin/campaigns"), :method => "post"}
+        %form{:action => to("/admin/campaigns/#{@campaign.id}"), :method => "post"}
           %label{:for => "name"} Campaign Name:
-          %input.form-control{:type => "text", :name => "name", :required => true}
+          %input.form-control{:type => "text", :name => "name", :value => @campaign.name, :required => true}
           
           %label{:for => "type"} Campaign Type:
           %select.form-control{:name => "type"}
-            %option{:value => "leafleting"} Leafleting
-            %option{:value => "canvassing"} Canvassing
+            %option{:value => "leafleting", :selected => @campaign.campaign_type == 'leafleting'} Leafleting
+            %option{:value => "canvassing", :selected => @campaign.campaign_type == 'canvassing'} Canvassing
           %p.help-block{:style => "font-size: 0.85em; color: #ccc; margin-top: -10px; margin-bottom: 15px;"} Note: changing the type will change the PDFs generated.
 
           %label{:for => "ced_ids"} Select County Electoral Divisions (Hold Ctrl/Cmd to select multiple):
           %select.form-control{:name => "ced_ids[]", :multiple => true, :required => true}
+            - campaign_ced_ids = @campaign.ceds.map(&:id)
             - @ceds.each do |ced|
-              %option{:value => ced.id}= ced.name
+              %option{:value => ced.id, :selected => campaign_ced_ids.include?(ced.id)}= ced.name
           
-          %button.gradient-btn{:type => "submit"} Create Campaign
-          
-      %h2 Active Campaigns
-      - @campaigns.select(&:active?).each do |campaign|
-        .campaign-card
-          %h3= campaign.name
-          %p Type: #{campaign.campaign_type.capitalize}
-          %p CEDs: #{campaign.ceds.map(&:name).join(', ')}
-          %a.gradient-btn{:href => to("/admin/campaigns/#{campaign.id}/edit"), :style => "display:inline-block; text-decoration:none; margin-right: 10px;"} Edit
-          %form{:action => to("/admin/campaigns/#{campaign.id}/archive"), :method => "post", :style => "display:inline;"}
-            %button.gradient-btn.archive-btn{:type => "submit", :onclick => "return confirm('Archive this campaign?');"} Archive Campaign
-
-      %h2 Archived Campaigns
-      - @campaigns.reject(&:active?).each do |campaign|
-        .campaign-card{:style => "opacity: 0.6;"}
-          %h3= campaign.name
-          %p CEDs: #{campaign.ceds.map(&:name).join(', ')}
+          %button.gradient-btn{:type => "submit"} Update Campaign
+          %a{:href => to('/admin/campaigns'), :style => "margin-left: 15px; color: white;"} Cancel

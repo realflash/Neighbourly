@@ -179,3 +179,84 @@ test.describe('Campaign Admin and Filtering', () => {
     await expect(dropdown).toHaveValue('');
   });
 });
+
+test.describe('EPIC_006 - Campaign Type Feature', () => {
+  test('Admin can create a campaign with a specific type and view guidance', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
+    
+    // Login as admin
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    if (await page.url().includes('user_details')) {
+      await page.fill('input[name="user_details[first_name]"]', 'Admin');
+      await page.click('input[value="Submit"]');
+    }
+
+    // Go to Create Campaign page
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
+    
+    // Verify Dropdown and Guidance text
+    const typeSelect = page.locator('select[name="type"]');
+    await expect(typeSelect).toBeVisible();
+    
+    const options = await typeSelect.locator('option').allInnerTexts();
+    expect(options).toContain('Leafleting');
+    expect(options).toContain('Canvassing');
+    
+    // Verify default is Leafleting
+    await expect(typeSelect).toHaveValue('leafleting');
+    
+    // Verify Guidance Text
+    const guidance = page.locator('p.help-block', { hasText: 'changing the type will change the PDFs generated' });
+    await expect(guidance).toBeVisible();
+
+    // Create Campaign with Canvassing
+    const uniqueName = `Canvassing Campaign ${Date.now()}`;
+    await page.fill('input[name="name"]', uniqueName);
+    const cedSelect = page.locator('select[name="ced_ids[]"]');
+    await cedSelect.selectOption({ index: 1 });
+    await typeSelect.selectOption('canvassing');
+    
+    await page.click('button:has-text("Create Campaign")');
+    await expect(page.locator('.alert-success')).toContainText('Campaign created successfully.');
+  });
+
+  test('Admin can edit a campaign type', async ({ page }) => {
+    const port = process.env.APP_PORT || 4567;
+    
+    // Login as admin
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    
+    // Go to Campaigns page
+    await page.goto(`http://localhost:${port}/admin/campaigns`);
+    
+    // Create a Leafleting campaign
+    const uniqueName = `Edit Type Campaign ${Date.now()}`;
+    await page.fill('input[name="name"]', uniqueName);
+    const cedSelect = page.locator('select[name="ced_ids[]"]');
+    await cedSelect.selectOption({ index: 1 });
+    // Keep default type (leafleting)
+    await page.click('button:has-text("Create Campaign")');
+    
+    // Find the edit button for this campaign
+    const editButton = page.locator('.campaign-card', { hasText: uniqueName }).locator('a:has-text("Edit")');
+    await editButton.click();
+    
+    // Verify current type
+    const typeSelect = page.locator('select[name="type"]');
+    await expect(typeSelect).toHaveValue('leafleting');
+    
+    // Change to canvassing
+    await typeSelect.selectOption('canvassing');
+    await page.click('button:has-text("Update Campaign")');
+    
+    await expect(page.locator('.alert-success')).toContainText('Campaign updated.');
+    
+    // Verify it saved
+    await editButton.click();
+    await expect(typeSelect).toHaveValue('canvassing');
+  });
+});

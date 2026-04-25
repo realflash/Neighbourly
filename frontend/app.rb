@@ -163,7 +163,7 @@ end
 get '/api/campaigns' do
   authorised do
     campaigns = Campaign.where(status: 'active').order(:name).all.map do |c|
-      { id: c.id, name: c.name, ced_ids: c.ceds.map(&:id) }
+      { id: c.id, name: c.name, ced_ids: c.ceds.map(&:id), type: c.campaign_type }
     end
     json campaigns
   end
@@ -182,10 +182,11 @@ post '/admin/campaigns' do
   authorised do
     redirect to('/') unless is_admin?(user_email)
     name = params[:name]
+    type = params[:type] || 'leafleting'
     ced_ids = params[:ced_ids] || []
     
     if name && !name.empty? && !ced_ids.empty?
-      campaign = Campaign.create(name: name, status: 'active')
+      campaign = Campaign.create(name: name, status: 'active', campaign_type: type)
       ced_ids.each do |c_id|
         campaign.add_ced(Ced[c_id.to_i])
       end
@@ -204,6 +205,40 @@ post '/admin/campaigns/:id/archive' do
     if campaign
       campaign.update(status: 'archived')
       flash[:notice] = 'Campaign archived.'
+    end
+    redirect to('/admin/campaigns')
+  end
+end
+
+get '/admin/campaigns/:id/edit' do
+  authorised do
+    redirect to('/') unless is_admin?(user_email)
+    @campaign = Campaign[params[:id].to_i]
+    @ceds = Ced.order(:name).all
+    redirect to('/admin/campaigns') unless @campaign
+    haml :campaign_edit, locals: {page: 'campaigns'}
+  end
+end
+
+post '/admin/campaigns/:id' do
+  authorised do
+    redirect to('/') unless is_admin?(user_email)
+    campaign = Campaign[params[:id].to_i]
+    if campaign
+      name = params[:name]
+      type = params[:type] || 'leafleting'
+      ced_ids = params[:ced_ids] || []
+      
+      if name && !name.empty? && !ced_ids.empty?
+        campaign.update(name: name, campaign_type: type)
+        campaign.remove_all_ceds
+        ced_ids.each do |c_id|
+          campaign.add_ced(Ced[c_id.to_i])
+        end
+        flash[:notice] = 'Campaign updated.'
+      else
+        flash[:error] = 'Name and at least one CED are required.'
+      end
     end
     redirect to('/admin/campaigns')
   end
