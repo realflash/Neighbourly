@@ -124,7 +124,11 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
         docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
         docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e ADMIN_EMAILS='admin@example.com' -e PROXY_SECRET='test_proxy_secret' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
         
-        # Wait for Puma to start
+        echo "  -> Launching test bounds service..."
+        docker rm -f neighbourly-test-bounds > /dev/null 2>&1 || true
+        docker run -d --name neighbourly-test-bounds --network="host" -e DB_URL='postgres://postgres:password@localhost:5435/postgres' -e GOOGLE_MAPS_KEY='dummy_key' neighbourly-bounds-service:local > /dev/null 2>&1 || echo -e "  ${YELLOW}⚠ Bounds service image not found. Some tests may fail.${NC}"
+        
+        # Wait for Puma and Bounds Service to start
         sleep 5
         
         echo "  -> Executing HTTP test against test server..."
@@ -145,9 +149,9 @@ if [ $BUILD_CONT_RESULT -eq 0 ]; then
             TEST_PASS=0
         fi
         
-        echo "  -> Tearing down test server..."
-        docker stop neighbourly-test-server > /dev/null
-        docker rm neighbourly-test-server > /dev/null
+        echo "  -> Tearing down test containers..."
+        docker stop neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
+        docker rm neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
     fi
     
     if [ $TEST_PASS -eq 1 ]; then
