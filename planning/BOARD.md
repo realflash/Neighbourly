@@ -15,6 +15,7 @@
 | BUG-2604250631 | admin/campaigns route fails with undefined method `campaign_type` due to missing db migrations on start | FIXED |
 | BUG-2604250642 | Bounds service returns CORS error due to 500 internal server error from missing elector columns | FIXED |
 | BUG-2604250658 | Elector name is unpopulated in canvassing PDF | FIXED |
+| BUG-2604250750 | Canvassing template missing elector gender in parentheses | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |

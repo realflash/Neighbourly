@@ -66,7 +66,13 @@ module.exports = {
                     table.push([
                         [{text: adr.street_number, bold: true, fontSize: 10},{text: ' ' + (adr.gnaf_pid || ''), fontSize: 6}],
                         {text: adr.postcode || '', fontSize: 8},
-                        {text: (adr.elector_name || '') + (adr.age ? ' ('+adr.age+')' : ''), fontSize: 8},
+                        {text: (function() {
+                            var details = [];
+                            if (adr.gender) details.push(adr.gender.charAt(0).toUpperCase());
+                            if (adr.age) details.push(adr.age);
+                            var suffix = details.length > 0 ? ' (' + details.join(', ') + ')' : '';
+                            return (adr.elector_name || '') + suffix;
+                        })(), fontSize: 8},
                         {text: ''}, // Unsuccessful (blank cell)
                         {text: ''}, // Refused (blank cell)
                         {text: ''}, // Postal vote

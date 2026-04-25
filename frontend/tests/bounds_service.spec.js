@@ -23,10 +23,23 @@ test.describe('EPIC_006 - Campaign Type PDF Generation', () => {
     // the endpoint accepts the template=leafleting parameter without error.
   });
 
-  test('Canvassing PDF generation contains detailed checkboxes for electors', async ({ request }) => {
-    // We mock a request to the bounds service with type=canvassing
-    const response = await request.get('http://localhost:3000/ground-bounds/map?slug=TEST_SLUG_1&campaign=1&template=canvassing');
+  test('Canvassing PDF generation contains detailed checkboxes for electors and includes gender', async ({ request }) => {
     
-    expect(response.status()).toBeGreaterThanOrEqual(200);
+    // We request the canvassing template for a known slug that has electors
+    const response = await request.get('http://localhost:3000/map?slug=E00180604&campaign=1&template=hidden&campaign_type=canvassing');
+    
+    expect(response.status()).toBe(200);
+    
+    const body = await response.json();
+    expect(body.base64).toBeDefined();
+    
+    // The pdf is base64 encoded
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(body.base64, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
+    // Verify that the PDF text contains the formatted gender/age like "(F, 84)" or "(M, 30)"
+    // We know Elizabeth M. Merriman is F, 84 and Ben Heathcote is M, 30 in the DB
+    expect(data.text).toMatch(/\(F, \d+\)|\(M, \d+\)/);
   });
 });
