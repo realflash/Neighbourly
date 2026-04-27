@@ -108,6 +108,31 @@ class ClaimService
     end
   end
 
+  def set_claimer(mesh_block, campaign_id, claimer)
+    campaign_id = campaign_id.to_i
+    existing = @db[:claims]
+      .where(mesh_block_slug: mesh_block, campaign_id: campaign_id, deleted_at: nil)
+      .first
+
+    status = (claimer && !claimer.empty?) ? 'claimed' : 'released'
+    claimer = nil if claimer && claimer.empty?
+
+    if existing
+      # Do not override 'complete' status if it's already complete, unless we are removing the user.
+      new_status = existing[:status] == 'complete' && claimer ? 'complete' : status
+      @db[:claims].where(id: existing[:id]).update(mesh_block_claimer: claimer, status: new_status)
+    else
+      @db[:claims].insert(
+        mesh_block_slug: mesh_block,
+        mesh_block_claimer: claimer,
+        claim_date: Time.now,
+        campaign_id: campaign_id,
+        status: status,
+        priority: 'high'
+      )
+    end
+  end
+
   private
 
   def claimer_details(email)

@@ -21,6 +21,16 @@ function makeMap() {
 
   var APP_BASE_URL = $('#map').data('app-base-url') || '';
   APP_BASE_URL = APP_BASE_URL.replace(/\/$/, "");
+
+  window.allUsers = [];
+  var initAdminAttr = $('#map').data('is-admin');
+  if (initAdminAttr === true || initAdminAttr === 'true') {
+    $.getJSON(APP_BASE_URL + '/api/users', function(users) {
+      window.allUsers = users;
+    }).fail(function() {
+      console.error("Failed to fetch users");
+    });
+  }
   
   // Fetch active campaigns and populate the dropdown
   $.getJSON(APP_BASE_URL + '/api/campaigns', function(campaigns) {
@@ -274,9 +284,27 @@ function makeMap() {
           L.DomEvent.addListener(adminDownload.btn, 'click', this.btnDownload, this)
 
           var ownerName = feature.properties.claim_owner_name;
-          if (ownerName) {
+          if (admin || ownerName) {
              var ownerContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
-             ownerContainer.innerHTML = 'Claimed by: ' + ownerName;
+             if (admin) {
+                var userSelectHtml = '<select class="form-control user-select" data-slug="' + feature.properties.slug + '">';
+                userSelectHtml += '<option value="">-- Unassigned --</option>';
+                (window.allUsers || []).forEach(function(u) {
+                   var selected = (ownerName && (ownerName === u.name || ownerName === u.email)) ? 'selected' : '';
+                   userSelectHtml += '<option value="' + u.email + '" ' + selected + '>' + u.name + '</option>';
+                });
+                userSelectHtml += '</select>';
+                ownerContainer.innerHTML = 'Claimed by: ' + userSelectHtml;
+                
+                $(ownerContainer).find('select').on('change', function() {
+                   var newEmail = $(this).val();
+                   $.post(APP_BASE_URL + '/claims/' + feature.properties.slug + '/user', { campaign_id: selectedCampaignId, user_email: newEmail }, function() {
+                      updateMap(true); 
+                   });
+                });
+             } else {
+                ownerContainer.innerHTML = 'Claimed by: ' + ownerName;
+             }
           }
 
           var priorityContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)

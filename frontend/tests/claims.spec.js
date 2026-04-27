@@ -66,6 +66,21 @@ test.describe('Claim Properties', () => {
     expect(responseStatus).toBe(200);
   });
 
+  test('admin can assign user to a claim', async ({ page }) => {
+    await page.goto(`http://localhost:${port}/map`);
+
+    const responseStatus = await page.evaluate(async (port) => {
+      const response = await fetch(`http://localhost:${port}/claims/test-slug/user`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `campaign_id=${window.selectedCampaignId || 1}&user_email=test_user@example.com`
+      });
+      return response.status;
+    }, port);
+
+    expect(responseStatus).toBe(200);
+  });
+
   test('user can mark claim as complete', async ({ page }) => {
     await page.goto(`http://localhost:${port}/logout`);
     

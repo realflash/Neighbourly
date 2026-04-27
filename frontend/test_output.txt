@@ -1,0 +1,341 @@
+
+Running 24 tests using 7 workers
+
+Error response from daemon: No such container: neighbourly-test-db
+Error response from daemon: No such container: neighbourly-test-db
+DB cleanup failed (might be expected if not in isolated environment): Command failed: docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims;"
+Error response from daemon: No such container: neighbourly-test-db
+
+  ✘   2 tests/mark_complete_visibility.spec.js:4:3 › Mark Complete Button Visibility › button visibility workflow (134ms)
+  ✘   7 tests/bounds_service.spec.js:3:1 › Bounds service should not crash and return 500 when database connection fails (350ms)
+BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
+BROWSER ERROR: Failed to fetch users
+  ✓   4 tests/meshblocks.spec.js:6:3 › Mesh Block Rendering › meshblocks_bounds API returns 200 and valid JSON (872ms)
+Node: Initial load complete
+BROWSER LOG: Found target slug: E00157090
+Node: getTargetSlug returned E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=1)
+Node: Map update detected
+Node: API POST (Browser) to /claims/E00157090/priority (currentCount=2)
+Node: Map update detected
+Node: Waiting for E00157090 to be #238443
+Node: Color #238443 matched for E00157090
+Node: API POST (Browser) to /claims/E00157090/priority (currentCount=3)
+Node: Map update detected
+Node: Waiting for E00157090 to be #ffffcc
+Node: Color #ffffcc matched for E00157090
+  ✘   9 tests/bounds_service.spec.js:13:3 › EPIC_006 - Campaign Type PDF Generation › Leafleting PDF generation does not contain checkboxes and has correct sections (349ms)
+  ✘   1 tests/sso.spec.js:4:3 › SSO Authentication › user is automatically logged in via proxy headers (1.1s)
+  ✓   6 tests/campaigns.spec.js:5:3 › Campaign Admin and Filtering › CEDs list is populated on campaign admin page (1.3s)
+No features returned for this area in UAT DB, skipping visual rendering check.
+  ✓   5 tests/map_colors.spec.js:113:3 › Map Overlay Color Changes › Unclaimed area changes colour when its priority is changed from high to low (1.5s)
+Error response from daemon: No such container: neighbourly-test-db
+DB cleanup failed (might be expected if not in isolated environment): Command failed: docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims;"
+Error response from daemon: No such container: neighbourly-test-db
+
+  ✓   3 tests/claims.spec.js:52:3 › Claim Properties › admin can change priority of a claim (1.7s)
+  ✘  11 tests/bounds_service.spec.js:22:3 › EPIC_006 - Campaign Type PDF Generation › Canvassing PDF generation contains detailed checkboxes for electors and includes gender (348ms)
+  ✓   8 tests/meshblocks.spec.js:19:3 › Mesh Block Rendering › mesh block overlays are rendered on the map when zoomed in (1.1s)
+BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
+BROWSER ERROR: Failed to fetch users
+  ✓  12 tests/sso.spec.js:43:3 › SSO Authentication › user is NOT logged in if proxy secret is incorrect (442ms)
+Node: Initial load complete
+BROWSER LOG: Found target slug: E00157090
+Node: getTargetSlug returned E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=1)
+Node: Map update detected
+Node: API POST (Browser) to /claims/E00157090/priority (currentCount=2)
+Node: Map update detected
+Node: Waiting for E00157090 to be #ffffcc
+Node: Color #ffffcc matched for E00157090
+Node: API POST (Browser) to /claims/E00157090/priority (currentCount=3)
+Node: Map update detected
+Node: Waiting for E00157090 to be #238443
+Node: Color #238443 matched for E00157090
+  ✓  10 tests/campaigns.spec.js:30:3 › Campaign Admin and Filtering › admin can create and archive a campaign (1.3s)
+  ✘  15 tests/bounds_service.spec.js:42:1 › Bounds service should successfully generate a PDF map without addresses (339ms)
+  ✓  13 tests/map_colors.spec.js:124:3 › Map Overlay Color Changes › Unclaimed area changes colour when its priority is changed from low to high (1.3s)
+Error response from daemon: No such container: neighbourly-test-db
+DB cleanup failed (might be expected if not in isolated environment): Command failed: docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims;"
+Error response from daemon: No such container: neighbourly-test-db
+
+  ✘  14 tests/claims.spec.js:69:3 › Claim Properties › admin can assign user to a claim (1.4s)
+BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
+BROWSER ERROR: Failed to fetch users
+Node: Initial load complete
+BROWSER LOG: Found target slug: E00157090
+Node: getTargetSlug returned E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=1)
+Node: Map update detected
+  ✓  16 tests/campaigns.spec.js:75:3 › Campaign Admin and Filtering › map view interactions with campaigns (1.1s)
+Node: API POST (Browser) to /claims/E00157090/priority (currentCount=2)
+Node: Map update detected
+Node: API POST (Browser) to /claim_meshblock/E00157090 (currentCount=3)
+Node: Map update detected
+Node: Waiting for E00157090 to be #9d5fa7
+Node: Color #9d5fa7 matched for E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=4)
+Node: Map update detected
+Node: Waiting for E00157090 to be #ffffcc
+Node: Color #ffffcc matched for E00157090
+  ✓  19 tests/campaigns.spec.js:151:3 › Campaign Admin and Filtering › CED dropdown does not contain duplicate ambiguous names (417ms)
+  ✓  17 tests/map_colors.spec.js:135:3 › Map Overlay Color Changes › Low priority claimed area changes to the correct colour when the claim is released (1.3s)
+Error response from daemon: No such container: neighbourly-test-db
+DB cleanup failed (might be expected if not in isolated environment): Command failed: docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims;"
+Error response from daemon: No such container: neighbourly-test-db
+
+BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
+BROWSER ERROR: Failed to fetch users
+Node: Initial load complete
+BROWSER LOG: Found target slug: E00157090
+Node: getTargetSlug returned E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=1)
+Node: Map update detected
+Node: API POST (Browser) to /claims/E00157090/priority (currentCount=2)
+Node: Map update detected
+Node: API POST (Browser) to /claim_meshblock/E00157090 (currentCount=3)
+Node: Map update detected
+Node: Waiting for E00157090 to be #9d5fa7
+Node: Color #9d5fa7 matched for E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=4)
+Node: Map update detected
+Node: Waiting for E00157090 to be #238443
+Node: Color #238443 matched for E00157090
+  ✓  18 tests/claims.spec.js:84:3 › Claim Properties › user can mark claim as complete (1.5s)
+  ✓  21 tests/map_colors.spec.js:147:3 › Map Overlay Color Changes › High priority claimed area changes to the correct colour when the claim is released (819ms)
+  ✓  20 tests/campaigns.spec.js:173:3 › Campaign Admin and Filtering › Campaign dropdown defaults to empty selection when no campaign was previously selected (1.0s)
+Error response from daemon: No such container: neighbourly-test-db
+DB cleanup failed (might be expected if not in isolated environment): Command failed: docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims;"
+Error response from daemon: No such container: neighbourly-test-db
+
+BROWSER ERROR: Failed to load resource: the server responded with a status of 404 (Not Found)
+BROWSER ERROR: Failed to fetch users
+Node: Initial load complete
+BROWSER LOG: Found target slug: E00157090
+Node: getTargetSlug returned E00157090
+Node: API POST (Browser) to /unclaim_meshblock/E00157090 (currentCount=1)
+  ✓  23 tests/campaigns.spec.js:210:3 › EPIC_006 - Campaign Type Feature › Admin can create a campaign with a specific type and view guidance (662ms)
+Node: Map update detected
+psql: error: connection to server at "127.0.0.1", port 5435 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+  ✘  22 tests/map_colors.spec.js:159:3 › Map Overlay Color Changes › Area claimed by another admin shows as claimed (red) not complete (blue) (1.1s)
+  ✓  24 tests/campaigns.spec.js:251:3 › EPIC_006 - Campaign Type Feature › Admin can edit a campaign type (1.1s)
+
+
+  1) tests/bounds_service.spec.js:3:1 › Bounds service should not crash and return 500 when database connection fails 
+
+    Error: apiRequestContext.get: connect ECONNREFUSED ::1:3001
+    Call log:
+    [2m  - → GET http://localhost:3001/ground-bounds/territories/bounds?nwx=-0.6508&nwy=51.3628&sex=-0.7075&sey=51.3381[22m
+    [2m    - user-agent: Playwright/1.59.1 (x64; linuxmint 22.3) node/24.13[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+        at apiRequestContext.get: connect ECONNREFUSED ::1:3001
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/bounds_service.spec.js:6:34
+
+    Error Context: test-results/bounds_service-Bounds-serv-37644-n-database-connection-fails/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bounds_service-Bounds-serv-37644-n-database-connection-fails/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bounds_service-Bounds-serv-37644-n-database-connection-fails/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/bounds_service.spec.js:13:3 › EPIC_006 - Campaign Type PDF Generation › Leafleting PDF generation does not contain checkboxes and has correct sections 
+
+    Error: apiRequestContext.get: connect ECONNREFUSED ::1:3001
+    Call log:
+    [2m  - → GET http://localhost:3001/ground-bounds/map?slug=TEST_SLUG_1&campaign=1&template=leafleting[22m
+    [2m    - user-agent: Playwright/1.59.1 (x64; linuxmint 22.3) node/24.13[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+        at apiRequestContext.get: connect ECONNREFUSED ::1:3001
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/bounds_service.spec.js:16:36
+
+    Error Context: test-results/bounds_service-EPIC-006----86baf-es-and-has-correct-sections/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bounds_service-EPIC-006----86baf-es-and-has-correct-sections/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bounds_service-EPIC-006----86baf-es-and-has-correct-sections/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/bounds_service.spec.js:22:3 › EPIC_006 - Campaign Type PDF Generation › Canvassing PDF generation contains detailed checkboxes for electors and includes gender 
+
+    Error: apiRequestContext.get: connect ECONNREFUSED ::1:3001
+    Call log:
+    [2m  - → GET http://localhost:3001/ground-bounds/map?slug=E00180604&campaign_id=1&campaign_type=canvassing[22m
+    [2m    - user-agent: Playwright/1.59.1 (x64; linuxmint 22.3) node/24.13[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+        at apiRequestContext.get: connect ECONNREFUSED ::1:3001
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/bounds_service.spec.js:26:36
+
+    Error Context: test-results/bounds_service-EPIC-006----f4c28-lectors-and-includes-gender/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bounds_service-EPIC-006----f4c28-lectors-and-includes-gender/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bounds_service-EPIC-006----f4c28-lectors-and-includes-gender/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/bounds_service.spec.js:42:1 › Bounds service should successfully generate a PDF map without addresses 
+
+    Error: apiRequestContext.get: connect ECONNREFUSED ::1:3001
+    Call log:
+    [2m  - → GET http://localhost:3001/ground-bounds/map?slug=E00157097[22m
+    [2m    - user-agent: Playwright/1.59.1 (x64; linuxmint 22.3) node/24.13[22m
+    [2m    - accept: */*[22m
+    [2m    - accept-encoding: gzip,deflate,br[22m
+
+        at apiRequestContext.get: connect ECONNREFUSED ::1:3001
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/bounds_service.spec.js:45:34
+
+    Error Context: test-results/bounds_service-Bounds-serv-f0105-a-PDF-map-without-addresses/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bounds_service-Bounds-serv-f0105-a-PDF-map-without-addresses/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bounds_service-Bounds-serv-f0105-a-PDF-map-without-addresses/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/claims.spec.js:69:3 › Claim Properties › admin can assign user to a claim ───────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m200[39m
+    Received: [31m404[39m
+
+      79 |     }, port);
+      80 |
+    > 81 |     expect(responseStatus).toBe(200);
+         |                            ^
+      82 |   });
+      83 |
+      84 |   test('user can mark claim as complete', async ({ page }) => {
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/claims.spec.js:81:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/claims-Claim-Properties-admin-can-assign-user-to-a-claim/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/claims-Claim-Properties-admin-can-assign-user-to-a-claim/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/claims-Claim-Properties-admin-can-assign-user-to-a-claim/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/claims-Claim-Properties-admin-can-assign-user-to-a-claim/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/map_colors.spec.js:159:3 › Map Overlay Color Changes › Area claimed by another admin shows as claimed (red) not complete (blue) 
+
+    Error: Command failed: psql "postgres://postgres:password@127.0.0.1:5435/postgres" -c "DELETE FROM claims WHERE mesh_block_slug = 'E00157090' AND campaign_id = 1;"
+    psql: error: connection to server at "127.0.0.1", port 5435 failed: Connection refused
+    	Is the server running on that host and accepting TCP/IP connections?
+
+
+      166 |     const { execSync } = require('child_process');
+      167 |     const dbUrl = process.env.TEST_DB_URL || 'postgres://postgres:password@127.0.0.1:5435/postgres';
+    > 168 |     execSync(`psql "${dbUrl}" -c "DELETE FROM claims WHERE mesh_block_slug = '${slug}' AND campaign_id = ${selectedCampaignId};"`);
+          |     ^
+      169 |     execSync(`psql "${dbUrl}" -c "INSERT INTO claims (mesh_block_slug, mesh_block_claimer, campaign_id, status, priority, claim_date) VALUES ('${slug}', 'other_admin@example.com', ${selectedCampaignId}, 'claimed', 'high', NOW());"`);
+      170 |
+      171 |     // Trigger map update to see the new state
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/map_colors.spec.js:168:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/map_colors-Map-Overlay-Col-f2290-imed-red-not-complete-blue-/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/map_colors-Map-Overlay-Col-f2290-imed-red-not-complete-blue-/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/map_colors-Map-Overlay-Col-f2290-imed-red-not-complete-blue-/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/map_colors-Map-Overlay-Col-f2290-imed-red-not-complete-blue-/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/mark_complete_visibility.spec.js:4:3 › Mark Complete Button Visibility › button visibility workflow 
+
+    Error: Command failed: docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims WHERE mesh_block_slug = 'E00180604';"
+    Error response from daemon: No such container: neighbourly-test-db
+
+
+       8 |     // 0. Clean up DB
+       9 |     const { execSync } = require('child_process');
+    > 10 |     execSync('docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims WHERE mesh_block_slug = \'E00180604\';"');
+         |     ^
+      11 |
+      12 |     // 1. Login
+      13 |     await page.goto('/login?email=user@example.com');
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/mark_complete_visibility.spec.js:10:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/mark_complete_visibility-M-59bb1--button-visibility-workflow/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/mark_complete_visibility-M-59bb1--button-visibility-workflow/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/mark_complete_visibility-M-59bb1--button-visibility-workflow/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/mark_complete_visibility-M-59bb1--button-visibility-workflow/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/sso.spec.js:4:3 › SSO Authentication › user is automatically logged in via proxy headers 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: [32m"/map"[39m
+    Received string:    [31m"http://localhost:4567/"[39m
+
+      37 |     
+      38 |     // 3. Verify we are on the map page and not redirected to login
+    > 39 |     await expect(page.url()).toContain('/map');
+         |                              ^
+      40 |     await expect(page.locator('.welcome-message')).toContainText('Admin');
+      41 |   });
+      42 |
+        at /home/igibbs/localdev/Neighbourly/frontend/tests/sso.spec.js:39:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sso-SSO-Authentication-use-749b8-logged-in-via-proxy-headers/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sso-SSO-Authentication-use-749b8-logged-in-via-proxy-headers/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sso-SSO-Authentication-use-749b8-logged-in-via-proxy-headers/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sso-SSO-Authentication-use-749b8-logged-in-via-proxy-headers/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/bounds_service.spec.js:3:1 › Bounds service should not crash and return 500 when database connection fails 
+    tests/bounds_service.spec.js:13:3 › EPIC_006 - Campaign Type PDF Generation › Leafleting PDF generation does not contain checkboxes and has correct sections 
+    tests/bounds_service.spec.js:22:3 › EPIC_006 - Campaign Type PDF Generation › Canvassing PDF generation contains detailed checkboxes for electors and includes gender 
+    tests/bounds_service.spec.js:42:1 › Bounds service should successfully generate a PDF map without addresses 
+    tests/claims.spec.js:69:3 › Claim Properties › admin can assign user to a claim ────────────────
+    tests/map_colors.spec.js:159:3 › Map Overlay Color Changes › Area claimed by another admin shows as claimed (red) not complete (blue) 
+    tests/mark_complete_visibility.spec.js:4:3 › Mark Complete Button Visibility › button visibility workflow 
+    tests/sso.spec.js:4:3 › SSO Authentication › user is automatically logged in via proxy headers ─
+  16 passed (8.1s)

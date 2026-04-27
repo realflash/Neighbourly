@@ -339,6 +339,23 @@ post '/claims/:id/status' do
   end
 end
 
+get '/api/users' do
+  authorised do
+    redirect to('/') unless is_admin?(user_email)
+    users = settings.db[:users].select(:email, :first_name, :last_name).all
+    json users.map { |u| { email: u[:email], name: "#{u[:first_name]} #{u[:last_name]}".strip } }
+  end
+end
+
+post '/claims/:id/user' do
+  authorised do
+    redirect to('/') unless is_admin?(user_email)
+    claim_service = ClaimService.new(settings.db)
+    claim_service.set_claimer(params['id'], params['campaign_id'], params['user_email'])
+    status 200
+  end
+end
+
 get '/debug_meshblocks' do
   url = "#{ENV['LAMBDA_BASE_URL']}/territories/bounds"
   response = HTTParty.get(url, {query: params})

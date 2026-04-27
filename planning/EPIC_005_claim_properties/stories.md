@@ -31,7 +31,9 @@ As a user, I want to see the name of the user who claimed a claim so that I know
 
 ### Acceptance Criteria
 
-- [ ] As anyone, when I click on a claim, I see the name of the user who claimed it. The name is the name of the user who claimed it (not the email address).
+- [x] As anyone, when I click on a claim, I see the name of the user who claimed it. The name is the name of the user who claimed it (not the email address).
+- [x] As an admin, when I click on a claimed area, the user's name is presented as a dropdown menu.
+- [x] As an admin, I can change the assigned user by selecting a different user from the dropdown. The change is saved and the new user's name is displayed.
 
 ## US-004 released claim colour
 
