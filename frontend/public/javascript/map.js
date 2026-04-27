@@ -4,7 +4,6 @@ function makeMap() {
     claimed_by_you: $.extend({}, commonStyles, { 'fillColor': '#9d5fa7', 'fillOpacity': 0.8 }),
     claimed: $.extend({}, commonStyles, { 'fillColor': '#d5545a', 'fillOpacity': 0.8 }),
     complete: $.extend({}, commonStyles, { 'fillColor': '#2171b5', 'fillOpacity': 0.8 }),
-    quarantine: $.extend({}, commonStyles, { 'fillColor': '#d5545a', 'fillOpacity': 0.8 }),
     firstQuartile: $.extend({}, commonStyles, { 'fillColor': '#ffffcc' }),
     secondQuartile: $.extend({}, commonStyles, { 'fillColor': '#c2e699' }),
     thirdQuartile: $.extend({}, commonStyles, { 'fillColor': '#78c679' }),
@@ -121,11 +120,14 @@ function makeMap() {
   }
 
   function addGeoJsonProperties(json) {
-    var admin = $('#map').data('is-admin') === true
+    var adminAttr = $('#map').data('is-admin');
+    var admin = adminAttr === true || adminAttr === 'true';
     var statsContainer = $('.block-stats-hover')
     var template = $('#template').val()
 
     function getFeatureStyle(feature) {
+      var adminAttr = $('#map').data('is-admin');
+      var admin = adminAttr === true || adminAttr === 'true';
       var s;
       var status = feature.properties.claim_status;
       var priority = feature.properties.claim_priority;
@@ -134,7 +136,7 @@ function makeMap() {
       case 'claimed_by_you': s = claimStyles.claimed_by_you; break;
       case 'claimed': s = claimStyles.claimed; break;
       case 'complete': s = claimStyles.complete; break;
-      case 'quarantine': s = claimStyles.quarantine; break;
+      case 'complete': s = claimStyles.complete; break;
       default: 
         if (priority === 'high') s = claimStyles.fourthQuartile;
         else if (priority === 'low') s = claimStyles.firstQuartile;
@@ -201,7 +203,7 @@ function makeMap() {
           $('.download').removeClass('hidden')
           $('.claim').addClass('hidden')
           
-          feature.properties.claim_status = admin ? 'quarantine' : 'claimed_by_you'
+          feature.properties.claim_status = 'claimed_by_you'
           this.setStyle(getFeatureStyle(feature))
           
           $('#load').removeClass('hidden')
@@ -307,9 +309,6 @@ function makeMap() {
 
         var otherstxtcontainer = L.DomUtil.create('div', 'popuptxt hidden otherstext', container)
         otherstxtcontainer.innerHTML = 'This area is claimed by someone else and is unable to be claimed.'
-        var quarantinetxtcontainer = L.DomUtil.create('div', 'popuptxt hidden quarantinetext', container)
-        quarantinetxtcontainer.innerHTML = 'This area is coordinated by a central event. ' +
-          '<a href="' + $('#map').data('central-events-url') + '" target="_blank">Click here</a> to find it.'
 
         if (feature.properties.claim_status === 'claimed_by_you') {
           L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
@@ -323,15 +322,6 @@ function makeMap() {
             L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
           } else {
             L.DomUtil.removeClass(otherstxtcontainer, 'hidden')
-          }
-        }
-        else if (feature.properties.claim_status === 'quarantine') {
-          if (admin) {
-            L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
-            L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
-            L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
-          } else {
-            L.DomUtil.removeClass(quarantinetxtcontainer, 'hidden')
           }
         }
         else if (feature.properties.claim_status === 'complete') {

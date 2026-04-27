@@ -265,8 +265,6 @@ def claim_status(claim)
 
   if claim[:mesh_block_claimer] == session[:user_email]
     "claimed_by_you"
-  elsif is_admin?(claim[:mesh_block_claimer])
-    "quarantine"
   else
     "claimed"
   end
