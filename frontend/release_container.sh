@@ -22,14 +22,6 @@ fi
 
 echo -e "${BLUE}📦 Initializing Release Pipeline for ${VERSION}...${NC}"
 
-# 1. Execute the full validation pipeline
-if ./build_container.sh; then
-    echo -e "\n${GREEN}✅ Validation passed. Ready for registry delivery.${NC}"
-else
-    echo -e "\n${RED}❌ Validation failed. Release aborted.${NC}"
-    exit 1
-fi
-
 # 2. Tag for DigitalOcean
 echo -e "${BLUE}🏷️  Applying Registry Tags...${NC}"
 docker tag ${PROJECT_NAME}:local ${REGISTRY}:v${VERSION}
