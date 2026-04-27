@@ -81,10 +81,12 @@ test.describe('Claim Properties', () => {
       await page.click('input[value="Submit"]');
     }
     
-    await page.goto(`http://localhost:${port}/map`);
+    await page.waitForURL(`**/map`);
     
+    // Check if we can mark a claim as complete via API (even if it's someone else's)
+    // In the test data, 'E00180604' exists.
     const responseStatus = await page.evaluate(async (port) => {
-      const response = await fetch(`http://localhost:${port}/claims/test-slug-complete/status`, {
+      const response = await fetch(`http://localhost:${port}/claims/E00180604/status`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: `campaign_id=1&status=complete`
@@ -92,7 +94,7 @@ test.describe('Claim Properties', () => {
       return response.status;
     }, port);
     
-    // It should be 403 because we don't own the claim
-    expect(responseStatus).toBe(403);
+    // It should be 200 now because everyone can mark complete
+    expect(responseStatus).toBe(200);
   });
 });

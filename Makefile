@@ -31,6 +31,8 @@ test-e2e-isolated:
 	@echo "Running Playwright..."
 	@cd frontend && APP_PORT=4568 TEST_DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' PLAYWRIGHT_BASE_URL="http://127.0.0.1:4568" npx playwright test --workers=1 $(TEST_ARGS)
 	@echo "Cleaning up..."
+	@docker logs neighbourly-test-server
+	@docker logs neighbourly-test-bounds
 	@docker stop neighbourly-test-db neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
 	@docker rm neighbourly-test-db neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
 	@docker network rm neighbourly-test-net > /dev/null 2>&1 || true

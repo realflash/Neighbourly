@@ -180,6 +180,7 @@ get '/api/campaigns' do
     campaigns = Campaign.where(status: 'active').order(:name).all.map do |c|
       { id: c.id, name: c.name, ced_ids: c.ceds.map(&:id), type: c.campaign_type }
     end
+    puts "DEBUG: Returning campaigns: #{campaigns.inspect}"
     json campaigns
   end
 end
@@ -271,9 +272,21 @@ def claim_status(claim)
 end
 
 def get_meshblocks_with_status(json, campaign_id)
-  slugs = json["features"].map{|feature| feature["properties"]["slug"] }
-  claim_service = ClaimService.new(settings.db)
-  claims = claim_service.claims(slugs, campaign_id.to_i)
+  begin
+    if json["features"].nil?
+      puts "WARNING: json['features'] is nil in get_meshblocks_with_status"
+      return json
+    end
+    slugs = json["features"].map{|feature| 
+      if feature["properties"].nil? || feature["properties"]["slug"].nil?
+        puts "WARNING: missing slug in feature properties: #{feature.inspect}"
+        nil
+      else
+        feature["properties"]["slug"]
+      end
+    }.compact
+    claim_service = ClaimService.new(settings.db)
+    claims = claim_service.claims(slugs, campaign_id.to_i)
 
   claim_data = claims.map do |c|
     owner_name = nil
@@ -296,7 +309,12 @@ def get_meshblocks_with_status(json, campaign_id)
     feature
   end
 
-  json
+    json
+  rescue => e
+    puts "ERROR in get_meshblocks_with_status: #{e.message}"
+    puts e.backtrace.join("\n")
+    raise e
+  end
 end
 
 post '/claims/:id/priority' do
@@ -312,8 +330,8 @@ post '/claims/:id/status' do
   authorised do
     claim_service = ClaimService.new(settings.db)
     claim = settings.db[:claims].where(mesh_block_slug: params['id'], campaign_id: params['campaign_id'], deleted_at: nil).first
-    if is_admin?(user_email) || (claim && claim[:mesh_block_claimer] == user_email)
-      claim_service.set_status(params['id'], params['campaign_id'], params['status'])
+    if is_admin?(user_email) || (claim && claim[:mesh_block_claimer] == user_email) || params['status'] == 'complete'
+      claim_service.set_status(params['id'], params['campaign_id'], params['status'], user_email)
       status 200
     else
       status 403

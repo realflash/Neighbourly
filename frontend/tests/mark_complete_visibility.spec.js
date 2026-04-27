@@ -58,9 +58,15 @@ test.describe('Mark Complete Button Visibility', () => {
     }, targetSlug);
     
     // 5. Click Claim
+    console.log('Node: Attempting to click Claim button');
     await page.evaluate(() => {
         const btn = document.querySelector('.claim button');
-        if (btn) btn.click();
+        if (btn) {
+            console.log('CLIENT: Found claim button, clicking...');
+            btn.click();
+        } else {
+            console.log('CLIENT: ERROR: Claim button NOT FOUND');
+        }
     });
     
     // Wait for color change to purple

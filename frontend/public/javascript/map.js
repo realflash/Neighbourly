@@ -195,7 +195,9 @@ function makeMap() {
               return alert('Please select a campaign from the dropdown first.');
             }
             var leaflet_id = this._leaflet_id
-            $.post(APP_BASE_URL + '/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId)
+            $.post(APP_BASE_URL + '/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId, function() {
+              updateMap(true);
+            })
             feature.properties.claim_status = 'claimed_by_you'
             this.setStyle(getFeatureStyle(feature))
             $('#load').removeClass('hidden')
@@ -206,7 +208,9 @@ function makeMap() {
           }
 
           this.btnUnclaim = function () {
-            $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id + '?campaign_id=' + selectedCampaignId)
+            $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id + '?campaign_id=' + selectedCampaignId, function() {
+              updateMap(true);
+            })
             feature.properties.claim_status = 'unclaimed'
             feature.properties.claim_owner_name = null
             this.setStyle(getFeatureStyle(feature))
@@ -323,7 +327,7 @@ function makeMap() {
             L.DomUtil.removeClass(claimout.grpdiv, 'hidden')
           }
           
-          this.bindPopup(container);
+          this.bindPopup(container, { autoPan: false });
         }
 
         bindPopupContent.call(featureLayer);

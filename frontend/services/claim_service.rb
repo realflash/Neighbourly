@@ -88,13 +88,24 @@ class ClaimService
     end
   end
 
-  def set_status(mesh_block, campaign_id, status)
+  def set_status(mesh_block, campaign_id, status, claimer = nil)
     campaign_id = campaign_id.to_i
-    @db[:claims]
-      .where(mesh_block_slug: mesh_block)
-      .where(campaign_id: campaign_id)
-      .where(deleted_at: nil)
-      .update(status: status)
+    existing = @db[:claims]
+      .where(mesh_block_slug: mesh_block, campaign_id: campaign_id, deleted_at: nil)
+      .first
+
+    if existing
+      @db[:claims].where(id: existing[:id]).update(status: status)
+    else
+      @db[:claims].insert(
+        mesh_block_slug: mesh_block,
+        mesh_block_claimer: claimer,
+        claim_date: Time.now,
+        campaign_id: campaign_id,
+        status: status,
+        priority: 'high'
+      )
+    end
   end
 
   private

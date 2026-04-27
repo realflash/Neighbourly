@@ -11,6 +11,21 @@ test.describe('Map Overlay Color Changes', () => {
   let selectedCampaignId = null;
 
   test.beforeEach(async ({ page }) => {
+    // Clean up DB before each test to prevent state bleed
+    const { execSync } = require('child_process');
+    const dbUrl = process.env.TEST_DB_URL || 'postgres://postgres:password@127.0.0.1:5435/postgres';
+    try {
+        // If running inside a container, docker might not be available.
+        // We try to use psql directly if TEST_DB_URL is provided, or docker exec if it's not.
+        if (process.env.TEST_DB_URL) {
+            execSync(`psql "${dbUrl}" -c "DELETE FROM claims;"`);
+        } else {
+            execSync('docker exec neighbourly-test-db psql -U postgres -d postgres -c "DELETE FROM claims;"');
+        }
+    } catch (e) {
+        console.warn('DB cleanup failed (might be expected if not in isolated environment):', e.message);
+    }
+
     page.on('console', msg => {
         const text = msg.text();
         process.stdout.write(`BROWSER ${msg.type().toUpperCase()}: ${text}\n`);
