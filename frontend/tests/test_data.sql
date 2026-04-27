@@ -6,14 +6,29 @@ CREATE TABLE IF NOT EXISTS admin_bdys_201702.abs_2011_mb (
     mb_11code VARCHAR(20) PRIMARY KEY,
     geom GEOMETRY(MultiPolygon, 4326),
     yes_quarantined VARCHAR(1) DEFAULT 'N',
-    mb_category VARCHAR(50) DEFAULT 'RESIDENTIAL'
+    mb_category VARCHAR(50) DEFAULT 'RESIDENTIAL',
+    avg_swing_propensity FLOAT DEFAULT 0.3,
+    outcomes_recorded INTEGER DEFAULT 0,
+    total_addresses_on_block INTEGER DEFAULT 1
 );
 
+CREATE TABLE IF NOT EXISTS public.pcode_bounds (
+    pcode text PRIMARY KEY,
+    swlat double precision,
+    swlng double precision,
+    nelat double precision,
+    nelng double precision
+);
+
+INSERT INTO public.pcode_bounds (pcode, swlat, swlng, nelat, nelng)
+VALUES ('1234', 51.3, -0.7, 51.4, -0.6)
+ON CONFLICT (pcode) DO NOTHING;
+
 -- Insert a mock meshblock around the test coordinates
-INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom, mb_category)
+INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom, mb_category, avg_swing_propensity, total_addresses_on_block)
 VALUES ('E00180604', 
         ST_GeomFromText('MULTIPOLYGON(((-0.72 51.33, -0.63 51.33, -0.63 51.37, -0.72 51.37, -0.72 51.33)))', 4326),
-        'RESIDENTIAL')
+        'RESIDENTIAL', 0.45, 10)
 ON CONFLICT (mb_11code) DO NOTHING;
 
 -- Create addresses table

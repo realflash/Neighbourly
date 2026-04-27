@@ -55,6 +55,8 @@ function makeMap() {
       }
       updateMap(true);
     });
+  }).fail(function(jqXHR, textStatus, errorThrown) {
+    console.error('CLIENT: Failed to load campaigns:', textStatus, errorThrown, jqXHR.status);
   });
 
   var mesh_layer //Rendered map
@@ -153,192 +155,178 @@ function makeMap() {
         return getFeatureStyle(feature);
       },
       onEachFeature: function (feature, featureLayer) {
-        getFeatureStyle(feature); // Ensure synced for initial load
-        featureLayer._leaflet_id = feature.properties.slug
+        featureLayer._leaflet_id = feature.properties.slug;
 
-        function downloadmesh(mesh_id) {
-          var selectedOption = $('#campaign option:selected');
-          var campaignType = selectedOption.attr('data-type') || 'leafleting';
-          // we use campaignType as the template unless template dropdown is visible (it was renamed in design, but let's just pass template=campaignType)
-          var options = {
-            slug: mesh_id,
-            campaign: $('#campaign').val(),
-            template: $('#template').val(),
-            campaign_type: campaignType
-          }
-          var url = LAMBDA_BASE_URL + '/map'
-          $.get(url, options, function (base64str) {
-            if (base64str.message == 'Internal server error') {
-              return alert('This area cannot be downloaded due to a pdf rendering error, please try another area.')
+        function bindPopupContent() {
+          var self = this;
+          function downloadmesh(mesh_id) {
+            var selectedOption = $('#campaign option:selected');
+            var campaignType = selectedOption.attr('data-type') || 'leafleting';
+            var options = {
+              slug: mesh_id,
+              campaign: $('#campaign').val(),
+              template: $('#template').val(),
+              campaign_type: campaignType
             }
-            //decode base64 string
-            var binary = atob(base64str.base64.replace(/\s/g, ''))
-            var len = binary.length
-            var buffer = new ArrayBuffer(len)
-            var view = new Uint8Array(buffer)
-            for (var i = 0; i < len; i++) {
-              view[i] = binary.charCodeAt(i)
+            var url = LAMBDA_BASE_URL + '/map'
+            $.get(url, options, function (base64str) {
+              if (base64str.message == 'Internal server error') {
+                return alert('This area cannot be downloaded due to a pdf rendering error, please try another area.')
+              }
+              var binary = atob(base64str.base64.replace(/\s/g, ''))
+              var len = binary.length
+              var buffer = new ArrayBuffer(len)
+              var view = new Uint8Array(buffer)
+              for (var i = 0; i < len; i++) {
+                view[i] = binary.charCodeAt(i)
+              }
+              var blob = new Blob([view], { type: 'application/pdf' })
+              var url = window.URL.createObjectURL(blob)
+              var a = document.createElement('a')
+              a.href = url
+              a.download = mesh_id + '.pdf'
+              a.click()
+              $('#load').addClass('hidden')
+            })
+          }
+
+          this.btnClaim = function () {
+            if (!selectedCampaignId) {
+              return alert('Please select a campaign from the dropdown first.');
             }
-
-            //create the blob object
-            var blob = new Blob([view], { type: 'application/pdf' })
-
-            //create clickable URL for download
-            var url = window.URL.createObjectURL(blob)
-            var a = document.createElement('a')
-            a.href = url
-            a.download = mesh_id + '.pdf'
-            a.click()
-            $('#load').addClass('hidden')
-          })
-        }
-
-        this.btnClaim = function () {
-          if (!selectedCampaignId) {
-            return alert('Please select a campaign from the dropdown first.');
+            var leaflet_id = this._leaflet_id
+            $.post(APP_BASE_URL + '/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId)
+            feature.properties.claim_status = 'claimed_by_you'
+            this.setStyle(getFeatureStyle(feature))
+            $('#load').removeClass('hidden')
+            downloadmesh(leaflet_id)
+            // Re-bind popup to update buttons
+            bindPopupContent.call(this);
+            this.openPopup();
           }
-          var leaflet_id = this._leaflet_id
-          $.post(APP_BASE_URL + '/claim_meshblock/' + leaflet_id + '?campaign_id=' + selectedCampaignId)
-          $('.unclaim').removeClass('hidden')
-          $('.download').removeClass('hidden')
-          $('.claim').addClass('hidden')
-          
-          feature.properties.claim_status = 'claimed_by_you'
-          this.setStyle(getFeatureStyle(feature))
-          
-          $('#load').removeClass('hidden')
-          downloadmesh(leaflet_id)
-        }
 
-        this.btnUnclaim = function () {
-          $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id + '?campaign_id=' + selectedCampaignId)
-          
-          feature.properties.claim_status = 'unclaimed'
-          feature.properties.claim_owner_name = null
-          this.setStyle(getFeatureStyle(feature))
-          
-          $('.unclaim').addClass('hidden')
-          $('.download').addClass('hidden')
-          $('.admin-unclaim').addClass('hidden')
-          $('.admin-download').addClass('hidden')
-          $('.mark-complete').addClass('hidden')
-          $('.claim').removeClass('hidden')
-        }
-
-        this.btnDownload = function () {
-          var leaflet_id = this._leaflet_id
-          $('#load').removeClass('hidden')
-          downloadmesh(leaflet_id)
-        }
-
-        this.btnMarkComplete = function() {
-          var leaflet_id = this._leaflet_id
-          $.post(APP_BASE_URL + '/claims/' + leaflet_id + '/status', { campaign_id: selectedCampaignId, status: 'complete' }, function() {
-            updateMap(true)
-          })
-          feature.properties.claim_status = 'complete'
-          this.setStyle(getFeatureStyle(feature))
-          $('.mark-complete').addClass('hidden')
-        }
-
-        function create_popup_btn(container, div_class, btn_text_inner, faq_text_inner) {
-          var grpdiv = L.DomUtil.create('div', 'popupgrp hidden ' + div_class, container)
-          var txtdiv = L.DomUtil.create('div', 'popuptxt txt' + div_class, grpdiv)
-          txtdiv.innerHTML = faq_text_inner
-          var btndiv = L.DomUtil.create('div', 'popupbutton btn' + div_class, grpdiv)
-          var btn = L.DomUtil.create('button', '', btndiv)
-          btn.setAttribute('type', 'button')
-          btn.setAttribute('name', div_class)
-          btn.innerHTML = btn_text_inner
-          var btndom = L.DomEvent
-          btndom.addListener(btn, 'click', L.DomEvent.stopPropagation)
-          btndom.addListener(btn, 'click', L.DomEvent.preventDefault)
-          return {
-            grpdiv: grpdiv,
-            btn: btn,
-            btndom: btndom
+          this.btnUnclaim = function () {
+            $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id + '?campaign_id=' + selectedCampaignId)
+            feature.properties.claim_status = 'unclaimed'
+            feature.properties.claim_owner_name = null
+            this.setStyle(getFeatureStyle(feature))
+            bindPopupContent.call(this);
+            this.openPopup();
           }
-        }
 
-        var container = L.DomUtil.create('div')
+          this.btnDownload = function () {
+            $('#load').removeClass('hidden')
+            downloadmesh(this._leaflet_id)
+          }
 
-        L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = 'Code: ' + feature.properties.slug
-        L.DomUtil.create('hr', 'smaller-margin', container)
+          this.btnMarkComplete = function() {
+            var leaflet_id = this._leaflet_id
+            $.post(APP_BASE_URL + '/claims/' + leaflet_id + '/status', { campaign_id: selectedCampaignId, status: 'complete' }, function() {
+              updateMap(true)
+            })
+            feature.properties.claim_status = 'complete'
+            this.setStyle(getFeatureStyle(feature))
+            bindPopupContent.call(this);
+            this.openPopup();
+          }
 
-        var claimout = create_popup_btn(container, 'claim', 'Claim + Download', 'Click to claim area and download PDF of addresses to doorknock.<br>')
-        claimout.btndom.addListener(claimout.btn, 'click', this.btnClaim, featureLayer)
-        var unclaimout = create_popup_btn(container, 'unclaim', 'Unclaim', 'Click to remove your claim on this area.<br>')
-        unclaimout.btndom.addListener(unclaimout.btn, 'click', this.btnUnclaim, featureLayer)
-        var downloadout = create_popup_btn(container, 'download', 'Download', 'Click to download your claimed area.<br>')
-        downloadout.btndom.addListener(downloadout.btn, 'click', this.btnDownload, featureLayer)
-        var adminUnclaim = create_popup_btn(container, 'admin-unclaim', 'Admin Unclaim', 'Click to remove the claim on this area.<br>')
-        adminUnclaim.btndom.addListener(adminUnclaim.btn, 'click', this.btnUnclaim, featureLayer)
-        var adminDownload = create_popup_btn(container, 'admin-download', 'Download', 'Click to download the claimed area.<br>')
-        adminDownload.btndom.addListener(adminDownload.btn, 'click', this.btnDownload, featureLayer)
-        var markCompleteOut = create_popup_btn(container, 'mark-complete', 'Mark Complete', 'Click to mark this area as completely door-knocked.<br>')
-        markCompleteOut.btndom.addListener(markCompleteOut.btn, 'click', this.btnMarkComplete, featureLayer)
+          function create_popup_btn(container, div_class, btn_text_inner, faq_text_inner) {
+            var grpdiv = L.DomUtil.create('div', 'popupgrp hidden ' + div_class, container)
+            var txtdiv = L.DomUtil.create('div', 'popuptxt txt' + div_class, grpdiv)
+            txtdiv.innerHTML = faq_text_inner
+            var btndiv = L.DomUtil.create('div', 'popupbutton btn' + div_class, grpdiv)
+            var btn = L.DomUtil.create('button', '', btndiv)
+            btn.setAttribute('type', 'button')
+            btn.setAttribute('name', div_class)
+            btn.innerHTML = btn_text_inner
+            L.DomEvent.addListener(btn, 'click', L.DomEvent.stopPropagation)
+            L.DomEvent.addListener(btn, 'click', L.DomEvent.preventDefault)
+            return {
+              grpdiv: grpdiv,
+              btn: btn
+            }
+          }
 
-        var ownerName = feature.properties.claim_owner_name;
-        if (ownerName) {
-           var ownerContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
-           ownerContainer.innerHTML = 'Claimed by: ' + ownerName;
-        }
+          var container = L.DomUtil.create('div')
+          L.DomUtil.create('div', 'popuptxt normal-size', container).innerHTML = 'Code: ' + feature.properties.slug
+          L.DomUtil.create('hr', 'smaller-margin', container)
 
-        var priorityContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
-        var priorityHtml = 'Priority: '
-        var currentPriority = feature.properties.claim_priority || 'high';
-        if (admin) {
-           priorityHtml += '<select class="form-control priority-select half-width" data-slug="' + feature.properties.slug + '">' + 
-                           '<option value="high" ' + (currentPriority === 'high' ? 'selected' : '') + '>High</option>' +
-                           '<option value="low" ' + (currentPriority === 'low' ? 'selected' : '') + '>Low</option>' +
-                           '</select>';
-        } else {
-           priorityHtml += (currentPriority === 'low' ? 'Low' : 'High');
-        }
-        priorityContainer.innerHTML = priorityHtml;
+          var claimout = create_popup_btn(container, 'claim', 'Claim + Download', 'Click to claim area and download PDF of addresses to doorknock.<br>')
+          L.DomEvent.addListener(claimout.btn, 'click', this.btnClaim, this)
 
-        if (admin) {
-           $(priorityContainer).find('select').on('change', function() {
-              var newPrio = $(this).val();
-              var slug = $(this).data('slug');
-              $.post(APP_BASE_URL + '/claims/' + slug + '/priority', { campaign_id: selectedCampaignId, priority: newPrio }, function() {
-                 updateMap(true); 
-              });
-           });
-        }
+          var markCompleteOut = create_popup_btn(container, 'mark-complete-toggle', 'Mark Complete', 'Click to mark this area as completely door-knocked.<br>')
+          L.DomEvent.addListener(markCompleteOut.btn, 'click', this.btnMarkComplete, this)
 
-        var otherstxtcontainer = L.DomUtil.create('div', 'popuptxt hidden otherstext', container)
-        otherstxtcontainer.innerHTML = 'This area is claimed by someone else and is unable to be claimed.'
+          var unclaimout = create_popup_btn(container, 'unclaim', 'Unclaim', 'Click to remove your claim on this area.<br>')
+          L.DomEvent.addListener(unclaimout.btn, 'click', this.btnUnclaim, this)
 
-        if (feature.properties.claim_status === 'claimed_by_you') {
-          L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
-          L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
-          L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
-        }
-        else if (feature.properties.claim_status === 'claimed') {
+          var downloadout = create_popup_btn(container, 'download', 'Download', 'Click to download your claimed area.<br>')
+          L.DomEvent.addListener(downloadout.btn, 'click', this.btnDownload, this)
+
+          var adminUnclaim = create_popup_btn(container, 'admin-unclaim', 'Admin Unclaim', 'Click to remove the claim on this area.<br>')
+          L.DomEvent.addListener(adminUnclaim.btn, 'click', this.btnUnclaim, this)
+
+          var adminDownload = create_popup_btn(container, 'admin-download', 'Download', 'Click to download the claimed area.<br>')
+          L.DomEvent.addListener(adminDownload.btn, 'click', this.btnDownload, this)
+
+          var ownerName = feature.properties.claim_owner_name;
+          if (ownerName) {
+             var ownerContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
+             ownerContainer.innerHTML = 'Claimed by: ' + ownerName;
+          }
+
+          var priorityContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
+          var currentPriority = feature.properties.claim_priority || 'high';
+          var priorityHtml = 'Priority: ' + (admin ? 
+              ('<select class="form-control priority-select half-width" data-slug="' + feature.properties.slug + '">' + 
+               '<option value="high" ' + (currentPriority === 'high' ? 'selected' : '') + '>High</option>' +
+               '<option value="low" ' + (currentPriority === 'low' ? 'selected' : '') + '>Low</option>' +
+               '</select>') : (currentPriority === 'low' ? 'Low' : 'High'));
+          priorityContainer.innerHTML = priorityHtml;
+
           if (admin) {
-            L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
-            L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
+             $(priorityContainer).find('select').on('change', function() {
+                var newPrio = $(this).val();
+                $.post(APP_BASE_URL + '/claims/' + feature.properties.slug + '/priority', { campaign_id: selectedCampaignId, priority: newPrio }, function() {
+                   updateMap(true); 
+                });
+             });
+          }
+
+          var otherstxtcontainer = L.DomUtil.create('div', 'popuptxt hidden otherstext', container)
+          otherstxtcontainer.innerHTML = 'This area is claimed by someone else and is unable to be claimed.'
+
+          if (feature.properties.claim_status === 'claimed_by_you') {
+            L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
+            L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
             L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
-          } else {
-            L.DomUtil.removeClass(otherstxtcontainer, 'hidden')
           }
-        }
-        else if (feature.properties.claim_status === 'complete') {
-          if (admin) {
-            L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
-            L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
-          } else if (ownerName && feature.properties.claim_status === 'complete') {
-             // Let user unclaim if they want, but don't show mark complete
-             L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
-             L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
+          else if (feature.properties.claim_status === 'claimed') {
+            if (admin) {
+              L.DomUtil.removeClass(markCompleteOut.grpdiv, 'hidden')
+              L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
+              L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
+            } else {
+              L.DomUtil.removeClass(otherstxtcontainer, 'hidden')
+            }
           }
+          else if (feature.properties.claim_status === 'complete') {
+            if (admin) {
+              L.DomUtil.removeClass(adminUnclaim.grpdiv, 'hidden')
+              L.DomUtil.removeClass(adminDownload.grpdiv, 'hidden')
+            } else if (ownerName && feature.properties.claim_status === 'complete') {
+               L.DomUtil.removeClass(unclaimout.grpdiv, 'hidden')
+               L.DomUtil.removeClass(downloadout.grpdiv, 'hidden')
+            }
+          }
+          else {
+            L.DomUtil.removeClass(claimout.grpdiv, 'hidden')
+          }
+          
+          this.bindPopup(container);
         }
-        else {
-          L.DomUtil.removeClass(claimout.grpdiv, 'hidden')
-        }
-        var popup = L.popup({}, featureLayer).setContent(container)
-        featureLayer.bindPopup(popup)
+
+        bindPopupContent.call(featureLayer);
 
         featureLayer.on('mouseover', function () {
           var total_addresses = feature.properties.total_addresses_on_block
@@ -348,11 +336,12 @@ function makeMap() {
             var doors_remaining = total_addresses - outcomes
             var percent = Math.round(doors_remaining * 100.0 / total_addresses)
             meta[0] = '# of doors remaining to knock: ' + doors_remaining + ' (' + percent + '%)'
-            if (template === 'previous_results') {
-              meta.unshift('# of voters we\'d like to speak to again: ' + outcomes)
-            }
           }
-          statsContainer.html(meta.join('<br>'))
+          $('.block-stats-hover').html(meta.join('<br>'))
+        })
+
+        featureLayer.on('click', function (e) {
+          bindPopupContent.call(this);
         })
       }
     })
@@ -386,6 +375,9 @@ function makeMap() {
   instruct.addTo(map)
 
   function updateMap(force) {
+    if (map.getZoom() === undefined) {
+      return;
+    }
     var distance_moved, reload_dist
     var lat_lng_bnd = map.getBounds()
     var lat_lng_centroid = map.getCenter()
