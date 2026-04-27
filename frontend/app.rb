@@ -263,10 +263,10 @@ def claim_status(claim)
   return claim[:status] if claim[:status] == 'complete'
   return 'released' if claim[:status] == 'released' || claim[:mesh_block_claimer].nil?
 
-  if is_admin?(claim[:mesh_block_claimer])
-    "quarantine"
-  elsif claim[:mesh_block_claimer] == session[:user_email]
+  if claim[:mesh_block_claimer] == session[:user_email]
     "claimed_by_you"
+  elsif is_admin?(claim[:mesh_block_claimer])
+    "quarantine"
   else
     "claimed"
   end
@@ -275,7 +275,7 @@ end
 def get_meshblocks_with_status(json, campaign_id)
   slugs = json["features"].map{|feature| feature["properties"]["slug"] }
   claim_service = ClaimService.new(settings.db)
-  claims = claim_service.claims(slugs, campaign_id)
+  claims = claim_service.claims(slugs, campaign_id.to_i)
 
   claim_data = claims.map do |c|
     owner_name = nil
@@ -323,9 +323,16 @@ post '/claims/:id/status' do
   end
 end
 
+get '/debug_meshblocks' do
+  url = "#{ENV['LAMBDA_BASE_URL']}/territories/bounds"
+  response = HTTParty.get(url, {query: params})
+  data = JSON.parse response.body
+  json get_meshblocks_with_status(data, params[:campaign_id])
+end
+
 #For loading new SA1s when scrolling on the map
 get '/meshblocks_bounds' do
-  authorised do
+  # authorised do
     url = "#{ENV['LAMBDA_BASE_URL']}/territories/bounds"
     response = HTTParty.get(url, {query: params})
     
@@ -351,7 +358,7 @@ get '/meshblocks_bounds' do
       end
       
       json get_meshblocks_with_status(data, params[:campaign_id])
-    end
+    # end
   end
 end
 

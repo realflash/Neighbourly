@@ -47,128 +47,31 @@ LINT_RESULT=0
 if [ $LINT_RESULT -eq 0 ]; then
     VERSION=$(cat VERSION 2>/dev/null || echo "1.0.0")
     run_stage "Building (Container)" "DOCKER_BUILDKIT=0 docker build --label version=${VERSION} -t neighbourly-app:local -t neighbourly-app:v${VERSION} ."
-    BUILD_CONT_RESULT=$?
+    BUILD_APP_RESULT=$?
+    run_stage "Building (Bounds)" "docker build -t neighbourly-bounds-service:local ../bounds_service"
+    BUILD_BOUNDS_RESULT=$?
+    if [ $BUILD_APP_RESULT -eq 0 ] && [ $BUILD_BOUNDS_RESULT -eq 0 ]; then
+        BUILD_CONT_RESULT=0
+    else
+        BUILD_CONT_RESULT=1
+    fi
 else
-    STAGES+=("Building (Container)")
+    STAGES+=("Building (Dependent bounds container)")
     RESULTS+=("SKIPPED")
     BUILD_CONT_RESULT=1
 fi
 
-# 3. Testing
 if [ $BUILD_CONT_RESULT -eq 0 ]; then
-    # Spin up a temporary database container for testing
-    echo -e "${BLUE}Spinning up temporary PostgreSQL container for testing...${NC}"
-    docker rm -f neighbourly-test-db > /dev/null 2>&1 || true
-    if ! docker run -d --name neighbourly-test-db -e POSTGRES_PASSWORD=password -e POSTGRES_USER=postgres -p 5435:5432 postgres:9.4 > /dev/null 2>&1; then
-        echo -e "${RED}✗ Failed to start temporary PostgreSQL container! Port 5435 may be in use.${NC}"
-        run_stage "Testing" "false"
-        TEST_RESULT=1
-        
-        # Summary Report
-        echo -e "\n${BLUE}📊 Container Pipeline Summary:${NC}"
-        echo "----------------------"
-        for i in "${!STAGES[@]}"; do
-            STAGE="${STAGES[$i]}"
-            RESULT="${RESULTS[$i]}"
-            if [ "$RESULT" == "PASS" ]; then echo -e "${STAGE}: ${GREEN}${RESULT}${NC}"; elif [ "$RESULT" == "FAIL" ]; then echo -e "${STAGE}: ${RED}${RESULT}${NC}"; else echo -e "${STAGE}: ${YELLOW}${RESULT}${NC}"; fi
-        done
-        echo "Testing: ${RED}FAIL${NC}"
-        echo "----------------------"
-        echo -e "${RED}❌ Container Pipeline Failed.${NC}"
-        exit 1
-    fi
-    
-    # Wait for DB to be ready
-    echo -e "${YELLOW}Waiting for DB to be ready...${NC}"
-    
-    # Add a timeout so we never hang infinitely
-    MAX_WAIT=30
-    WAIT_COUNT=0
-    until docker exec neighbourly-test-db pg_isready -U postgres > /dev/null 2>&1; do
-        sleep 1
-        WAIT_COUNT=$((WAIT_COUNT + 1))
-        if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
-            echo -e "${RED}✗ Timed out waiting for PostgreSQL to be ready.${NC}"
-            docker logs neighbourly-test-db
-            docker stop neighbourly-test-db > /dev/null
-            docker rm neighbourly-test-db > /dev/null
-            exit 1
-        fi
-    done
-    sleep 2 # Extra safety margin
-    
-    # Enable hstore extension
-    docker exec neighbourly-test-db psql -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS hstore;" > /dev/null
-    
-    echo -e "${YELLOW}Running Automated Tests...${NC}"
-    TEST_PASS=1
-    
-    # Test 1: US-002 Fail fast without DB_URL
-    echo "  -> Testing fail-fast when DB_URL is missing..."
-    FAIL_TEST_OUTPUT=$(docker run --rm neighbourly-app:local 2>&1 || true)
-    if echo "$FAIL_TEST_OUTPUT" | grep -q "ERROR: DB_URL environment variable is missing or empty."; then
-        echo -e "  ${GREEN}✓ Fail-fast test passed.${NC}"
-    else
-        echo -e "  ${RED}✗ Fail-fast test failed.${NC}"
-        echo "$FAIL_TEST_OUTPUT"
-        TEST_PASS=0
-    fi
-    
-    # Test 2: Launch Test Server and verify HTTP 200
-    if [ $TEST_PASS -eq 1 ]; then
-        echo "  -> Running database migrations on test db..."
-        docker run --rm --network="host" -e DATABASE_URL='postgres://postgres:password@127.0.0.1:5435/postgres' neighbourly-app:local bundle exec rake db:migrate
-        docker exec -i neighbourly-test-db psql -U postgres -d postgres < ceds.sql > /dev/null
-        
-        echo "  -> Launching test server..."
-        docker rm -f neighbourly-test-server > /dev/null 2>&1 || true
-        docker run -d --name neighbourly-test-server --network="host" -e DB_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e LAMBDA_BASE_URL='http://localhost:3000/ground-bounds' -e ADMIN_EMAILS='admin@example.com' -e PROXY_SECRET='test_proxy_secret' neighbourly-app:local bundle exec puma -p 4568 -e development > /dev/null
-        
-        echo "  -> Launching test bounds service..."
-        docker rm -f neighbourly-test-bounds > /dev/null 2>&1 || true
-        if ! docker run -d --name neighbourly-test-bounds --network="host" -e DATABASE_URL='postgres://postgres:password@127.0.0.1:5435/postgres' -e BASE_PATH='/ground-bounds' -e GOOGLE_MAPS_KEY='dummy_key' -e COUNTRY='UK' neighbourly-bounds-service:local > /dev/null 2>&1; then
-            echo -e "  ${RED}✗ Failed to start test bounds service container.${NC}"
-            docker logs neighbourly-test-bounds 2>/dev/null || true
-            TEST_PASS=0
-        fi
-        
-        # Wait for Puma and Bounds Service to start
-        sleep 5
-        
-        echo "  -> Executing HTTP test against test server..."
-        HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:4568 || echo "000")
-        if [ "$HTTP_STATUS" == "200" ]; then
-            echo -e "  ${GREEN}✓ Server responded with HTTP 200.${NC}"
-            
-            echo "  -> Running Playwright E2E tests against test server..."
-            if APP_PORT=4568 npx playwright test; then
-                echo -e "  ${GREEN}✓ Playwright E2E tests passed.${NC}"
-            else
-                echo -e "  ${RED}✗ Playwright E2E tests failed.${NC}"
-                TEST_PASS=0
-            fi
-        else
-            echo -e "  ${RED}✗ Server responded with HTTP ${HTTP_STATUS}. Expected 200.${NC}"
-            docker logs neighbourly-test-server
-            TEST_PASS=0
-        fi
-        
-        echo "  -> Tearing down test containers..."
-        docker stop neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
-        docker rm neighbourly-test-server neighbourly-test-bounds > /dev/null 2>&1 || true
-    fi
-    
-    if [ $TEST_PASS -eq 1 ]; then
+    # Run isolated tests via Makefile
+    echo -e "${YELLOW}Running Isolated Automated Tests via Makefile...${NC}"
+    if make -C .. test-e2e-isolated; then
+        echo -e "  ${GREEN}✓ Isolated tests passed.${NC}"
         run_stage "Testing" "true"
     else
+        echo -e "  ${RED}✗ Isolated tests failed.${NC}"
         run_stage "Testing" "false"
     fi
     TEST_RESULT=$?
-    
-    # Tear down the test database
-    echo -e "${BLUE}Tearing down temporary PostgreSQL container...${NC}"
-    docker stop neighbourly-test-db > /dev/null
-    docker rm neighbourly-test-db > /dev/null
 else
     STAGES+=("Testing")
     RESULTS+=("SKIPPED")

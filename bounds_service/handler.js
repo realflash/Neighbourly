@@ -15,9 +15,9 @@ const corsHeaders = {
 const getAddresses = function(client, slug,cb) {
   let queryStr = "";
   if (process.env.COUNTRY === 'UK') {
-    queryStr = "select k.gnaf_pid, k.locality_name, k.postcode, k.street_name AS street, k.number_first AS street_number, k.elector_name, k.gender, k.age, NULL as subpremise_sort, CASE WHEN k.number_first IS NOT NULL AND k.number_first ~ '^[0-9]+' THEN regexp_replace(k.number_first, '[^0-9]+', '', 'g')::integer ELSE NULL END as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND alias_principal = 'P' order by street, premise_sort, street_number";
+    queryStr = "select k.gnaf_pid, k.locality_name, k.postcode, k.street_name AS street, k.number_first AS street_number, k.elector_name, k.gender, k.age, NULL as subpremise_sort, CASE WHEN k.number_first IS NOT NULL AND k.number_first ~ '^[0-9]+' THEN regexp_replace(k.number_first, '[^0-9]+', '', 'g')::integer ELSE NULL END as premise_sort from public.addresses k where k.mb_2011_code = $1 AND alias_principal = 'P' order by street, premise_sort, street_number";
   } else {
-    queryStr = "select k.gnaf_pid, k.street_locality_pid, k.address, k.locality_name, k.postcode, CONCAT(k.street_name,' ',k.street_type) AS street, CASE WHEN k.flat_number IS NULL THEN CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END ELSE CONCAT(k.flat_number,'/',CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END) END AS street_number, CASE WHEN k.flat_number IS NOT NULL AND k.flat_number LIKE '[0-9]+' THEN regexp_replace(k.flat_number, '[^0-9]+', '', 'g')::integer ELSE NULL END as subpremise_sort, k.number_first as premise_sort from gnaf_201702.addresses k where k.mb_2011_code = $1 AND(primary_secondary IS NULL OR primary_secondary = 'S') AND alias_principal = 'P' order by 2,9,8";
+    queryStr = "select k.gnaf_pid, k.street_locality_pid, k.address, k.locality_name, k.postcode, CONCAT(k.street_name,' ',k.street_type) AS street, CASE WHEN k.flat_number IS NULL THEN CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END ELSE CONCAT(k.flat_number,'/',CASE WHEN k.number_last IS NULL THEN k.number_first ELSE CONCAT(k.number_first,'-',k.number_last) END) END AS street_number, CASE WHEN k.flat_number IS NOT NULL AND k.flat_number LIKE '[0-9]+' THEN regexp_replace(k.flat_number, '[^0-9]+', '', 'g')::integer ELSE NULL END as subpremise_sort, k.number_first as premise_sort from public.addresses k where k.mb_2011_code = $1 AND(primary_secondary IS NULL OR primary_secondary = 'S') AND alias_principal = 'P' order by 2,9,8";
   }
   client.query(queryStr, [slug], (err, res) => {
     if (err) {
@@ -30,7 +30,7 @@ const getAddresses = function(client, slug,cb) {
 }
 
 const getImage = function(client, slug,cb) {
-  if (process.env.GOOGLE_MAPS_KEY === 'dummy') {
+  if (process.env.GOOGLE_MAPS_KEY && process.env.GOOGLE_MAPS_KEY.includes('dummy')) {
     console.log("Dummy GOOGLE_MAPS_KEY provided, using transparent fallback image.");
     return cb(null, "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
   }
@@ -94,7 +94,10 @@ module.exports.getForBounds = (event, context, callback) => {
       return callback(err);
     }
     
-    client.query("SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(k.geom,7)::json As geometry, row_to_json((SELECT l FROM (SELECT mb_11code As slug,yes_quarantined As quarantined) As l)) As properties from admin_bdys_201702.abs_2011_mb as k WHERE ST_Intersects(ST_MakeEnvelope($1,$2,$3,$4,4326),k.geom) AND k.mb_category = 'RESIDENTIAL') As f ) As fc", [event.queryStringParameters.nwx,event.queryStringParameters.nwy,event.queryStringParameters.sex,event.queryStringParameters.sey], (err, res) => {
+    const query = "SELECT row_to_json(fc) FROM ( SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (SELECT 'Feature' As type, ST_AsGeoJSON(k.geom,7)::json As geometry, row_to_json((SELECT l FROM (SELECT mb_11code As slug,yes_quarantined As quarantined) As l)) As properties from admin_bdys_201702.abs_2011_mb as k WHERE ST_Intersects(ST_MakeEnvelope($1,$2,$3,$4,4326),k.geom) AND k.mb_category = 'RESIDENTIAL') As f ) As fc";
+    const params = [event.queryStringParameters.sex,event.queryStringParameters.sey,event.queryStringParameters.nwx,event.queryStringParameters.nwy];
+    console.log("Executing query:", query, "with params:", params);
+    client.query(query, params, (err, res) => {
       client.end()
       if (err) {
         console.error("Error in getForBounds, returning empty feature collection:", err.message);

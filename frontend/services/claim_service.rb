@@ -6,6 +6,7 @@ class ClaimService
   end
 
   def claims(slugs, campaign_id)
+    campaign_id = campaign_id.to_i
     @db[:claims]
       .where('deleted_at is NULL')
       .where('mesh_block_slug IN ?', slugs.map(&:to_s))
@@ -13,6 +14,7 @@ class ClaimService
   end
 
   def claim(mesh_block, claimer, campaign_id)
+    campaign_id = campaign_id.to_i
     existing = @db[:claims]
       .where(mesh_block_slug: mesh_block, campaign_id: campaign_id, deleted_at: nil)
       .first
@@ -34,6 +36,7 @@ class ClaimService
   end
 
   def unclaim(mesh_block, unclaimer, campaign_id)
+    campaign_id = campaign_id.to_i
     @db[:claims]
       .where(mesh_block_claimer: unclaimer)
       .where(mesh_block_slug: mesh_block)
@@ -43,6 +46,7 @@ class ClaimService
   end
 
   def admin_unclaim(mesh_block, campaign_id)
+    campaign_id = campaign_id.to_i
     env_emails = ENV['ADMIN_EMAILS'].to_s.split(",").map(&:strip).map(&:downcase)
     db_admin_emails = @db[:users].where(role: 'admin').select_map(:email).map(&:downcase)
     all_admin_emails = (env_emails + db_admin_emails).uniq
@@ -56,6 +60,7 @@ class ClaimService
   end
 
   def data_entry_unclaim(mesh_block, campaign_id)
+    campaign_id = campaign_id.to_i
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
       .where(campaign_id: campaign_id)
@@ -64,6 +69,7 @@ class ClaimService
   end
 
   def set_priority(mesh_block, campaign_id, priority)
+    campaign_id = campaign_id.to_i
     existing = @db[:claims]
       .where(mesh_block_slug: mesh_block, campaign_id: campaign_id, deleted_at: nil)
       .first
@@ -83,6 +89,7 @@ class ClaimService
   end
 
   def set_status(mesh_block, campaign_id, status)
+    campaign_id = campaign_id.to_i
     @db[:claims]
       .where(mesh_block_slug: mesh_block)
       .where(campaign_id: campaign_id)

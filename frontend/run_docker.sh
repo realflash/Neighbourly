@@ -39,6 +39,12 @@ fi
 docker run -d \
     --name $CONTAINER_NAME \
     --network="host" \
+    -v "$(pwd)/public:/app/public" \
+    -v "$(pwd)/views:/app/views" \
+    -v "$(pwd)/lib:/app/lib" \
+    -v "$(pwd)/services:/app/services" \
+    -v "$(pwd)/models:/app/models" \
+    -v "$(pwd)/app.rb:/app/app.rb" \
     "${ENV_ARGS[@]}" \
     $IMAGE_NAME
 

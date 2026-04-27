@@ -4,7 +4,7 @@ function makeMap() {
     claimed_by_you: $.extend({}, commonStyles, { 'fillColor': '#9d5fa7', 'fillOpacity': 0.8 }),
     claimed: $.extend({}, commonStyles, { 'fillColor': '#d5545a', 'fillOpacity': 0.8 }),
     complete: $.extend({}, commonStyles, { 'fillColor': '#2171b5', 'fillOpacity': 0.8 }),
-    quarantine: $.extend({}, commonStyles, { 'fillColor': '#2171b5', 'fillOpacity': 0.8 }),
+    quarantine: $.extend({}, commonStyles, { 'fillColor': '#d5545a', 'fillOpacity': 0.8 }),
     firstQuartile: $.extend({}, commonStyles, { 'fillColor': '#ffffcc' }),
     secondQuartile: $.extend({}, commonStyles, { 'fillColor': '#c2e699' }),
     thirdQuartile: $.extend({}, commonStyles, { 'fillColor': '#78c679' }),
@@ -125,20 +125,33 @@ function makeMap() {
     var statsContainer = $('.block-stats-hover')
     var template = $('#template').val()
 
+    function getFeatureStyle(feature) {
+      var s;
+      var status = feature.properties.claim_status;
+      var priority = feature.properties.claim_priority;
+      
+      switch (status) {
+      case 'claimed_by_you': s = claimStyles.claimed_by_you; break;
+      case 'claimed': s = claimStyles.claimed; break;
+      case 'complete': s = claimStyles.complete; break;
+      case 'quarantine': s = claimStyles.quarantine; break;
+      default: 
+        if (priority === 'high') s = claimStyles.fourthQuartile;
+        else if (priority === 'low') s = claimStyles.firstQuartile;
+        else s = priorityStyles(feature);
+      }
+      
+      window.meshblockColors = window.meshblockColors || {};
+      window.meshblockColors[feature.properties.slug] = s.fillColor;
+      return s;
+    }
+
     var layer = L.geoJson(json, {
       style: function (feature) {
-        switch (feature.properties.claim_status) {
-        case 'claimed_by_you': return claimStyles.claimed_by_you
-        case 'claimed': return claimStyles.claimed
-        case 'complete': return claimStyles.complete
-        case 'quarantine': return claimStyles.complete
-        default: 
-          if (feature.properties.claim_priority === 'high') return claimStyles.fourthQuartile
-          if (feature.properties.claim_priority === 'low') return claimStyles.firstQuartile
-          return priorityStyles(feature)
-        }
+        return getFeatureStyle(feature);
       },
       onEachFeature: function (feature, featureLayer) {
+        getFeatureStyle(feature); // Ensure synced for initial load
         featureLayer._leaflet_id = feature.properties.slug
 
         function downloadmesh(mesh_id) {
@@ -187,18 +200,21 @@ function makeMap() {
           $('.unclaim').removeClass('hidden')
           $('.download').removeClass('hidden')
           $('.claim').addClass('hidden')
-          if (admin) {
-            this.setStyle(claimStyles.quarantine)
-          } else {
-            this.setStyle(claimStyles.claimed_by_you)
-          }
+          
+          feature.properties.claim_status = admin ? 'quarantine' : 'claimed_by_you'
+          this.setStyle(getFeatureStyle(feature))
+          
           $('#load').removeClass('hidden')
           downloadmesh(leaflet_id)
         }
 
         this.btnUnclaim = function () {
-          $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id)
-          this.setStyle(claimStyles.firstQuartile)
+          $.post(APP_BASE_URL + '/unclaim_meshblock/' + this._leaflet_id + '?campaign_id=' + selectedCampaignId)
+          
+          feature.properties.claim_status = 'unclaimed'
+          feature.properties.claim_owner_name = null
+          this.setStyle(getFeatureStyle(feature))
+          
           $('.unclaim').addClass('hidden')
           $('.download').addClass('hidden')
           $('.admin-unclaim').addClass('hidden')
@@ -218,7 +234,8 @@ function makeMap() {
           $.post(APP_BASE_URL + '/claims/' + leaflet_id + '/status', { campaign_id: selectedCampaignId, status: 'complete' }, function() {
             updateMap(true)
           })
-          this.setStyle(claimStyles.complete)
+          feature.properties.claim_status = 'complete'
+          this.setStyle(getFeatureStyle(feature))
           $('.mark-complete').addClass('hidden')
         }
 
@@ -360,6 +377,8 @@ function makeMap() {
     mesh_layer = addGeoJsonProperties(json)
     mesh_layer.addTo(map)
     $('#load').addClass('hidden')
+    var currentCount = parseInt($('body').attr('data-update-count') || '0');
+    $('body').attr('data-update-count', currentCount + 1);
   }
 
   var instruct = L.control()

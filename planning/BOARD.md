@@ -11,6 +11,8 @@
 
 # Bug Board
 
+| Bug ID | Title | Status |
+| :--- | :--- | :--- |
 | BUG-2604250715 | ISE when downloading PDF for a claim | FIXED |
 | BUG-2604250650 | /meshblocks_bounds returning 404 | FIXED |
 | BUG-2604250639 | List of CEDs is empty on /admin/campaigns | FIXED |
@@ -20,6 +22,9 @@
 | BUG-2604250642 | Bounds service returns CORS error due to 500 internal server error from missing elector columns | FIXED |
 | BUG-2604250658 | Elector name is unpopulated in canvassing PDF | FIXED |
 | BUG-2604250750 | Canvassing template missing elector gender in parentheses | FIXED |
+| BUG-2604251149 | Claimed area renders in 'complete' color (blue) instead of 'claimed' (red) | OPEN |
+| BUG-2604270844 | Unclaimed high-priority area shows as 'Lower Priority' color (cream) instead of 'Higher Priority' (green) | FIXED |
+| TASK-001 | Isolated test environment (run_tests.sh) | DONE |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |
@@ -28,6 +33,7 @@
 | BUG-2604221249 | Map stays centred on Australia after login instead of jumping to the user's postcode bounding box | FIXED |
 | BUG-2604221610 | Having registered and logged in, the map doesn't load bounds correctly due to missing or unspaced postcode | FIXED |
 | BUG-2604222058 | /meshblocks_bounds returns HTTP 500 due to missing LAMBDA_BASE_URL inside Docker container | FIXED |
+| BUG-2604222059 | Unclaim color and persistence issue | FIXED |
 | BUG-2604231009 | load_boundaries.sh fails with numeric field overflow during ogr2ogr | FIXED |
 | BUG-2604231049 | transform_addresses.rb fails with UTF-8 byte sequence error on CSV | FIXED |
 | BUG-2604231313 | rake db:migrate fails due to missing rspec/core/rake_task in frontend | FIXED |
