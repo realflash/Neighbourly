@@ -30,6 +30,7 @@
 | BUG-2604281321 | Alpha-numeric house numbers (e.g. 34A) are incorrectly processed as named houses | FIXED |
 | BUG-2604281344 | Many map areas have no color overlay (transparent fill) | FIXED |
 | BUG-2604281518 | Map popup UI incorrectly defaults to 'High' priority when not set | FIXED |
+| BUG-2604281712 | Selecting campaign dropdown in prod causes no map update or network activity | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |

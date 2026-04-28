@@ -63,7 +63,12 @@ function makeMap() {
       } else {
         localStorage.removeItem('selectedCampaignId');
       }
-      updateMap(true);
+      
+      if (selectedCampaignId && map.getZoom() <= 14) {
+        map.setZoom(15);
+      } else {
+        updateMap(true);
+      }
     });
   }).fail(function(jqXHR, textStatus, errorThrown) {
     console.error('CLIENT: Failed to load campaigns:', textStatus, errorThrown, jqXHR.status);
