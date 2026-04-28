@@ -152,7 +152,13 @@ function makeMap() {
       default: 
         if (priority === 'high') s = claimStyles.fourthQuartile;
         else if (priority === 'low') s = claimStyles.firstQuartile;
-        else s = priorityStyles(feature);
+        else {
+          if (feature.properties.avg_swing_propensity == null) {
+            s = claimStyles.fourthQuartile;
+          } else {
+            s = priorityStyles(feature);
+          }
+        }
       }
       
       window.meshblockColors = window.meshblockColors || {};

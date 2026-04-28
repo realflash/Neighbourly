@@ -76,4 +76,53 @@ test.describe('Mesh Block Rendering', () => {
       console.warn('No features returned for this area in UAT DB, skipping visual rendering check.');
     }
   });
+
+  test('TC-007: Unclaimed UK mesh blocks with null propensity default to High Priority green (BUG-2604281344)', async ({ page }) => {
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    
+    if (await page.url().includes('user_details')) {
+      await page.fill('input[name="user_details[first_name]"]', 'Admin');
+      await page.fill('input[name="user_details[last_name]"]', 'User');
+      await page.fill('input[name="user_details[phone]"]', '123456');
+      await page.fill('input[name="user_details[postcode]"]', 'GU18 5TS');
+      await page.click('input[value="Submit"]');
+    }
+    
+    await page.waitForURL(`http://localhost:${port}/map`);
+
+    await page.evaluate(() => {
+      window.leafletMap.setView([51.349, -0.676], 15);
+    });
+
+    const dropdown = page.locator('#campaign');
+    await expect(async () => {
+      const count = await dropdown.locator('option').count();
+      expect(count).toBeGreaterThan(1);
+    }).toPass();
+
+    const campaignToSelect = await dropdown.locator('option[value="14"], option[value="15"]').first().getAttribute('value').catch(() => null);
+    if (campaignToSelect) {
+      await dropdown.selectOption(campaignToSelect);
+    } else {
+      await dropdown.selectOption({ index: 1 });
+    }
+
+    await page.waitForResponse(
+      res => res.url().includes('/meshblocks_bounds') && res.status() === 200,
+      { timeout: 10000 }
+    );
+    
+    // Wait for meshblockColors to be populated and paths to render
+    await page.waitForSelector('.leaflet-map-pane svg path', { timeout: 10000 });
+    
+    // Check the meshblockColors object in the window to see what color was applied
+    // The test data in E00180605 is unclaimed and has no avg_swing_propensity
+    const color = await page.evaluate(() => window.meshblockColors['E00180605']);
+    
+    // It should be green (fourthQuartile) because it defaults to 'high'
+    // This will fail currently because it defaults to firstQuartile (#ffffcc)
+    expect(color).toBe('#238443');
+  });
 });

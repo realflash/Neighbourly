@@ -28,7 +28,10 @@ ON CONFLICT (pcode) DO NOTHING;
 INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom, mb_category, avg_swing_propensity, total_addresses_on_block)
 VALUES ('E00180604', 
         ST_GeomFromText('MULTIPOLYGON(((-0.72 51.33, -0.63 51.33, -0.63 51.37, -0.72 51.37, -0.72 51.33)))', 4326),
-        'RESIDENTIAL', 0.45, 10)
+        'RESIDENTIAL', 0.45, 10),
+       ('E00180605', 
+        ST_GeomFromText('MULTIPOLYGON(((-0.72 51.33, -0.63 51.33, -0.63 51.37, -0.72 51.37, -0.72 51.33)))', 4326),
+        'RESIDENTIAL', NULL, 10)
 ON CONFLICT (mb_11code) DO NOTHING;
 
 -- Create addresses table
@@ -64,9 +67,9 @@ INSERT INTO public.campaign_ceds (campaign_id, ced_id)
 VALUES (1, 1), (14, 1), (15, 1)
 ON CONFLICT DO NOTHING;
 
--- Link CED 1 to Meshblock 'E00180604'
+-- Link CED 1 to Meshblocks
 INSERT INTO public.ced_output_areas (ced_id, oa_code) 
-VALUES (1, 'E00180604')
+VALUES (1, 'E00180604'), (1, 'E00180605')
 ON CONFLICT DO NOTHING;
 
 -- Create an admin user

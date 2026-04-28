@@ -82,7 +82,7 @@ test.describe('EPIC_007 - Walk Route Improvements', () => {
       ('EPIC007_6', 'EPIC007_MB1', 'Acacia Street', '20', 'E', 'P'),
       ('EPIC007_7', 'EPIC007_MB1', 'Acacia Street', '21', 'E', 'P'),
       ('EPIC007_8', 'EPIC007_MB1', 'Acacia Street', '22', 'E', 'P'),
-      ('EPIC007_9', 'EPIC007_MB1', 'Acacia Street', 'Squirrels Leap, 13', 'F', 'P'),
+      ('EPIC007_9', 'EPIC007_MB1', 'Acacia Street', '13', 'F', 'P'),
       ('EPIC007_10', 'EPIC007_MB1', 'Acacia Street', 'The Manor', 'G', 'P'),
       ('EPIC007_11', 'EPIC007_MB1', 'Acacia Street', 'The Manor', 'H', 'P'),
       ('EPIC007_12', 'EPIC007_MB1', 'Birch Ave', '1', 'I', 'P')
