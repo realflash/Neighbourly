@@ -159,5 +159,35 @@ test.describe('EPIC_007 - Walk Route Improvements', () => {
     await client.query("DELETE FROM gnaf_201702.addresses WHERE mb_2011_code = 'EPIC007_MB2'");
     await client.query("DELETE FROM admin_bdys_201702.abs_2011_mb WHERE mb_11code = 'EPIC007_MB2'");
   });
+
+  test('TC-006: Alphanumeric house numbers are processed correctly (BUG-2604281321)', async ({ request }) => {
+    // This test verifies that "Brock House, 34A Macdonald Road" with empty number_first
+    // correctly extracts "34A" as a number and groups it under "Macdonald Road".
+    await client.query(`INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom) VALUES ('EPIC007_MB3', ST_GeomFromText('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))', 4326)) ON CONFLICT DO NOTHING`);
+    await client.query(`
+      INSERT INTO gnaf_201702.addresses (gnaf_pid, mb_2011_code, street_name, number_first, elector_name, alias_principal) VALUES 
+      ('UK_TEST_3', 'EPIC007_MB3', 'Brock House, 34A Macdonald Road', '', 'UK Tester', 'P')
+      ON CONFLICT DO NOTHING
+    `);
+
+    const port = 3001;
+    const response = await request.get(`http://localhost:${port}/ground-bounds/map?slug=EPIC007_MB3&campaign_type=leafleting`);
+    expect(response.status()).toBe(200);
+    
+    const body = await response.json();
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(body.base64, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
+    // The PDF should have "Macdonald Road" as the header and "34A" in the text, but NOT "Brock House" 
+    // because numbered houses should have their names stripped according to US-002.
+    expect(data.text).toContain('Macdonald Road');
+    expect(data.text).toContain('34A');
+    expect(data.text).not.toContain('Brock House');
+    
+    // Cleanup
+    await client.query("DELETE FROM gnaf_201702.addresses WHERE mb_2011_code = 'EPIC007_MB3'");
+    await client.query("DELETE FROM admin_bdys_201702.abs_2011_mb WHERE mb_11code = 'EPIC007_MB3'");
+  });
 });
 

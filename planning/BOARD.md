@@ -27,6 +27,7 @@
 | BUG-2604270844 | Unclaimed high-priority area shows as 'Lower Priority' color (cream) instead of 'Higher Priority' (green) | FIXED |
 | TASK-001 | Isolated test environment (run_tests.sh) | DONE |
 | BUG-2604281311 | Leafleting PDF does not render any addresses | FIXED |
+| BUG-2604281321 | Alpha-numeric house numbers (e.g. 34A) are incorrectly processed as named houses | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |

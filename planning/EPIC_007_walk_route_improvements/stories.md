@@ -25,6 +25,7 @@ As a user, I find some houses have both names and numbers, and the current list 
 
    - After being sorted by street, house names should be stripped from the address where a number follows it. For example, "Squirrels Leap, 13, Acacia Street" should be listed as "13, Acacia Street" in the walk list (but subject to coalescence of numbers as describe in US-003) *The database should not be updated. The sorting should happen at the point of generating the walk list pdf*.
    - For buildings which have a name and no number, the name should be listed as it is in the database. 
+   - For buildings which have a latter immediately after the number, such as "12a", they should be sorted as though they were a number. For example, "12a" should be sorted between "12" and "14", not as "12a". For odd/even splits, they should be grouped according to the number component.
   
 
 ## US-003: Address Coalescence (Number Ranges)

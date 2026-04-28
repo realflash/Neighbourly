@@ -8,27 +8,78 @@ function fontPath(file) {
     return path.resolve('roboto', file);
 }
 
-function parseAddress(adr) {
-    var rawNum = adr.street_number || '';
-    var match = rawNum.match(/(\d+)([a-zA-Z]*)/);
-    if (match) {
-        return {
-            isNumbered: true,
-            num: parseInt(match[1], 10),
-            suffix: match[2] || '',
-            display: match[1] + (match[2] || ''),
-            original: adr
-        };
+function extractAddressParts(originalStreet, originalNumber) {
+    var numberStr = (originalNumber || '').toString().trim();
+    var streetStr = (originalStreet || '').trim();
+    var nameStr = '';
+
+    if (!numberStr) {
+        var parts = streetStr.split(',').map(function(s) { return s.trim(); });
+        if (parts.length > 1) {
+            var lastPart = parts.pop();
+            var match = lastPart.match(/^(\d+[a-zA-Z]*)\s+(.*)$/);
+            if (match) {
+                numberStr = match[1];
+                streetStr = match[2];
+                nameStr = parts.join(', ');
+            } else {
+                streetStr = lastPart;
+                nameStr = parts.join(', ');
+            }
+        } else {
+            var match = streetStr.match(/^(\d+[a-zA-Z]*)\s+(.*)$/);
+            if (match) {
+                numberStr = match[1];
+                streetStr = match[2];
+            }
+        }
+    } else {
+        var parts = streetStr.split(',').map(function(s) { return s.trim(); });
+        if (parts.length > 1) {
+            streetStr = parts.pop();
+            nameStr = parts.join(', ');
+        }
     }
+
+    var isNumbered = false;
+    var num = 0;
+    var suffix = '';
+    if (numberStr) {
+        var nMatch = numberStr.match(/^(\d+)([a-zA-Z]*)$/);
+        if (nMatch) {
+            isNumbered = true;
+            num = parseInt(nMatch[1], 10);
+            suffix = nMatch[2] || '';
+        } else {
+            nameStr = nameStr ? nameStr + ', ' + numberStr : numberStr;
+            numberStr = '';
+        }
+    }
+
     return {
-        isNumbered: false,
-        name: rawNum,
-        original: adr
+        isNumbered: isNumbered,
+        num: num,
+        suffix: suffix,
+        display: numberStr,
+        name: nameStr,
+        street: streetStr
     };
 }
 
 function processAddresses(addresses, splitOddEven) {
-    var groups = _.groupBy(addresses, 'street');
+    var parsedAddresses = [];
+    _.forEach(addresses, function(adr) {
+        var parsed = extractAddressParts(adr.street, adr.street_number);
+        adr.street = parsed.street;
+        adr.street_number = parsed.display;
+        if (!parsed.isNumbered && parsed.name) {
+            adr.street_number = parsed.name;
+        }
+        parsed.original = adr;
+        parsedAddresses.push(parsed);
+    });
+
+    var groups = _.groupBy(parsedAddresses, 'street');
     var streetNames = Object.keys(groups).sort();
     var processed = [];
 
@@ -37,23 +88,21 @@ function processAddresses(addresses, splitOddEven) {
         var numbered = [];
         var named = [];
         
-        // Deduplicate electors if we just want properties (optional at this stage, but we'll just parse first)
         var seenGnaf = {};
         var uniqueAdrs = [];
-        _.forEach(streetAdrs, function(adr) {
+        _.forEach(streetAdrs, function(parsed) {
+            var adr = parsed.original;
             if (adr.gnaf_pid && seenGnaf[adr.gnaf_pid]) {
-                uniqueAdrs.push(adr); // Keep them for canvassing
+                uniqueAdrs.push(adr);
             } else {
                 seenGnaf[adr.gnaf_pid] = true;
                 uniqueAdrs.push(adr);
             }
         });
 
-        // For leafleting, we want unique properties.
-        var leafletingProps = _.uniqBy(uniqueAdrs, 'gnaf_pid');
+        var leafletingProps = _.uniqBy(streetAdrs, function(p) { return p.original.gnaf_pid; });
         
-        _.forEach(leafletingProps, function(adr) {
-            var parsed = parseAddress(adr);
+        _.forEach(leafletingProps, function(parsed) {
             if (parsed.isNumbered) {
                 numbered.push(parsed);
             } else {
@@ -74,7 +123,7 @@ function processAddresses(addresses, splitOddEven) {
             street: street,
             numbered: numbered,
             named: named,
-            allCanvassing: uniqueAdrs // raw ordered? we need to order them too.
+            allCanvassing: uniqueAdrs
         });
     });
 
