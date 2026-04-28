@@ -314,12 +314,13 @@ function makeMap() {
           }
 
           var priorityContainer = L.DomUtil.create('div', 'popuptxt normal-size', container)
-          var currentPriority = feature.properties.claim_priority || 'high';
+          var currentPriority = feature.properties.claim_priority;
           var priorityHtml = 'Priority: ' + (admin ? 
               ('<select class="form-control priority-select half-width" data-slug="' + feature.properties.slug + '">' + 
+               '<option value="" ' + (!currentPriority ? 'selected' : '') + '>Not set</option>' +
                '<option value="high" ' + (currentPriority === 'high' ? 'selected' : '') + '>High</option>' +
                '<option value="low" ' + (currentPriority === 'low' ? 'selected' : '') + '>Low</option>' +
-               '</select>') : (currentPriority === 'low' ? 'Low' : 'High'));
+               '</select>') : (currentPriority === 'low' ? 'Low' : (currentPriority === 'high' ? 'High' : 'Not set')));
           priorityContainer.innerHTML = priorityHtml;
 
           if (admin) {

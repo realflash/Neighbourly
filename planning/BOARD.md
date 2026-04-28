@@ -29,6 +29,7 @@
 | BUG-2604281311 | Leafleting PDF does not render any addresses | FIXED |
 | BUG-2604281321 | Alpha-numeric house numbers (e.g. 34A) are incorrectly processed as named houses | FIXED |
 | BUG-2604281344 | Many map areas have no color overlay (transparent fill) | FIXED |
+| BUG-2604281518 | Map popup UI incorrectly defaults to 'High' priority when not set | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |

@@ -125,4 +125,78 @@ test.describe('Mesh Block Rendering', () => {
     // This will fail currently because it defaults to firstQuartile (#ffffcc)
     expect(color).toBe('#238443');
   });
+
+  test('TC-008: Map popup shows Not set for areas with no priority (BUG-2604281518)', async ({ page }) => {
+    await page.goto(`http://localhost:${port}/`);
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.click('input[value="Log In"]');
+    
+    if (await page.url().includes('user_details')) {
+      await page.fill('input[name="user_details[first_name]"]', 'Admin');
+      await page.fill('input[name="user_details[last_name]"]', 'User');
+      await page.fill('input[name="user_details[phone]"]', '123456');
+      await page.fill('input[name="user_details[postcode]"]', 'GU18 5TS');
+      await page.click('input[value="Submit"]');
+    }
+    
+    await page.waitForURL(`http://localhost:${port}/map`);
+
+    await page.evaluate(() => {
+      window.leafletMap.setView([51.349, -0.676], 15);
+    });
+
+    const dropdown = page.locator('#campaign');
+    await expect(async () => {
+      const count = await dropdown.locator('option').count();
+      expect(count).toBeGreaterThan(1);
+    }).toPass();
+
+    const campaignToSelect = await dropdown.locator('option[value="14"], option[value="15"]').first().getAttribute('value').catch(() => null);
+    if (campaignToSelect) {
+      await dropdown.selectOption(campaignToSelect);
+    } else {
+      await dropdown.selectOption({ index: 1 });
+    }
+
+    await page.waitForResponse(
+      res => res.url().includes('/meshblocks_bounds') && res.status() === 200,
+      { timeout: 10000 }
+    );
+    
+    await page.waitForSelector('.leaflet-map-pane svg path', { timeout: 10000 });
+    
+    // Wait for the background AJAX requests to finish
+    await Promise.all([
+      page.waitForResponse(res => res.url().includes('/claims') && res.status() === 200, { timeout: 10000 }).catch(() => {}),
+      page.waitForResponse(res => res.url().includes('/users') && res.status() === 200, { timeout: 10000 }).catch(() => {})
+    ]);
+
+    // Give Leaflet a moment to finish its internal state update
+    await page.waitForTimeout(1000);
+
+    // Pan to and open popup programmatically
+    await page.evaluate(() => {
+      let center = null;
+      window.leafletMap.eachLayer(l => {
+        if (l.feature && l.feature.properties.slug === 'E00180605') {
+          center = l.getBounds().getCenter();
+          l.openPopup();
+        }
+      });
+      if (center) window.leafletMap.panTo(center);
+    });
+
+    // Wait for the popup to appear
+    await page.waitForSelector('.leaflet-popup-content', { timeout: 10000 });
+    
+    // Check the selected value of the priority dropdown
+    const selectedPriority = await page.evaluate(() => {
+      const select = document.querySelector('.leaflet-popup-content .priority-select');
+      return select ? select.value : null;
+    });
+
+    // We expect it to be empty string ("") which corresponds to "Not set"
+    // Currently this will fail as it returns "high"
+    expect(selectedPriority).toBe("");
+  });
 });
