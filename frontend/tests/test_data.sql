@@ -32,7 +32,8 @@ VALUES ('E00180604',
 ON CONFLICT (mb_11code) DO NOTHING;
 
 -- Create addresses table
-CREATE TABLE IF NOT EXISTS public.addresses (
+CREATE SCHEMA IF NOT EXISTS gnaf_201702;
+CREATE TABLE IF NOT EXISTS gnaf_201702.addresses (
     gnaf_pid VARCHAR(20) PRIMARY KEY,
     mb_2011_code VARCHAR(20),
     locality_name VARCHAR(100),
@@ -46,7 +47,7 @@ CREATE TABLE IF NOT EXISTS public.addresses (
 );
 
 -- Insert mock addresses
-INSERT INTO public.addresses (gnaf_pid, mb_2011_code, locality_name, postcode, street_name, number_first, elector_name, gender, age, alias_principal)
+INSERT INTO gnaf_201702.addresses (gnaf_pid, mb_2011_code, locality_name, postcode, street_name, number_first, elector_name, gender, age, alias_principal)
 VALUES ('G1', 'E00180604', 'Test Locality', 'GU24 9AA', 'Test Street', '1', 'John Doe', 'M', 30, 'P'),
        ('G2', 'E00180604', 'Test Locality', 'GU24 9AA', 'Test Street', '2', 'Jane Smith', 'F', 84, 'P')
 ON CONFLICT (gnaf_pid) DO NOTHING;

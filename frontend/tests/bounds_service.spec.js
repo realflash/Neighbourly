@@ -55,10 +55,25 @@ test.describe('EPIC_007 - Walk Route Improvements', () => {
   test.beforeAll(async () => {
     client = new Client({ connectionString: process.env.TEST_DB_URL || 'postgresql://postgres:password@127.0.0.1:5435/postgres' });
     await client.connect();
+    await client.query("CREATE SCHEMA IF NOT EXISTS gnaf_201702");
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS gnaf_201702.addresses (
+          gnaf_pid VARCHAR(20) PRIMARY KEY,
+          mb_2011_code VARCHAR(20),
+          locality_name VARCHAR(100),
+          postcode VARCHAR(10),
+          street_name VARCHAR(100),
+          number_first VARCHAR(20),
+          elector_name VARCHAR(255),
+          gender VARCHAR(10),
+          age INTEGER,
+          alias_principal VARCHAR(1)
+      )
+    `);
     // seed mb_2011_code 'EPIC007_MB1' with some addresses
     await client.query(`INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom) VALUES ('EPIC007_MB1', ST_GeomFromText('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))', 4326)) ON CONFLICT DO NOTHING`);
     await client.query(`
-      INSERT INTO public.addresses (gnaf_pid, mb_2011_code, street_name, number_first, elector_name, alias_principal) VALUES 
+      INSERT INTO gnaf_201702.addresses (gnaf_pid, mb_2011_code, street_name, number_first, elector_name, alias_principal) VALUES 
       ('EPIC007_1', 'EPIC007_MB1', 'Acacia Street', '1', 'A', 'P'),
       ('EPIC007_2', 'EPIC007_MB1', 'Acacia Street', '10', 'B', 'P'),
       ('EPIC007_3', 'EPIC007_MB1', 'Acacia Street', '2', 'C', 'P'),
@@ -76,7 +91,7 @@ test.describe('EPIC_007 - Walk Route Improvements', () => {
   });
 
   test.afterAll(async () => {
-    await client.query("DELETE FROM public.addresses WHERE mb_2011_code = 'EPIC007_MB1'");
+    await client.query("DELETE FROM gnaf_201702.addresses WHERE mb_2011_code = 'EPIC007_MB1'");
     await client.query("DELETE FROM admin_bdys_201702.abs_2011_mb WHERE mb_11code = 'EPIC007_MB1'");
     await client.end();
   });
@@ -116,6 +131,33 @@ test.describe('EPIC_007 - Walk Route Improvements', () => {
     const data = await pdfParse(pdfBuffer);
     
     expect(data.text).toContain('(same property)');
+  });
+
+  test('TC-005: UK Schema Address Fetching', async ({ request }) => {
+    // This test verifies that the bounds service correctly queries the gnaf_201702.addresses table
+    // which is the actual schema used in the UK environment, rather than public.addresses.
+    await client.query(`INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom) VALUES ('EPIC007_MB2', ST_GeomFromText('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))', 4326)) ON CONFLICT DO NOTHING`);
+    await client.query(`
+      INSERT INTO gnaf_201702.addresses (gnaf_pid, mb_2011_code, street_name, number_first, elector_name, alias_principal) VALUES 
+      ('UK_TEST_1', 'EPIC007_MB2', 'UK Test Street', '1', 'UK Tester', 'P')
+      ON CONFLICT DO NOTHING
+    `);
+
+    const port = 3001;
+    const response = await request.get(`http://localhost:${port}/ground-bounds/map?slug=EPIC007_MB2&campaign_type=leafleting`);
+    expect(response.status()).toBe(200);
+    
+    const body = await response.json();
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(body.base64, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
+    // The PDF should contain the street name if the addresses were successfully fetched from gnaf_201702 schema
+    expect(data.text).toContain('UK Test Street');
+    
+    // Cleanup
+    await client.query("DELETE FROM gnaf_201702.addresses WHERE mb_2011_code = 'EPIC007_MB2'");
+    await client.query("DELETE FROM admin_bdys_201702.abs_2011_mb WHERE mb_11code = 'EPIC007_MB2'");
   });
 });
 

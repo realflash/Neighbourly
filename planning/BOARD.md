@@ -26,6 +26,7 @@
 | BUG-2604251149 | Claimed area renders in 'complete' color (blue) instead of 'claimed' (red) | OPEN |
 | BUG-2604270844 | Unclaimed high-priority area shows as 'Lower Priority' color (cream) instead of 'Higher Priority' (green) | FIXED |
 | TASK-001 | Isolated test environment (run_tests.sh) | DONE |
+| BUG-2604281311 | Leafleting PDF does not render any addresses | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |
