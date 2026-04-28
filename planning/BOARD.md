@@ -8,6 +8,7 @@
 | EPIC-004 | Multi-Campaign Capabilities | IMPLEMENTED |
 | EPIC-005 | Claim Properties | IMPLEMENTED |
 | EPIC-006 | Campaign Type | IMPLEMENTED |
+| EPIC-007 | Walk Route Improvements | IMPLEMENTED |
 
 # Bug Board
 

@@ -142,7 +142,7 @@ module.exports.generateMap = (event, context, callback) => {
         results.addresses = [];
       }
 
-      var pdf = require('./build-pdf').create(results.image,results.addresses,event.queryStringParameters.slug, event.queryStringParameters.campaign_type),
+      var pdf = require('./build-pdf').create(results.image, results.addresses, event.queryStringParameters.slug, event.queryStringParameters.campaign_type, event.queryStringParameters.campaign_name, event.queryStringParameters.assignee_name),
       stream = pdf.pipe(b64Stream.encode()),
       // Uncomment to preview the pdf locally
       //  stream = pdf.pipe(require('fs').createWriteStream('output.pdf')),

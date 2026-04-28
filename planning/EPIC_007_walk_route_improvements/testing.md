@@ -4,7 +4,7 @@ To ensure 100% functional requirement coverage, the following automated E2E test
 
 ## TC-001: Address Pre-processing & Coalescence (US-001, US-002, US-003)
 - **Setup:** Seed the test database with a single street containing:
-  - Scattered numbers (`1, 10, 2, 3, 5`)
+  - Scattered numbers (`1, 10, 2, 3, 5, 20, 21, 22`)
   - A numbered house with a name (`"Squirrels Leap, 13"`)
   - Named houses without numbers.
 - **Action:** Request the Leafleting PDF.

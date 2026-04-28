@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { Client } = require('pg');
 
 test('Bounds service should not crash and return 500 when database connection fails', async ({ request }) => {
   const port = 3001;
@@ -47,3 +48,74 @@ test('Bounds service should successfully generate a PDF map without addresses', 
   // The service must return 200 OK
   expect(response.status()).toBe(200);
 });
+
+test.describe('EPIC_007 - Walk Route Improvements', () => {
+  let client;
+  
+  test.beforeAll(async () => {
+    client = new Client({ connectionString: process.env.TEST_DB_URL || 'postgresql://postgres:password@127.0.0.1:5435/postgres' });
+    await client.connect();
+    // seed mb_2011_code 'EPIC007_MB1' with some addresses
+    await client.query(`INSERT INTO admin_bdys_201702.abs_2011_mb (mb_11code, geom) VALUES ('EPIC007_MB1', ST_GeomFromText('POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))', 4326)) ON CONFLICT DO NOTHING`);
+    await client.query(`
+      INSERT INTO public.addresses (gnaf_pid, mb_2011_code, street_name, number_first, elector_name, alias_principal) VALUES 
+      ('EPIC007_1', 'EPIC007_MB1', 'Acacia Street', '1', 'A', 'P'),
+      ('EPIC007_2', 'EPIC007_MB1', 'Acacia Street', '10', 'B', 'P'),
+      ('EPIC007_3', 'EPIC007_MB1', 'Acacia Street', '2', 'C', 'P'),
+      ('EPIC007_4', 'EPIC007_MB1', 'Acacia Street', '3', 'D', 'P'),
+      ('EPIC007_5', 'EPIC007_MB1', 'Acacia Street', '5', 'E', 'P'),
+      ('EPIC007_6', 'EPIC007_MB1', 'Acacia Street', '20', 'E', 'P'),
+      ('EPIC007_7', 'EPIC007_MB1', 'Acacia Street', '21', 'E', 'P'),
+      ('EPIC007_8', 'EPIC007_MB1', 'Acacia Street', '22', 'E', 'P'),
+      ('EPIC007_9', 'EPIC007_MB1', 'Acacia Street', 'Squirrels Leap, 13', 'F', 'P'),
+      ('EPIC007_10', 'EPIC007_MB1', 'Acacia Street', 'The Manor', 'G', 'P'),
+      ('EPIC007_11', 'EPIC007_MB1', 'Acacia Street', 'The Manor', 'H', 'P'),
+      ('EPIC007_12', 'EPIC007_MB1', 'Birch Ave', '1', 'I', 'P')
+      ON CONFLICT DO NOTHING
+    `);
+  });
+
+  test.afterAll(async () => {
+    await client.query("DELETE FROM public.addresses WHERE mb_2011_code = 'EPIC007_MB1'");
+    await client.query("DELETE FROM admin_bdys_201702.abs_2011_mb WHERE mb_11code = 'EPIC007_MB1'");
+    await client.end();
+  });
+
+  test('TC-001 & TC-003: Address Pre-processing & Leafleting Layout', async ({ request }) => {
+    const port = 3001;
+    const response = await request.get(`http://localhost:${port}/ground-bounds/map?slug=EPIC007_MB1&campaign_type=leafleting&campaign_name=TestCamp&assignee_name=TestUser`);
+    expect(response.status()).toBe(200);
+    
+    const body = await response.json();
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(body.base64, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
+    // Check Header existence
+    expect(data.text).toContain('TestCamp - TestUser');
+    expect(data.text).toContain('Area Code: EPIC007_MB1');
+    expect(data.text).toContain('Covering Acacia Street, and Birch Ave.');
+
+    // Check coalescence (SPLIT_ODD_EVEN is false by default in this test run context, so it groups adjacents)
+    // 1, 2, 3 coalesce to 1-3. 20, 21, 22 coalesce to 20-22
+    // 5, 10, 13 do not coalesce with anything.
+    expect(data.text).toContain('1-3, 5, 10, 13, 20-22');
+    
+    // Check named house sorting & placement
+    expect(data.text).toContain('The Manor');
+  });
+
+  test('TC-004: Canvassing Deduplication', async ({ request }) => {
+    const port = 3001;
+    const response = await request.get(`http://localhost:${port}/ground-bounds/map?slug=EPIC007_MB1&campaign_type=canvassing`);
+    expect(response.status()).toBe(200);
+    
+    const body = await response.json();
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(body.base64, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
+    expect(data.text).toContain('(same property)');
+  });
+});
+
