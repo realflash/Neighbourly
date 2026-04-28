@@ -60,7 +60,7 @@ As a user, I want the walk list to be laid out in a way that is easy to read and
 
  - The output templates for all campaign types should group all the properties for a given street together in one table, headed by the street name. For example:
  - For the leaflet campaign template, the layout should be in two columns. The left half of the page should be for houses with numbers, and the right half should be for houses with names. This allows the user to keep an eye out for the listed named houses whilst they are following the number sequence. 
- - The right half of the page should be grouped by street, and match with the streets on the left half of the page. For example, if the numbered houses on the left occupy two rows, but the named houses on the right occupy three, the left hnad column would be empty for the last row. A new table would then start for the next street.
+ - The right half of the page should be grouped by street, and match with the streets on the left half of the page. For example, if the numbered houses on the left occupy two rows, but the named houses on the right occupy three, the left hand column would be empty for the last row. A new table would then start for the next street.
 |
   **<Street name>** 
 
