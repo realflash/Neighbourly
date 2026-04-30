@@ -189,5 +189,21 @@ test.describe('EPIC_007 - Walk Route Improvements', () => {
     await client.query("DELETE FROM gnaf_201702.addresses WHERE mb_2011_code = 'EPIC007_MB3'");
     await client.query("DELETE FROM admin_bdys_201702.abs_2011_mb WHERE mb_11code = 'EPIC007_MB3'");
   });
-});
 
+  test('TC-007: PDF generation includes dynamic Campaign Name and Assignee Name', async ({ request }) => {
+    const port = 3001;
+    const response = await request.get(`http://localhost:${port}/ground-bounds/map?slug=E00180604&campaign_id=1&campaign_type=leafleting&campaign_name=MyTestCampaign&assignee_name=JohnDoe`);
+    
+    expect(response.status()).toBe(200);
+    
+    const body = await response.json();
+    const pdfParse = require('pdf-parse');
+    const pdfBuffer = Buffer.from(body.base64, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
+    // Verify the explicit names are present
+    expect(data.text).toContain('MyTestCampaign - JohnDoe');
+    // Verify the fallback placeholders are not used
+    expect(data.text).not.toContain('Campaign - Assignee');
+  });
+});

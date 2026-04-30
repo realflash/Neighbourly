@@ -202,9 +202,10 @@ module.exports = {
             streetSummary = "Covering " + streetList[0] + ".";
         }
 
-        docContent.push({ text: (campaignName || 'Campaign') + ' - ' + (assigneeName || 'Assignee'), style: 'pageHeader' });
-        docContent.push({ text: 'Area Code: ' + slug, margin: [0, 0, 0, 5], bold: true });
-        docContent.push({ text: streetSummary, margin: [0, 0, 0, 15] });
+        var docHeader = [];
+        docHeader.push({ text: (campaignName || 'Campaign') + ' - ' + (assigneeName || 'Assignee'), style: 'pageHeader' });
+        docHeader.push({ text: 'Area Code: ' + slug, margin: [0, 0, 0, 5], bold: true });
+        docHeader.push({ text: streetSummary, margin: [0, 0, 0, 15] });
 
         if (campaignType === 'leafleting') {
             _.forEach(processed, function(group) {
@@ -306,13 +307,13 @@ module.exports = {
             // [left, top, right, bottom] or [horizontal, vertical] or just a number for equal margins
             pageMargins: [ 30, 75, 30, 30 ],
             watermark: {text: slug, color: '#000000', opacity: 0.1, bold: true, italics: false},
-            content: [
+            content: docHeader.concat([
                 {
                     image: image,
                     fit: [595, 250],
                     margin: [0, 0, 0, 15]
                 }
-            ].concat(docContent),
+            ]).concat(docContent),
             styles: {
                 streetLocalityHR1: {
                     fontSize: 10,

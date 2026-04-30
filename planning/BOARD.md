@@ -31,6 +31,7 @@
 | BUG-2604281344 | Many map areas have no color overlay (transparent fill) | FIXED |
 | BUG-2604281518 | Map popup UI incorrectly defaults to 'High' priority when not set | FIXED |
 | BUG-2604281712 | Selecting campaign dropdown in prod causes no map update or network activity | FIXED |
+| BUG-2604300844 | Walk route PDF header information is below the map and contains hardcoded placeholder text | FIXED |
 
 | Bug ID | Title | Status |
 | :--- | :--- | :--- |

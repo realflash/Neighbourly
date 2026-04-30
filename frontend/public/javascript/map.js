@@ -183,11 +183,15 @@ function makeMap() {
           function downloadmesh(mesh_id) {
             var selectedOption = $('#campaign option:selected');
             var campaignType = selectedOption.attr('data-type') || 'leafleting';
+            var campaignName = selectedOption.text() || 'Campaign';
+            var assigneeName = $('#map').data('user-name') || 'Assignee';
             var options = {
               slug: mesh_id,
               campaign: $('#campaign').val(),
               template: $('#template').val(),
-              campaign_type: campaignType
+              campaign_type: campaignType,
+              campaign_name: campaignName,
+              assignee_name: assigneeName
             }
             var url = LAMBDA_BASE_URL + '/map'
             $.get(url, options, function (base64str) {
