@@ -79,9 +79,9 @@ There are distinct columns of content in separate tables, not distinct columns w
  - Table rows do not break across pages. Each row from the street list should be on the same page as the corresponding named houses for that street. 
  - Where tables break across pages, the street name header should be repeated for the second part of the table.
  - At the top of the first page there should be the following information:
-  - Campaign name
-  - Assignee name
-  - Area code
+  - <Campaign name>
+  - <Assignee name>
+  - <Area code>
   - Sentence listing the streets in the walk list, such as "Covering Acacia Street, Birch Avenue, and Chestnut Drive." This sentence should be on one line. Buildings with no sreet name are not included in this list. 
 
 ## US-005: Walk list layout (canvassing campaign)
